@@ -104,7 +104,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <LanguageStandard>stdcpp17</LanguageStandard>
+      <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -133,13 +133,26 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Delegates.h" />
     <ClInclude Include="DirectXCourseProject.h" />
+    <ClInclude Include="Display.h" />
+    <ClInclude Include="Exports.h" />
     <ClInclude Include="framework.h" />
+    <ClInclude Include="Game.h" />
+    <ClInclude Include="InputDevice.h" />
+    <ClInclude Include="Keys.h" />
+    <ClInclude Include="pch.h" />
     <ClInclude Include="Resource.h" />
+    <ClInclude Include="SimpleMath.h" />
     <ClInclude Include="targetver.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Delegates.cpp" />
     <ClCompile Include="DirectXCourseProject.cpp" />
+    <ClCompile Include="Display.cpp" />
+    <ClCompile Include="Game.cpp" />
+    <ClCompile Include="InputDevice.cpp" />
+    <ClCompile Include="SimpleMath.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="DirectXCourseProject.rc" />
@@ -147,6 +160,9 @@
   <ItemGroup>
     <Image Include="DirectXCourseProject.ico" />
     <Image Include="small.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="SimpleMath.inl" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
