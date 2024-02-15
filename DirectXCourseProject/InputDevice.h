@@ -33,11 +33,12 @@ public:
 
 	MulticastDelegate<const MouseMoveEventArgs&> MouseMove;
 	
-public:
 	
+public:
+	MulticastDelegate<const ScreenSize&> ChangeScreenSize;
 	InputDevice(Game* inGame);
 	~InputDevice();
-
+	ScreenSize ScreenParam;
 
 	void AddPressedKey(Keys key);
 	void RemovePressedKey(Keys key);
@@ -115,7 +116,14 @@ protected:
 
 	void OnKeyDown(KeyboardInputEventArgs args);
 	void OnMouseMove(RawMouseEventArgs args);
+	void OnChangeScreenSize(int width, int height);
 };
+
+struct ScreenSize {
+	int Width;
+	int Height;
+};
+
 
 /*
 		case WM_INPUT:

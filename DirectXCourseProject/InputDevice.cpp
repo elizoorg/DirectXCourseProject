@@ -53,6 +53,7 @@ void InputDevice::OnKeyDown(KeyboardInputEventArgs args)
 
 void InputDevice::OnMouseMove(RawMouseEventArgs args)
 {
+
 	if(args.ButtonFlags & static_cast<int>(MouseButtonFlags::LeftButtonDown))
 		AddPressedKey(Keys::LeftButton);
 	if (args.ButtonFlags & static_cast<int>(MouseButtonFlags::LeftButtonUp))
@@ -85,6 +86,13 @@ void InputDevice::OnMouseMove(RawMouseEventArgs args)
 	
 	MouseMove.Broadcast(moveArgs);
 }
+
+void InputDevice::OnChangeScreenSize(int width, int height) {
+	ScreenParam.Width = width;
+	ScreenParam.Height = height;
+	ChangeScreenSize.Broadcast(ScreenParam);
+};
+
 
 void InputDevice::AddPressedKey(Keys key)
 {

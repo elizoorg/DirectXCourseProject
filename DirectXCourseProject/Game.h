@@ -6,6 +6,6 @@ class Game
 public:
 	Game();
 	~Game();
-	Display *Display;
+	Display Display;
 };
 
