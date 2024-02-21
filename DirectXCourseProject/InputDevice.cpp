@@ -1,33 +1,17 @@
-#include "pch.h"
 #include "InputDevice.h"
-#include <iostream>
-#include "Game.h"
-
 
 using namespace DirectX::SimpleMath;
 
+InputDevice& InputDevice::Instance()
+{
+	static InputDevice i{};
+	return i;
+}
 
-InputDevice::InputDevice(Game* inGame) : game(inGame)
+
+InputDevice::InputDevice()
 {
 	keys = new std::unordered_set<Keys>();
-	
-	RAWINPUTDEVICE Rid[2];
-
-	Rid[0].usUsagePage = 0x01;
-	Rid[0].usUsage = 0x02;
-	Rid[0].dwFlags = 0;   // adds HID mouse and also ignores legacy mouse messages
-	Rid[0].hwndTarget = game->Display->hWnd;
-
-	Rid[1].usUsagePage = 0x01;
-	Rid[1].usUsage = 0x06;
-	Rid[1].dwFlags = 0;   // adds HID keyboard and also ignores legacy keyboard messages
-	Rid[1].hwndTarget = game->Display->hWnd;
-
-	if (RegisterRawInputDevices(Rid, 2, sizeof(Rid[0])) == FALSE)
-	{
-		auto errorCode = GetLastError();
-		std::cout << "ERROR: " << errorCode << std::endl;
-	}
 }
 
 InputDevice::~InputDevice()
@@ -51,10 +35,22 @@ void InputDevice::OnKeyDown(KeyboardInputEventArgs args)
 	}
 }
 
-void InputDevice::OnMouseMove(RawMouseEventArgs args)
+void InputDevice::OnMouseMove(int x, int y)
 {
+	MouseOffset = Vector2(x, y) - MousePosition;
+	MousePosition = Vector2(x, y);
+}
 
-	if(args.ButtonFlags & static_cast<int>(MouseButtonFlags::LeftButtonDown))
+
+void InputDevice::OnMouseWheel(float mouseWheel)
+{
+}
+
+
+
+void InputDevice::OnMouseKey(int keyCode, bool isDown)
+{
+	/*if (args.ButtonFlags & static_cast<int>(MouseButtonFlags::LeftButtonDown))
 		AddPressedKey(Keys::LeftButton);
 	if (args.ButtonFlags & static_cast<int>(MouseButtonFlags::LeftButtonUp))
 		RemovePressedKey(Keys::LeftButton);
@@ -65,14 +61,16 @@ void InputDevice::OnMouseMove(RawMouseEventArgs args)
 	if (args.ButtonFlags & static_cast<int>(MouseButtonFlags::MiddleButtonDown))
 		AddPressedKey(Keys::MiddleButton);
 	if (args.ButtonFlags & static_cast<int>(MouseButtonFlags::MiddleButtonUp))
-		RemovePressedKey(Keys::MiddleButton);
+		RemovePressedKey(Keys::MiddleButton);*/
+}
 
-	POINT p;
-	GetCursorPos(&p);
-	ScreenToClient(game->Display->hWnd, &p);
+void InputDevice::OnMouseMove(RawMouseEventArgs args)
+{
+
 	
-	MousePosition	= Vector2(p.x, p.y);
-	MouseOffset		= Vector2(args.X, args.Y);
+
+
+	
 	MouseWheelDelta = args.WheelDelta;
 
 	const MouseMoveEventArgs moveArgs = {MousePosition, MouseOffset, MouseWheelDelta};
@@ -83,14 +81,11 @@ void InputDevice::OnMouseMove(RawMouseEventArgs args)
 	//	MouseOffset.x,
 	//	MouseOffset.y,
 	//	MouseWheelDelta);
-	
-	MouseMove.Broadcast(moveArgs);
 }
 
 void InputDevice::OnChangeScreenSize(int width, int height) {
 	ScreenParam.Width = width;
 	ScreenParam.Height = height;
-	ChangeScreenSize.Broadcast(ScreenParam);
 };
 
 

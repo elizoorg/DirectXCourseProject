@@ -1,21 +1,34 @@
 #pragma once
-#include "windows.h"
+#include "Exports.h"
 #include "InputDevice.h"
+#include "Delegates.h"
 #include <iostream>
-class Display
+
+class WinApi_Display
 {
 public:
-	Display();
-	~Display();
-	HWND hWnd;
-	bool CreateDisplay(InputDevice* iDev);
-	void ShowClientWindow(InputDevice* iDev);
-	void OnChangeScreenSize(const ScreenSize& args);
+	WinApi_Display();
+	~WinApi_Display();
+	
+	bool CreateDisplay();
+	void ShowClientWindow();
+	void OnChangeScreenSize();
+	bool PollMessages();
+	void SetRawInputDevice();
+	int getWidth() { return screenWidth; }
+	int getHeight() { return screenHeight; }
+	HWND getHWND() { return hWnd; }
 
 	int screenWidth = 800;
 	int screenHeight = 800;
 
+	DECLARE_MULTICAST_DELEGATE(OnFocusChangedDelegate, bool);
+	OnFocusChangedDelegate OnFocusChanged;
 
+	DECLARE_MULTICAST_DELEGATE(OnMouseMoveDelegate, int, int);
+	OnMouseMoveDelegate OnMouseMove;
+private:
+	HWND hWnd;
 	LPCWSTR applicationName;
 	WNDCLASSEX wc;
 	HINSTANCE hInstance;

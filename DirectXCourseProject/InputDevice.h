@@ -1,23 +1,18 @@
 #pragma once
-
-#include <unordered_set>
-#include "Keys.h"
-#include "SimpleMath.h"
-#include "Game.h"
-#include "Delegates.h"
 #include "Exports.h"
+#include "SimpleMath.h"
+#include "Keys.h"
+struct ScreenSize {
+	int Width;
+	int Height;
+};
 
 
-class Game;
-
-class GAMEFRAMEWORK_API InputDevice
+class ENGINE_API InputDevice
 {
-	friend class Game;
-	
-	Game* game;
-
+	struct KeyboardInputEventArgs;
+	struct RawMouseEventArgs;
 	std::unordered_set<Keys>* keys;
-
 public:
 	
 	struct MouseMoveEventArgs
@@ -31,19 +26,25 @@ public:
 	DirectX::SimpleMath::Vector2 MouseOffset;
 	int MouseWheelDelta;
 
-	MulticastDelegate<const MouseMoveEventArgs&> MouseMove;
+
 	
 	
 public:
-	MulticastDelegate<const ScreenSize&> ChangeScreenSize;
-	InputDevice(Game* inGame);
+	static InputDevice& Instance();
+	InputDevice();
 	~InputDevice();
 	ScreenSize ScreenParam;
 
 	void AddPressedKey(Keys key);
 	void RemovePressedKey(Keys key);
 	bool IsKeyDown(Keys key);
-
+	void OnKeyDown(KeyboardInputEventArgs args);
+	void OnMouseMove(int x, int y);
+	void OnMouseKey(int keyCode, bool isDown);
+	void OnMouseWheel(float mouseWheel);
+	void OnMouseMove(RawMouseEventArgs args);
+	void OnChangeScreenSize(int width, int height);
+	DirectX::SimpleMath::Vector2 getMousePos() { return MousePosition; }
 protected:
 	struct KeyboardInputEventArgs {
 		/*
@@ -114,15 +115,9 @@ protected:
 		int Y;
 	};
 
-	void OnKeyDown(KeyboardInputEventArgs args);
-	void OnMouseMove(RawMouseEventArgs args);
-	void OnChangeScreenSize(int width, int height);
+	
 };
 
-struct ScreenSize {
-	int Width;
-	int Height;
-};
 
 
 /*
