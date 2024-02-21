@@ -1,6 +1,7 @@
 #pragma once
 #include "Exports.h"
 #include "Display.h"
+#include "InputDevice.h"
 #include "TriangleComponent.h"
 #include "GameComponent.h"
 

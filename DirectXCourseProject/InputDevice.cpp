@@ -35,11 +35,6 @@ void InputDevice::OnKeyDown(KeyboardInputEventArgs args)
 	}
 }
 
-void InputDevice::OnMouseMove(int x, int y)
-{
-	MouseOffset = Vector2(x, y) - MousePosition;
-	MousePosition = Vector2(x, y);
-}
 
 
 void InputDevice::OnMouseWheel(float mouseWheel)
@@ -75,12 +70,12 @@ void InputDevice::OnMouseMove(RawMouseEventArgs args)
 
 	const MouseMoveEventArgs moveArgs = {MousePosition, MouseOffset, MouseWheelDelta};
 
-	//printf(" Mouse: posX=%04.4f posY:%04.4f offsetX:%04.4f offsetY:%04.4f, wheelDelta=%04d \n",
-	//	MousePosition.x,
-	//	MousePosition.y,
-	//	MouseOffset.x,
-	//	MouseOffset.y,
-	//	MouseWheelDelta);
+	printf(" Mouse: posX=%04.4f posY:%04.4f offsetX:%04.4f offsetY:%04.4f, wheelDelta=%04d \n",
+		MousePosition.x,
+		MousePosition.y,
+		MouseOffset.x,
+		MouseOffset.y,
+		MouseWheelDelta);
 }
 
 void InputDevice::OnChangeScreenSize(int width, int height) {

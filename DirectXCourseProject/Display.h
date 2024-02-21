@@ -22,11 +22,21 @@ public:
 	int screenWidth = 800;
 	int screenHeight = 800;
 
+	static constexpr const char* WINDOW_CLASS_NAME = "WndClass";
+
 	DECLARE_MULTICAST_DELEGATE(OnFocusChangedDelegate, bool);
 	OnFocusChangedDelegate OnFocusChanged;
 
-	DECLARE_MULTICAST_DELEGATE(OnMouseMoveDelegate, int, int);
+	DECLARE_MULTICAST_DELEGATE(OnMouseMoveDelegate,InputDevice::RawMouseEventArgs);
 	OnMouseMoveDelegate OnMouseMove;
+
+	DECLARE_MULTICAST_DELEGATE(OnKeyDownDelegate, InputDevice::KeyboardInputEventArgs);
+	OnKeyDownDelegate OnKeyDown;
+private:
+	static LRESULT CALLBACK WndProcStatic(HWND hwnd, UINT umessage, WPARAM wparam, LPARAM lparam);
+
+
+	LRESULT WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 private:
 	HWND hWnd;
 	LPCWSTR applicationName;

@@ -8,13 +8,25 @@ struct ScreenSize {
 };
 
 
+
+
 class ENGINE_API InputDevice
 {
 	struct KeyboardInputEventArgs;
 	struct RawMouseEventArgs;
 	std::unordered_set<Keys>* keys;
 public:
-	
+	struct RawMouseEventArgs
+	{
+		/*MOUSE_MOVE_RELATIVE*/
+		int Mode;
+		int ButtonFlags;
+		int ExtraInformation;
+		int Buttons;
+		int WheelDelta;
+		int X;
+		int Y;
+	};
 	struct MouseMoveEventArgs
 	{
 		DirectX::SimpleMath::Vector2 Position;
@@ -34,18 +46,6 @@ public:
 	InputDevice();
 	~InputDevice();
 	ScreenSize ScreenParam;
-
-	void AddPressedKey(Keys key);
-	void RemovePressedKey(Keys key);
-	bool IsKeyDown(Keys key);
-	void OnKeyDown(KeyboardInputEventArgs args);
-	void OnMouseMove(int x, int y);
-	void OnMouseKey(int keyCode, bool isDown);
-	void OnMouseWheel(float mouseWheel);
-	void OnMouseMove(RawMouseEventArgs args);
-	void OnChangeScreenSize(int width, int height);
-	DirectX::SimpleMath::Vector2 getMousePos() { return MousePosition; }
-protected:
 	struct KeyboardInputEventArgs {
 		/*
 		 * The "make" scan code (key depression).
@@ -61,6 +61,17 @@ protected:
 		USHORT VKey;
 		UINT   Message;
 	};
+	void AddPressedKey(Keys key);
+	void RemovePressedKey(Keys key);
+	bool IsKeyDown(Keys key);
+	void OnKeyDown(KeyboardInputEventArgs args);
+	void OnMouseMove(RawMouseEventArgs args);
+	void OnMouseKey(int keyCode, bool isDown);
+	void OnMouseWheel(float mouseWheel);
+	void OnChangeScreenSize(int width, int height);
+	DirectX::SimpleMath::Vector2 getMousePos() { return MousePosition; }
+protected:
+	
 	
 	enum class MouseButtonFlags
 	{
@@ -103,17 +114,7 @@ protected:
 
 		None = 0,
 	};
-	struct RawMouseEventArgs
-	{
-		/*MOUSE_MOVE_RELATIVE*/
-		int Mode;
-		int ButtonFlags;
-		int ExtraInformation;
-		int Buttons;
-		int WheelDelta;
-		int X;
-		int Y;
-	};
+	
 
 	
 };
@@ -121,53 +122,6 @@ protected:
 
 
 /*
-		case WM_INPUT:
-		{
-			UINT dwSize = 0;
-			GetRawInputData(reinterpret_cast<HRAWINPUT>(lparam), RID_INPUT, nullptr, &dwSize, sizeof(RAWINPUTHEADER));
-			LPBYTE lpb = new BYTE[dwSize];
-			if (lpb == nullptr) {
-				return 0;
-			}
-
-			if (GetRawInputData((HRAWINPUT)lparam, RID_INPUT, lpb, &dwSize, sizeof(RAWINPUTHEADER)) != dwSize)
-				OutputDebugString(TEXT("GetRawInputData does not return correct size !\n"));
-
-			RAWINPUT* raw = reinterpret_cast<RAWINPUT*>(lpb);
-
-			if (raw->header.dwType == RIM_TYPEKEYBOARD)
-			{
-				//printf(" Kbd: make=%04i Flags:%04i Reserved:%04i ExtraInformation:%08i, msg=%04i VK=%i \n",
-				//	raw->data.keyboard.MakeCode,
-				//	raw->data.keyboard.Flags,
-				//	raw->data.keyboard.Reserved,
-				//	raw->data.keyboard.ExtraInformation,
-				//	raw->data.keyboard.Message,
-				//	raw->data.keyboard.VKey);
-
-				InputDevice->OnKeyDown({
-					raw->data.keyboard.MakeCode,
-					raw->data.keyboard.Flags,
-					raw->data.keyboard.VKey,
-					raw->data.keyboard.Message
-				});
-			}
-			else if (raw->header.dwType == RIM_TYPEMOUSE)
-			{
-				//printf(" Mouse: X=%04d Y:%04d \n", raw->data.mouse.lLastX, raw->data.mouse.lLastY);
-				InputDevice->OnMouseMove({
-					raw->data.mouse.usFlags,
-					raw->data.mouse.usButtonFlags,
-					static_cast<int>(raw->data.mouse.ulExtraInformation),
-					static_cast<int>(raw->data.mouse.ulRawButtons),
-					static_cast<short>(raw->data.mouse.usButtonData),
-					raw->data.mouse.lLastX,
-					raw->data.mouse.lLastY
-				});
-			}
-
-			delete[] lpb;
-			return DefWindowProc(hwnd, umessage, wparam, lparam);
-		}
+		
  */
 

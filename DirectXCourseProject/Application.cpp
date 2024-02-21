@@ -19,7 +19,9 @@ namespace Engine {
 	int Application::Run() {
 		
 		_display.CreateDisplay();
-		_display.OnMouseMove += [](int x, int y) {InputDevice::Instance().OnMouseMove(x, y); };
+		_display.OnMouseMove += [](InputDevice::RawMouseEventArgs args) {InputDevice::Instance().OnMouseMove(args); };
+		_display.OnKeyDown += [](InputDevice::KeyboardInputEventArgs args) {InputDevice::Instance().OnKeyDown(args); };
+
 		std::cout << "Draw\n";
 		Initialize();
 		std::cout << "Draw\n";
