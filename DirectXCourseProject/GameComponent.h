@@ -10,16 +10,15 @@ class GameComponent
 protected:
 	Engine::Application* _app;
 public:
-	GameComponent(Engine::Application *app) : _app(app) 
+	GameComponent(Engine::Application* app) : _app(app)
 	{
 
 	};
-	GameComponent& operator= (const GameComponent &){}
+	GameComponent& operator= (const GameComponent&) {}
 	~GameComponent();
-	void DestoyResources();
-	void Draw();
-	bool Initialize();
-	void Reload();
-	void Update();
+	virtual void DestroyResources() = 0;
+	virtual void Draw() = 0;
+	virtual bool Initialize() = 0;
+	virtual void Reload() = 0;
+	virtual void Update() = 0;
 };
-

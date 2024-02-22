@@ -1,3 +1,5 @@
+
+
 #include "GameComponent.h"
 #include "Application.h"
 
@@ -8,7 +10,7 @@ GameComponent::~GameComponent()
 {
 }
 
-void GameComponent::DestoyResources()
+void GameComponent::DestroyResources()
 {
 }
 

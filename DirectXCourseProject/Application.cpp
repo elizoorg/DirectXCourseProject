@@ -22,16 +22,16 @@ namespace Engine {
 		_display.OnMouseMove += [](InputDevice::RawMouseEventArgs args) {InputDevice::Instance().OnMouseMove(args); };
 		_display.OnKeyDown += [](InputDevice::KeyboardInputEventArgs args) {InputDevice::Instance().OnKeyDown(args); };
 
-		std::cout << "Draw\n";
+
 		Initialize();
-		std::cout << "Draw\n";
+
 		while (true) {
-			std::cout << "Draw\n";
+
 			Update();
 			Draw();
 		};
 
-		std::cout << "Draw\n";
+
 		return 0;
 		
 	}
@@ -46,10 +46,14 @@ namespace Engine {
 
 	void Application::Draw()
 	{
-		std::cout << "Run Draw\n";
-		context->ClearState();
 
-		context->RSSetState(rastState);
+
+		context->OMSetRenderTargets(1, &rtv, nullptr);
+
+
+		float color[] = { totalTime, 0.1f, 0.1f, 1.0f };
+		context->ClearRenderTargetView(rtv, color);
+
 
 		D3D11_VIEWPORT viewport = {};
 		viewport.Width = static_cast<float>(_display.getWidth());
@@ -62,20 +66,17 @@ namespace Engine {
 		context->RSSetViewports(1, &viewport);
 
 
-		context->OMSetRenderTargets(1, &rtv, nullptr);
-
-		float color[] = { totalTime, 0.1f, 0.1f, 1.0f };
-		context->ClearRenderTargetView(rtv, color);
-
+	
 
 		for (auto comp : Components)
 			comp->Draw();
+
 
 		context->OMSetRenderTargets(0, nullptr, nullptr);
 
 		swapChain->Present(1, /*DXGI_PRESENT_DO_NOT_WAIT*/ 0);
 
-		std::cout << "End Draw\n";
+		
 
 
 	}
@@ -133,18 +134,20 @@ namespace Engine {
 			std::cout << "So,unexpected shit happens2\n";
 		}
 
-
-		Components.push_back(new TriangleComponent(&Application::Instance()));
-		for(auto comp :Components){
+		TriangleComponent* trag = new TriangleComponent(&Application::Instance());
+		Components.push_back(trag);
+		for(auto comp : Components){
 			comp->Initialize();
 		}
 
-		res = device->CreateRasterizerState(&rastDesc, &rastState);
 
 		rastDesc.CullMode = D3D11_CULL_NONE;
 		rastDesc.FillMode = D3D11_FILL_SOLID;
 
-		context->RSSetState(rastState);
+
+		res = device->CreateRasterizerState(&rastDesc, &rastState);
+
+
 	
 	}
 

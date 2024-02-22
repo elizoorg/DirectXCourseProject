@@ -35,9 +35,11 @@ private:
 
 public:
     TriangleComponent(Engine::Application* app) : GameComponent(app) {
+        std::cout << "Lol\n";
     };
     ~TriangleComponent();
     void DestroyResources();
+    void Reload();
     bool Initialize();
     void Update();
     void Draw();

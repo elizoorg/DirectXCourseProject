@@ -6,14 +6,22 @@
 
 TriangleComponent::~TriangleComponent()
 {
+	std::cout << "We're creating triangle\n";
 }
 
 void TriangleComponent::DestroyResources()
 {
+
+}
+
+void TriangleComponent::Reload()
+{
+
 }
 
 bool TriangleComponent::Initialize()
 {
+	std::cout << "Try to init\n";
 	res = D3DCompileFromFile(L"./Shaders/MyVeryFirstShader.hlsl",
 		nullptr /*macros*/,
 		nullptr /*include*/,
@@ -124,7 +132,7 @@ bool TriangleComponent::Initialize()
 	//ID3D11RasterizerState* rastState;
 	res = _app->getDevice()->CreateRasterizerState(&rastDesc, &rastState);
 
-	_app->getContext()->RSSetState(rastState);
+	
 
 }
 
@@ -134,17 +142,16 @@ void TriangleComponent::Update()
 
 void TriangleComponent::Draw()
 {
-
+	std::cout << "Draw?\n";
 	UINT strides[] = { 32 };
 	UINT offsets[] = { 0 };
+	_app->getContext()->RSSetState(rastState);
 	_app->getContext()->IASetInputLayout(layout);
 	_app->getContext()->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	_app->getContext()->IASetIndexBuffer(ib, DXGI_FORMAT_R32_UINT, 0);
 	_app->getContext()->IASetVertexBuffers(0, 1, &vb, strides, offsets);
 	_app->getContext()->VSSetShader(vertexShader, nullptr, 0);
 	_app->getContext()->PSSetShader(pixelShader, nullptr, 0);
-
-
 	_app->getContext()->DrawIndexed(6, 0, 0);
 
 }
