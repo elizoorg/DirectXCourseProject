@@ -116,17 +116,18 @@ LRESULT WinApi_Display::WndProc(HWND hwnd, UINT umessage, WPARAM wparam, LPARAM 
 			//	raw->data.keyboard.Message,
 			//	raw->data.keyboard.VKey);
 
-			OnKeyDown.Broadcast({
+			/*OnKeyDown.Broadcast({
 				raw->data.keyboard.MakeCode,
 				raw->data.keyboard.Flags,
 				raw->data.keyboard.VKey,
 				raw->data.keyboard.Message
-				});
+				});*/
 		}
 		else if (raw->header.dwType == RIM_TYPEMOUSE)
 		{
 			//printf(" Mouse: X=%04d Y:%04d \n", raw->data.mouse.lLastX, raw->data.mouse.lLastY);
-			OnMouseMove.Broadcast({
+			//TODO: This delegates won't work rn
+			/*OnMouseMove.Broadcast({
 				raw->data.mouse.usFlags,
 				raw->data.mouse.usButtonFlags,
 				static_cast<int>(raw->data.mouse.ulExtraInformation),
@@ -134,7 +135,7 @@ LRESULT WinApi_Display::WndProc(HWND hwnd, UINT umessage, WPARAM wparam, LPARAM 
 				static_cast<short>(raw->data.mouse.usButtonData),
 				raw->data.mouse.lLastX,
 				raw->data.mouse.lLastY
-				});
+				});*/
 		}
 
 		delete[] lpb;
@@ -151,7 +152,7 @@ bool WinApi_Display::CreateDisplay()
 {
 	
 	hInstance = GetModuleHandle(nullptr);
-
+	applicationName = L"WndClass";
 
 	wc.style = CS_HREDRAW | CS_VREDRAW | CS_OWNDC;
 	wc.lpfnWndProc = WndProcStatic;
@@ -163,7 +164,7 @@ bool WinApi_Display::CreateDisplay()
 	wc.hCursor = LoadCursor(nullptr, IDC_ARROW);
 	wc.hbrBackground = static_cast<HBRUSH>(GetStockObject(BLACK_BRUSH));
 	wc.lpszMenuName = nullptr;
-	wc.lpszClassName = WINDOW_CLASS_NAME;
+	wc.lpszClassName = applicationName;
 	wc.cbSize = sizeof(WNDCLASSEX);
 
 	RegisterClassEx(&wc);
