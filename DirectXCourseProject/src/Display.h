@@ -1,7 +1,7 @@
 #pragma once
 #include "Exports.h"
 #include "InputDevice.h"
-#include "Delegates.h"
+#include "../external/Delegates.h"
 #include <iostream>
 
 class WinApi_Display

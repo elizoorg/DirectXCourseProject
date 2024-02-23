@@ -1,7 +1,7 @@
 #pragma once
 #include "Exports.h"
 #include "GameComponent.h"
-#include "SimpleMath.h"
+#include "../external/SimpleMath.h"
 
 
 class TriangleComponent :

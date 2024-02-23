@@ -1,6 +1,6 @@
 #pragma once
 #include "Exports.h"
-#include "SimpleMath.h"
+#include "../external/SimpleMath.h"
 #include "Keys.h"
 struct ScreenSize {
 	int Width;

@@ -68,7 +68,7 @@ namespace Engine {
 
 	
 
-		for (auto comp : Components)
+		for (auto& comp : Components)
 			comp->Draw();
 
 
