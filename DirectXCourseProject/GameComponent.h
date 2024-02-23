@@ -1,5 +1,6 @@
 #pragma once
 #include "Exports.h"
+#include "SimpleMath.h"
 
 namespace Engine {
 	class Application;
@@ -21,4 +22,5 @@ public:
 	virtual bool Initialize() = 0;
 	virtual void Reload() = 0;
 	virtual void Update() = 0;
+	virtual void Update(DirectX::SimpleMath::Matrix mat);
 };

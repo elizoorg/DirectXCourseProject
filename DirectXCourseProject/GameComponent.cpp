@@ -30,3 +30,7 @@ void GameComponent::Reload()
 void GameComponent::Update()
 {
 }
+
+void GameComponent::Update(DirectX::SimpleMath::Matrix mat)
+{
+}

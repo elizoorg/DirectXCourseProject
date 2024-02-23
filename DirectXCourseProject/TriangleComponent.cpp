@@ -2,8 +2,6 @@
 #include "Application.h"
 
 
-
-
 TriangleComponent::~TriangleComponent()
 {
 	std::cout << "We're creating triangle\n";
@@ -11,31 +9,30 @@ TriangleComponent::~TriangleComponent()
 
 void TriangleComponent::DestroyResources()
 {
-
 }
 
 void TriangleComponent::Reload()
 {
-
 }
 
 bool TriangleComponent::Initialize()
 {
-	std::cout << "Try to init\n";
 	res = D3DCompileFromFile(L"./Shaders/MyVeryFirstShader.hlsl",
-		nullptr /*macros*/,
-		nullptr /*include*/,
-		"VSMain",
-		"vs_5_0",
-		D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION,
-		0,
-		&vertexBC,
-		&errorVertexCode);
+	                         nullptr /*macros*/,
+	                         nullptr /*include*/,
+	                         "VSMain",
+	                         "vs_5_0",
+	                         D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION,
+	                         0,
+	                         &vertexBC,
+	                         &errorVertexCode);
 
-	if (FAILED(res)) {
+	if (FAILED(res))
+	{
 		// If the shader failed to compile it should have written something to the error message.
-		if (errorVertexCode) {
-			char* compileErrors = (char*)(errorVertexCode->GetBufferPointer());
+		if (errorVertexCode)
+		{
+			auto compileErrors = static_cast<char*>(errorVertexCode->GetBufferPointer());
 
 			std::cout << compileErrors << std::endl;
 		}
@@ -48,9 +45,11 @@ bool TriangleComponent::Initialize()
 		return false;
 	}
 
-	D3D_SHADER_MACRO Shader_Macros[] = { "TEST", "1", "TCOLOR", "float4(0.0f, 1.0f, 0.0f, 1.0f)", nullptr, nullptr };
+	D3D_SHADER_MACRO Shader_Macros[] = {"TEST", "1", "TCOLOR", "float4(0.0f, 1.0f, 0.0f, 1.0f)", nullptr, nullptr};
 
-	res = D3DCompileFromFile(L"./Shaders/MyVeryFirstShader.hlsl", Shader_Macros /*macros*/, nullptr /*include*/, "PSMain", "ps_5_0", D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION, 0, &pixelBC, &errorPixelCode);
+	res = D3DCompileFromFile(L"./Shaders/MyVeryFirstShader.hlsl", Shader_Macros /*macros*/, nullptr /*include*/,
+	                         "PSMain", "ps_5_0", D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION, 0, &pixelBC,
+	                         &errorPixelCode);
 
 	_app->getDevice()->CreateVertexShader(
 		vertexBC->GetBufferPointer(),
@@ -63,22 +62,24 @@ bool TriangleComponent::Initialize()
 		nullptr, &pixelShader);
 
 	D3D11_INPUT_ELEMENT_DESC inputElements[] = {
-		D3D11_INPUT_ELEMENT_DESC {
+		D3D11_INPUT_ELEMENT_DESC{
 			"POSITION",
 			0,
 			DXGI_FORMAT_R32G32B32A32_FLOAT,
 			0,
 			0,
 			D3D11_INPUT_PER_VERTEX_DATA,
-			0},
-		D3D11_INPUT_ELEMENT_DESC {
+			0
+		},
+		D3D11_INPUT_ELEMENT_DESC{
 			"COLOR",
 			0,
 			DXGI_FORMAT_R32G32B32A32_FLOAT,
 			0,
 			D3D11_APPEND_ALIGNED_ELEMENT,
 			D3D11_INPUT_PER_VERTEX_DATA,
-			0}
+			0
+		}
 	};
 
 
@@ -102,10 +103,10 @@ bool TriangleComponent::Initialize()
 	vertexData.SysMemPitch = 0;
 	vertexData.SysMemSlicePitch = 0;
 
-	
+
 	_app->getDevice()->CreateBuffer(&vertexBufDesc, &vertexData, &vb);
 
-	int indeces[] = { 0,1,2, 1,0,3 };
+	int indeces[] = {0, 1, 2, 1, 0, 3};
 	D3D11_BUFFER_DESC indexBufDesc = {};
 	indexBufDesc.Usage = D3D11_USAGE_DEFAULT;
 	indexBufDesc.BindFlags = D3D11_BIND_INDEX_BUFFER;
@@ -122,8 +123,6 @@ bool TriangleComponent::Initialize()
 	//ID3D11Buffer* ib;
 	_app->getDevice()->CreateBuffer(&indexBufDesc, &indexData, &ib);
 
-	
-
 
 	CD3D11_RASTERIZER_DESC rastDesc = {};
 	rastDesc.CullMode = D3D11_CULL_NONE;
@@ -131,10 +130,17 @@ bool TriangleComponent::Initialize()
 
 	//ID3D11RasterizerState* rastState;
 	res = _app->getDevice()->CreateRasterizerState(&rastDesc, &rastState);
-
-	
-
 }
+
+void TriangleComponent::Update(DirectX::SimpleMath::Matrix mat)
+{
+	for (int i = 0; i < 8; i++) {
+		std::cout << points[i].x << " " << points[i].y << " " << points[i].z << " ";
+		points[i] = DirectX::SimpleMath::Vector4::Transform(points[i], mat);
+		std::cout << points[i].x << " " << points[i].y << " " << points[i].z << " " << std::endl;
+	}
+}
+
 
 void TriangleComponent::Update()
 {
@@ -142,9 +148,8 @@ void TriangleComponent::Update()
 
 void TriangleComponent::Draw()
 {
-	std::cout << "Draw?\n";
-	UINT strides[] = { 32 };
-	UINT offsets[] = { 0 };
+	UINT strides[] = {32};
+	UINT offsets[] = {0};
 	_app->getContext()->RSSetState(rastState);
 	_app->getContext()->IASetInputLayout(layout);
 	_app->getContext()->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
@@ -153,5 +158,4 @@ void TriangleComponent::Draw()
 	_app->getContext()->VSSetShader(vertexShader, nullptr, 0);
 	_app->getContext()->PSSetShader(pixelShader, nullptr, 0);
 	_app->getContext()->DrawIndexed(6, 0, 0);
-
 }

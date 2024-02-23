@@ -1,7 +1,7 @@
 #pragma once
 #include "Exports.h"
 #include "GameComponent.h"
-
+#include "SimpleMath.h"
 
 
 class TriangleComponent :
@@ -35,12 +35,12 @@ private:
 
 public:
     TriangleComponent(Engine::Application* app) : GameComponent(app) {
-        std::cout << "Lol\n";
     };
     ~TriangleComponent();
     void DestroyResources();
     void Reload();
     bool Initialize();
+    void Update(DirectX::SimpleMath::Matrix mat);
     void Update();
     void Draw();
 };

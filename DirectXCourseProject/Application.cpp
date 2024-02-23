@@ -51,7 +51,7 @@ namespace Engine {
 		context->OMSetRenderTargets(1, &rtv, nullptr);
 
 
-		float color[] = { totalTime, 0.1f, 0.1f, 1.0f };
+		float color[] = { 0.0f, 0.0f, 0.0f, 1.0f };
 		context->ClearRenderTargetView(rtv, color);
 
 
@@ -135,10 +135,29 @@ namespace Engine {
 		}
 
 		TriangleComponent* trag = new TriangleComponent(&Application::Instance());
+		TriangleComponent* trag1 = new TriangleComponent(&Application::Instance());
 		Components.push_back(trag);
-		for(auto comp : Components){
+		Components.push_back(trag1);
+		DirectX::SimpleMath::Matrix mat1(
+			DirectX::SimpleMath::Vector4(0.5f, 0, 0, 1.0f),
+			DirectX::SimpleMath::Vector4(0, 0.5f, 0, 1.0f),
+			DirectX::SimpleMath::Vector4(0, 0, 1, 1.0f),
+			DirectX::SimpleMath::Vector4(0, 0.0f, 0, 1)
+		);
+		DirectX::SimpleMath::Matrix mat2(
+			DirectX::SimpleMath::Vector4(0.5f, 0, 0, 1.0f),
+			DirectX::SimpleMath::Vector4(0, 0.5f, 0, 1.0f),
+			DirectX::SimpleMath::Vector4(0, 0, 0.5f, 1.0f),
+			DirectX::SimpleMath::Vector4(1.0f, 0, 0, 1)
+		);
+
+		Components[0]->Update(mat1);
+		Components[1]->Update(mat2);
+
+		for (auto comp : Components) {
 			comp->Initialize();
 		}
+
 
 
 		rastDesc.CullMode = D3D11_CULL_NONE;
