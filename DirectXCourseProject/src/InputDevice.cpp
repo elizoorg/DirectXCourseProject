@@ -5,18 +5,19 @@ using namespace DirectX::SimpleMath;
 InputDevice& InputDevice::Instance()
 {
 	static InputDevice i{};
+	
 	return i;
 }
 
 
 InputDevice::InputDevice()
 {
-	keys = new std::unordered_set<Keys>();
+	Initialize();
 }
 
 InputDevice::~InputDevice()
 {
-	delete keys;
+	keys->clear();
 }
 
 void InputDevice::OnKeyDown(KeyboardInputEventArgs args)
@@ -70,18 +71,19 @@ void InputDevice::OnMouseMove(RawMouseEventArgs args)
 
 	const MouseMoveEventArgs moveArgs = {MousePosition, MouseOffset, MouseWheelDelta};
 
-	printf(" Mouse: posX=%04.4f posY:%04.4f offsetX:%04.4f offsetY:%04.4f, wheelDelta=%04d \n",
-		MousePosition.x,
-		MousePosition.y,
-		MouseOffset.x,
-		MouseOffset.y,
-		MouseWheelDelta);
+	
 }
 
 void InputDevice::OnChangeScreenSize(int width, int height) {
 	ScreenParam.Width = width;
 	ScreenParam.Height = height;
 };
+
+
+void InputDevice::Initialize()
+{
+	keys = new std::unordered_set<Keys>();
+}
 
 
 void InputDevice::AddPressedKey(Keys key)

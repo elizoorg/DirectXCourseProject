@@ -61,6 +61,7 @@ public:
 		USHORT VKey;
 		UINT   Message;
 	};
+	void Initialize();
 	void AddPressedKey(Keys key);
 	void RemovePressedKey(Keys key);
 	bool IsKeyDown(Keys key);

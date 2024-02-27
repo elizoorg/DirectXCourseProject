@@ -116,6 +116,13 @@ LRESULT WinApi_Display::WndProc(HWND hwnd, UINT umessage, WPARAM wparam, LPARAM 
 			//	raw->data.keyboard.Message,
 			//	raw->data.keyboard.VKey);
 
+			device.OnKeyDown(InputDevice::KeyboardInputEventArgs{
+				raw->data.keyboard.MakeCode,
+				raw->data.keyboard.Flags,
+				raw->data.keyboard.VKey,
+				raw->data.keyboard.Message
+				});
+
 			/*OnKeyDown.Broadcast({
 				raw->data.keyboard.MakeCode,
 				raw->data.keyboard.Flags,
@@ -127,6 +134,16 @@ LRESULT WinApi_Display::WndProc(HWND hwnd, UINT umessage, WPARAM wparam, LPARAM 
 		{
 			//printf(" Mouse: X=%04d Y:%04d \n", raw->data.mouse.lLastX, raw->data.mouse.lLastY);
 			//TODO: This delegates won't work rn
+
+			device.OnMouseMove(InputDevice::RawMouseEventArgs{
+			raw->data.mouse.usFlags,
+				raw->data.mouse.usButtonFlags,
+				static_cast<int>(raw->data.mouse.ulExtraInformation),
+				static_cast<int>(raw->data.mouse.ulRawButtons),
+				static_cast<short>(raw->data.mouse.usButtonData),
+				raw->data.mouse.lLastX,
+				raw->data.mouse.lLastY
+				});
 
 
 			/*OnMouseMove.Broadcast({
@@ -186,7 +203,7 @@ bool WinApi_Display::CreateDisplay()
 		posX, posY,
 		windowRect.right - windowRect.left,
 		windowRect.bottom - windowRect.top,
-		nullptr, nullptr, GetModuleHandleA(nullptr), nullptr);
+		nullptr, nullptr, GetModuleHandleA(nullptr), this);
 	if (!hWnd) {
 		std::cout << "Error while creating window!\n";
 		__debugbreak();

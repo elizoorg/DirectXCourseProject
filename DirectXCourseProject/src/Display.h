@@ -43,5 +43,8 @@ private:
 	WNDCLASSEX wc;
 	HINSTANCE hInstance;
 	RECT windowRect;
+
+	InputDevice device = InputDevice::Instance();
+
 };
 

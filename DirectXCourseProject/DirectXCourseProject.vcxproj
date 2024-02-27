@@ -19,6 +19,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\Camera.cpp" />
     <ClCompile Include="external\Delegates.cpp" />
     <ClCompile Include="external\SimpleMath.cpp" />
     <ClCompile Include="src\Application.cpp" />
@@ -28,10 +29,12 @@
     <ClCompile Include="src\TriangleComponent.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\Camera.h" />
     <ClInclude Include="DirectXCourseProject.h" />
     <ClInclude Include="external\Delegates.h" />
     <ClInclude Include="external\SimpleMath.h" />
     <ClInclude Include="framework.h" />
+    <ClInclude Include="src\MathTypes.h" />
     <ClInclude Include="src\pch.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="src\Application.h" />

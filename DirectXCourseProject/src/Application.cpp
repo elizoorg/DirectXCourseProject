@@ -19,8 +19,8 @@ namespace Engine {
 	int Application::Run() {
 		
 		_display.CreateDisplay();
-		_display.OnMouseMove += [](InputDevice::RawMouseEventArgs args) {InputDevice::Instance().OnMouseMove(args); };
-		_display.OnKeyDown += [](InputDevice::KeyboardInputEventArgs args) {InputDevice::Instance().OnKeyDown(args); };
+		//_display.OnMouseMove += [](InputDevice::RawMouseEventArgs args) {InputDevice::Instance().OnMouseMove(args); };
+		//_display.OnKeyDown += [](InputDevice::KeyboardInputEventArgs args) {InputDevice::Instance().OnKeyDown(args); };
 
 
 		Initialize();
@@ -48,13 +48,16 @@ namespace Engine {
 	{
 
 
-		context->OMSetRenderTargets(1, &rtv, nullptr);
+
+		//std::cout << camera.GetPosition().x << " " << camera.GetPosition().y << " " << camera.GetPosition().z << std::endl;
+
+		context->OMSetRenderTargets(1, &rtv, depthStencilView.Get());
+		
 
 
 		float color[] = { 0.0f, 0.0f, 0.0f, 1.0f };
 		context->ClearRenderTargetView(rtv, color);
-
-
+		context->ClearDepthStencilView(depthStencilView.Get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL,1.0f,0);
 		D3D11_VIEWPORT viewport = {};
 		viewport.Width = static_cast<float>(_display.getWidth());
 		viewport.Height = static_cast<float>(_display.getHeight());
@@ -91,7 +94,7 @@ namespace Engine {
 
 	void Application::Initialize()
 	{
-
+		camera.SetPosition(0, 0, 0);
 		swapDesc.BufferCount = 2;
 		swapDesc.BufferDesc.Width = _display.getWidth();
 		swapDesc.BufferDesc.Height = _display.getHeight();
@@ -138,21 +141,6 @@ namespace Engine {
 		TriangleComponent* trag1 = new TriangleComponent(&Application::Instance());
 		Components.push_back(trag);
 		Components.push_back(trag1);
-		DirectX::SimpleMath::Matrix mat1(
-			DirectX::SimpleMath::Vector4(0.5f, 0, 0, 1.0f),
-			DirectX::SimpleMath::Vector4(0, 0.5f, 0, 1.0f),
-			DirectX::SimpleMath::Vector4(0, 0, 1, 1.0f),
-			DirectX::SimpleMath::Vector4(0, 0.0f, 0, 1)
-		);
-		DirectX::SimpleMath::Matrix mat2(
-			DirectX::SimpleMath::Vector4(0.5f, 0, 0, 1.0f),
-			DirectX::SimpleMath::Vector4(0, 0.5f, 0, 1.0f),
-			DirectX::SimpleMath::Vector4(0, 0, 0.5f, 1.0f),
-			DirectX::SimpleMath::Vector4(1.0f, 0, 0, 1)
-		);
-
-		Components[0]->Update(mat1);
-		Components[1]->Update(mat2);
 
 		for (auto comp : Components) {
 			comp->Initialize();
@@ -161,10 +149,40 @@ namespace Engine {
 
 
 		rastDesc.CullMode = D3D11_CULL_NONE;
-		rastDesc.FillMode = D3D11_FILL_SOLID;
+		rastDesc.FillMode = D3D11_FILL_WIREFRAME;
+
+
+
 
 
 		res = device->CreateRasterizerState(&rastDesc, &rastState);
+
+
+		D3D11_TEXTURE2D_DESC depthStencilDesc;
+		depthStencilDesc.Width= _display.getWidth();
+		depthStencilDesc.Height= _display.getHeight();
+		depthStencilDesc.MipLevels = 1;
+		depthStencilDesc.ArraySize = 1;
+		depthStencilDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
+		depthStencilDesc.SampleDesc.Count = 1;
+		depthStencilDesc.SampleDesc.Quality = 0;
+		depthStencilDesc.Usage = D3D11_USAGE_DEFAULT;
+		depthStencilDesc.BindFlags = D3D11_BIND_DEPTH_STENCIL;
+		depthStencilDesc.CPUAccessFlags = 0;
+		depthStencilDesc.MiscFlags = 0;
+
+		res = device->CreateTexture2D(&depthStencilDesc, NULL, depthStencilBuffer.GetAddressOf());
+		if (FAILED(res)) {
+			std::cout << "So,unexpected shit happens2\n";
+		}
+
+		res = device->CreateDepthStencilView(depthStencilBuffer.Get(), NULL, depthStencilView.GetAddressOf());
+		if (FAILED(res)) {
+			std::cout << "So,unexpected shit happens2\n";
+		}
+
+
+
 
 
 	
@@ -191,6 +209,34 @@ namespace Engine {
 		while (!_display.PollMessages()) {
 			//std::cout << InputDevice::Instance().getMousePos().x << InputDevice::Instance().getMousePos().y << std::endl;
 			//std::cout << "We are running!\n";
+		}
+
+		if(InputDevice::Instance().IsKeyDown(Keys::D))
+		{
+			camera.Strafe(1);
+		}
+		if (InputDevice::Instance().IsKeyDown(Keys::A))
+		{
+			camera.Strafe(-1);
+		}
+		if (InputDevice::Instance().IsKeyDown(Keys::W))
+		{
+			camera.Walk(1);
+		}
+		if (InputDevice::Instance().IsKeyDown(Keys::S))
+		{
+			camera.Walk(-1);
+		}
+
+
+		
+		//camera.Pitch(0.01);
+		//camera.RotateY(0.01);
+		//camera.Strafe(1);
+		camera.UpdateViewMatrix();
+		Matrix matrix;
+		for (auto comp : Components) {
+			comp->Update(camera.ViewProj());
 		}
 
 

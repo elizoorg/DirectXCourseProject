@@ -4,7 +4,8 @@
 #include "InputDevice.h"
 #include "TriangleComponent.h"
 #include "GameComponent.h"
-
+#include "Camera.h"
+#include "MathTypes.h"
 namespace Engine{
 
 	class ENGINE_API Application
@@ -49,6 +50,12 @@ namespace Engine{
 		ID3D11RasterizerState* rastState;
 		CD3D11_RASTERIZER_DESC rastDesc = {};
 
+		Microsoft::WRL::ComPtr<ID3D11Texture2D> depthStencilBuffer;
+		Microsoft::WRL::ComPtr<ID3D11DepthStencilView> depthStencilView;
+
+		
+
+		Camera camera;
 
 
 		std::chrono::time_point<std::chrono::steady_clock> PrevTime = std::chrono::steady_clock::now();

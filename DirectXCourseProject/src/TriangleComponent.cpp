@@ -45,7 +45,7 @@ bool TriangleComponent::Initialize()
 		return false;
 	}
 
-	D3D_SHADER_MACRO Shader_Macros[] = {"TEST", "1", "TCOLOR", "float4(0.0f, 1.0f, 0.0f, 1.0f)", nullptr, nullptr};
+	D3D_SHADER_MACRO Shader_Macros[] = { "1", "TCOLOR", "float4(0.0f, 1.0f, 0.0f, 1.0f)", nullptr, nullptr};
 
 	res = D3DCompileFromFile(L"./Shaders/MyVeryFirstShader.hlsl", Shader_Macros /*macros*/, nullptr /*include*/,
 	                         "PSMain", "ps_5_0", D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION, 0, &pixelBC,
@@ -106,7 +106,20 @@ bool TriangleComponent::Initialize()
 
 	_app->getDevice()->CreateBuffer(&vertexBufDesc, &vertexData, &vb);
 
-	int indeces[] = {0, 1, 2, 1, 0, 3};
+	int indeces[] = {
+		0, 1, 2,    // side 1
+		2, 1, 3,
+		4, 0, 6,    // side 2
+		6, 0, 2,
+		7, 5, 6,    // side 3
+		6, 5, 4,
+		3, 1, 7,    // side 4
+		7, 1, 5,
+		4, 5, 0,    // side 5
+		0, 5, 1,
+		3, 7, 2,  // side 6
+		2, 7, 6,
+};
 	D3D11_BUFFER_DESC indexBufDesc = {};
 	indexBufDesc.Usage = D3D11_USAGE_DEFAULT;
 	indexBufDesc.BindFlags = D3D11_BIND_INDEX_BUFFER;
@@ -130,15 +143,30 @@ bool TriangleComponent::Initialize()
 
 	//ID3D11RasterizerState* rastState;
 	res = _app->getDevice()->CreateRasterizerState(&rastDesc, &rastState);
+
+
 }
 
 void TriangleComponent::Update(DirectX::SimpleMath::Matrix mat)
 {
-	for (int i = 0; i < 8; i++) {
-		std::cout << points[i].x << " " << points[i].y << " " << points[i].z << " ";
-		points[i] = DirectX::SimpleMath::Vector4::Transform(points[i], mat);
-		std::cout << points[i].x << " " << points[i].y << " " << points[i].z << " " << std::endl;
-	}
+	buffer.gWorldViewProj = mat;
+
+	cbDesc.ByteWidth = sizeof(VS_CONSTANT_BUFFER);
+	cbDesc.Usage = D3D11_USAGE_DYNAMIC;
+	cbDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+	cbDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+	cbDesc.MiscFlags = 0;
+	cbDesc.StructureByteStride = 0;
+
+	// Fill in the subresource data.
+
+	InitData.pSysMem = &buffer;
+	InitData.SysMemPitch = 0;
+	InitData.SysMemSlicePitch = 0;
+	_app->getDevice()->CreateBuffer(&cbDesc, &InitData,
+		&g_pConstantBuffer11);
+	
+
 }
 
 
@@ -148,7 +176,7 @@ void TriangleComponent::Update()
 
 void TriangleComponent::Draw()
 {
-	UINT strides[] = {32};
+	UINT strides[] = {sizeof(Vector4)};
 	UINT offsets[] = {0};
 	_app->getContext()->RSSetState(rastState);
 	_app->getContext()->IASetInputLayout(layout);
@@ -157,5 +185,6 @@ void TriangleComponent::Draw()
 	_app->getContext()->IASetVertexBuffers(0, 1, &vb, strides, offsets);
 	_app->getContext()->VSSetShader(vertexShader, nullptr, 0);
 	_app->getContext()->PSSetShader(pixelShader, nullptr, 0);
-	_app->getContext()->DrawIndexed(6, 0, 0);
+	_app->getContext()->VSSetConstantBuffers(0, 1, &g_pConstantBuffer11);
+	_app->getContext()->DrawIndexed(36, 0, 0);
 }
