@@ -51,6 +51,25 @@ bool TriangleComponent::Initialize()
 	                         "PSMain", "ps_5_0", D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION, 0, &pixelBC,
 	                         &errorPixelCode);
 
+	if (FAILED(res))
+	{
+		// If the shader failed to compile it should have written something to the error message.
+		if (errorPixelCode)
+		{
+			auto compileErrors = static_cast<char*>(errorVertexCode->GetBufferPointer());
+
+			std::cout << compileErrors << std::endl;
+		}
+		// If there was  nothing in the error message then it simply could not find the shader file itself.
+		else
+		{
+			MessageBox(_app->getDisplay().getHWND(), L"MyVeryFirstShader.hlsl", L"Missing Shader File", MB_OK);
+		}
+
+		return false;
+	}
+
+
 	_app->getDevice()->CreateVertexShader(
 		vertexBC->GetBufferPointer(),
 		vertexBC->GetBufferSize(),
@@ -147,9 +166,11 @@ bool TriangleComponent::Initialize()
 
 }
 
-void TriangleComponent::Update(DirectX::SimpleMath::Matrix mat)
+void TriangleComponent::Update(DirectX::SimpleMath::Matrix mat,Vector4 offset, Vector4 scale)
 {
 	buffer.gWorldViewProj = mat;
+	buffer.offset = offset;
+	buffer.scale = scale;
 
 	cbDesc.ByteWidth = sizeof(VS_CONSTANT_BUFFER);
 	cbDesc.Usage = D3D11_USAGE_DYNAMIC;
@@ -172,6 +193,7 @@ void TriangleComponent::Update(DirectX::SimpleMath::Matrix mat)
 
 void TriangleComponent::Update()
 {
+
 }
 
 void TriangleComponent::Draw()

@@ -6,6 +6,8 @@
 #include "GameComponent.h"
 #include "Camera.h"
 #include "MathTypes.h"
+#include <cstdlib>
+#include <ctime>
 namespace Engine{
 
 	class ENGINE_API Application
@@ -30,6 +32,27 @@ namespace Engine{
 		bool Update();
 		void UpdateInternal();
 
+		struct PlayerData
+		{
+			Vector4 offset;
+			Vector4 scale;
+			Vector2 speed;
+		};
+
+		bool intersect(Vector2 min_a, Vector2 max_a, Vector2 min_b, Vector2 max_b)
+		{
+			return (min_a.x <= max_b.x) &&
+				(max_a.x >= min_b.x) &&
+				(min_a.y <= max_b.y) &&
+				(max_a.y >= min_b.y);
+		}
+		bool isClosed = false;
+
+		int player1_score = 0;
+		int player2_score = 0;
+		void ResetGame();
+
+		PlayerData players[3];
 
 		WinApi_Display getDisplay() { return _display; };
 		Microsoft::WRL::ComPtr<ID3D11Device> getDevice() { return device; };
