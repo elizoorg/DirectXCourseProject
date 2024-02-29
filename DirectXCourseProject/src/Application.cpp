@@ -47,10 +47,6 @@ namespace Engine {
 	void Application::Draw()
 	{
 
-
-
-		//std::cout << camera.GetPosition().x << " " << camera.GetPosition().y << " " << camera.GetPosition().z << std::endl;
-
 		context->OMSetRenderTargets(1, &rtv, depthStencilView.Get());
 		
 
@@ -94,7 +90,7 @@ namespace Engine {
 
 	void Application::Initialize()
 	{
-		camera.SetPosition(0, 0, 0);
+		camera.SetPosition(0, 0, -10);
 		swapDesc.BufferCount = 2;
 		swapDesc.BufferDesc.Width = _display.getWidth();
 		swapDesc.BufferDesc.Height = _display.getHeight();
@@ -132,15 +128,16 @@ namespace Engine {
 			// Well, that was unexpected
 		}
 		res = swapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (void**)&backTex);	// __uuidof(ID3D11Texture2D)
+		if (FAILED(res)) {
+			std::cout << "So,unexpected shit happens3\n";
+		}
 		res = device->CreateRenderTargetView(backTex, nullptr, &rtv);
 		if (FAILED(res)) {
 			std::cout << "So,unexpected shit happens2\n";
 		}
 
 		TriangleComponent* trag = new TriangleComponent(&Application::Instance());
-		TriangleComponent* trag1 = new TriangleComponent(&Application::Instance());
 		Components.push_back(trag);
-		Components.push_back(trag1);
 
 		for (auto comp : Components) {
 			comp->Initialize();
@@ -156,7 +153,9 @@ namespace Engine {
 
 
 		res = device->CreateRasterizerState(&rastDesc, &rastState);
-
+		if (FAILED(res)) {
+			std::cout << "So,unexpected shit happens4\n";
+		}
 
 		D3D11_TEXTURE2D_DESC depthStencilDesc;
 		depthStencilDesc.Width= _display.getWidth();
@@ -173,12 +172,12 @@ namespace Engine {
 
 		res = device->CreateTexture2D(&depthStencilDesc, NULL, depthStencilBuffer.GetAddressOf());
 		if (FAILED(res)) {
-			std::cout << "So,unexpected shit happens2\n";
+			std::cout << "So,unexpected shit happens5\n";
 		}
 
 		res = device->CreateDepthStencilView(depthStencilBuffer.Get(), NULL, depthStencilView.GetAddressOf());
 		if (FAILED(res)) {
-			std::cout << "So,unexpected shit happens2\n";
+			std::cout << "So,unexpected shit happens6\n";
 		}
 
 
@@ -234,9 +233,11 @@ namespace Engine {
 		//camera.RotateY(0.01);
 		//camera.Strafe(1);
 		camera.UpdateViewMatrix();
-		Matrix matrix;
+		Vector3 scale(5.0f, 1.0f, 1.0f);
+		Vector3 offset(1.0f,1.0f, 1.0f);
+
 		for (auto comp : Components) {
-			comp->Update(camera.ViewProj());
+			comp->Update(camera.ViewProj(),offset,scale);
 		}
 
 

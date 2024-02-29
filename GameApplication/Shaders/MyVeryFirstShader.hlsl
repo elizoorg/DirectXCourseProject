@@ -1,7 +1,9 @@
 
 cbuffer cbPerObject
 {
-	float4x4 gWorldViewProj; 
+	float4x4 gWorldViewProj;
+    float3 offset;
+    float3 scale;
 };
 
 struct VS_IN
@@ -20,7 +22,7 @@ PS_IN VSMain( VS_IN input )
 {
 	PS_IN output = (PS_IN)0;
 	
-	output.pos = mul(gWorldViewProj , input.pos);
+    output.pos = mul(gWorldViewProj, input.pos);
 	output.col = input.col;
 	
 	return output;

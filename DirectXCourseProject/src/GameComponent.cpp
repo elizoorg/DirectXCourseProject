@@ -31,6 +31,8 @@ void GameComponent::Update()
 {
 }
 
-void GameComponent::Update(DirectX::SimpleMath::Matrix mat)
+void GameComponent::Update(DirectX::SimpleMath::Matrix mat, Vector3 offset, Vector3 scale)
 {
+
+
 }
