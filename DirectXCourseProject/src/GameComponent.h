@@ -22,5 +22,5 @@ public:
 	virtual bool Initialize() = 0;
 	virtual void Reload() = 0;
 	virtual void Update() = 0;
-	virtual void Update(DirectX::SimpleMath::Matrix mat, Vector3 offset, Vector3 scale) = 0;
+	virtual void Update(DirectX::SimpleMath::Matrix mat, Vector4 offset, Vector4 scale) = 0;
 };

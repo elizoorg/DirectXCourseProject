@@ -21,8 +21,8 @@ private:
     struct VS_CONSTANT_BUFFER
     {
         Matrix gWorldViewProj;
-        Vector3 offset;
-        Vector3 scale;
+        Vector4 offset;
+        Vector4 scale;
     } buffer;
 
 
@@ -60,7 +60,7 @@ public:
     void DestroyResources();
     void Reload();
     bool Initialize();
-    void Update(DirectX::SimpleMath::Matrix mat,Vector3 offset, Vector3 scale);
+    void Update(DirectX::SimpleMath::Matrix mat,Vector4 offset, Vector4 scale);
     void Update();
     void Draw();
 };

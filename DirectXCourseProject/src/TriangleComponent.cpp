@@ -166,7 +166,7 @@ bool TriangleComponent::Initialize()
 
 }
 
-void TriangleComponent::Update(DirectX::SimpleMath::Matrix mat,Vector3 offset, Vector3 scale)
+void TriangleComponent::Update(DirectX::SimpleMath::Matrix mat,Vector4 offset, Vector4 scale)
 {
 	buffer.gWorldViewProj = mat;
 	buffer.offset = offset;

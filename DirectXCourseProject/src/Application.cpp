@@ -25,8 +25,8 @@ namespace Engine {
 
 		Initialize();
 
-		while (true) {
-
+		while (!isClosed) {
+			UpdateInternal();
 			Update();
 			Draw();
 		};
@@ -90,7 +90,7 @@ namespace Engine {
 
 	void Application::Initialize()
 	{
-		camera.SetPosition(0, 0, -10);
+		camera.SetPosition(0, 0, 100);
 		swapDesc.BufferCount = 2;
 		swapDesc.BufferDesc.Width = _display.getWidth();
 		swapDesc.BufferDesc.Height = _display.getHeight();
@@ -137,7 +137,11 @@ namespace Engine {
 		}
 
 		TriangleComponent* trag = new TriangleComponent(&Application::Instance());
+		TriangleComponent* trag1 = new TriangleComponent(&Application::Instance());
+		TriangleComponent* trag2 = new TriangleComponent(&Application::Instance());
 		Components.push_back(trag);
+		Components.push_back(trag1);
+		Components.push_back(trag2);
 
 		for (auto comp : Components) {
 			comp->Initialize();
@@ -149,7 +153,9 @@ namespace Engine {
 		rastDesc.FillMode = D3D11_FILL_WIREFRAME;
 
 
+		std::srand(std::time(nullptr));
 
+		ResetGame();
 
 
 		res = device->CreateRasterizerState(&rastDesc, &rastState);
@@ -209,8 +215,12 @@ namespace Engine {
 			//std::cout << InputDevice::Instance().getMousePos().x << InputDevice::Instance().getMousePos().y << std::endl;
 			//std::cout << "We are running!\n";
 		}
-
-		if(InputDevice::Instance().IsKeyDown(Keys::D))
+		if (InputDevice::Instance().IsKeyDown(Keys::Escape))
+		{
+			isClosed = true;
+			return true;
+		}
+		if (InputDevice::Instance().IsKeyDown(Keys::D))
 		{
 			camera.Strafe(1);
 		}
@@ -226,33 +236,123 @@ namespace Engine {
 		{
 			camera.Walk(-1);
 		}
+		if (InputDevice::Instance().IsKeyDown(Keys::U))
+		{
+			players[0].offset.y += 2;
+		}
+		if (InputDevice::Instance().IsKeyDown(Keys::J))
+		{
+			players[0].offset.y -= 2;
+		}
+		if (InputDevice::Instance().IsKeyDown(Keys::NumPad2))
+		{
+			players[1].offset.y -= 2;
+		}
+		if (InputDevice::Instance().IsKeyDown(Keys::NumPad8))
+		{
+			players[1].offset.y += 2;
+		}
 
 
-		
+		players[2].offset.x += players[2].speed.x;
+		players[2].offset.y += players[2].speed.y;
+
+		if (players[2].offset.y > 100 || players[2].offset.y < -100) players[2].speed.y *= -1;
+
+		if (players[2].offset.x + 6 > players[1].offset.x)
+		{
+			if (intersect(Vector2(players[2].offset.x - 3, players[2].offset.y - 3),
+				Vector2(players[2].offset.x + 3, players[2].offset.y + 3),
+				Vector2(players[1].offset.x - 3, players[1].offset.y - 15),
+				Vector2(players[1].offset.x + 3, players[1].offset.y + 15))
+				)
+			{
+				players[2].speed.x *= -1.5;
+			}
+			else
+			{
+				player1_score++;
+				std::cout << "Player 1 :" << player1_score << " Player2 : " << player2_score << std::endl;
+				ResetGame();
+			}
+		}
+
+		if (players[2].offset.x - 6 < players[0].offset.x)
+		{
+			if (intersect(
+				Vector2(players[0].offset.x - 3, players[0].offset.y - 15),
+				Vector2(players[0].offset.x + 3, players[0].offset.y + 15),
+				Vector2(players[2].offset.x - 3, players[2].offset.y - 3),
+				Vector2(players[2].offset.x + 3, players[2].offset.y + 3)
+			))
+
+			{
+				players[2].speed.x *= -1.5;
+			}
+			else
+			{
+				player2_score++;
+				std::cout << "Player 1 :" << player1_score << " Player2 : " << player2_score << std::endl;
+				ResetGame();
+			}
+		}
+
+		if (players[2].speed.x > 0.6) players[2].speed.x = 0.6;
+		if (players[2].speed.x < -0.6) players[2].speed.x = -0.6;
+
+
 		//camera.Pitch(0.01);
 		//camera.RotateY(0.01);
 		//camera.Strafe(1);
 		camera.UpdateViewMatrix();
 		Vector3 scale(5.0f, 1.0f, 1.0f);
-		Vector3 offset(1.0f,1.0f, 1.0f);
+		Vector3 offset(1.0f, 1.0f, 1.0f);
 
 		for (auto comp : Components) {
-			comp->Update(camera.ViewProj(),offset,scale);
+			for (size_t t = 0; t < Components.size(); t++) {
+				Components[t]->Update(camera.ViewProj(), players[t].offset, players[t].scale);
+			}
+
+
+
+
+			return true;
+		}
+	}
+
+		void Application::UpdateInternal()
+		{
+			auto	curTime = std::chrono::steady_clock::now();
+			float	deltaTime = std::chrono::duration_cast<std::chrono::microseconds>(curTime - PrevTime).count() / 1000000.0f;
+			PrevTime = curTime;
+
+			totalTime += deltaTime;
+			frameCount++;
+
+			if (totalTime > 1.0f) {
+				float fps = frameCount / totalTime;
+
+				totalTime -= 1.0f;
+
+				WCHAR text[256];
+				swprintf_s(text, TEXT("FPS: %f"), fps);
+				SetWindowText(_display.getHWND(), text);
+
+				frameCount = 0;
+			}
+		}
+		void Application::ResetGame()
+		{
+			players[0].offset = Vector4(-100, 0, 0, 1.0f);
+			players[1].offset = Vector4(100, 0, 0, 1.0f);
+
+			players[0].scale = Vector4(1, 10, 1, 1);
+			players[1].scale = Vector4(1, 10, 1, 1);
+			players[2].scale = Vector4(1.0f, 1.0f, 1.0f, 1);
+			players[2].offset = Vector4(0, 0, 0, 1.0f);
+			players[2].speed.x = ((double)std::rand() / (RAND_MAX + 1)) * 2;
+			players[2].speed.y = ((double)std::rand() / (RAND_MAX + 1)) * 2;
 		}
 
-
-		auto	curTime = std::chrono::steady_clock::now();
-		float	deltaTime = std::chrono::duration_cast<std::chrono::microseconds>(curTime - PrevTime).count() / 1000000.0f;
-		PrevTime = curTime;
-
-		totalTime += deltaTime;
-		frameCount++;
-
-		return true;
-	}
-
-	void Application::UpdateInternal()
-	{
-	}
 
 }
