@@ -4,7 +4,7 @@
 #include "../external/SimpleMath.h"
 #include "MathTypes.h"
 
-class TriangleComponent :
+class SphereComponent :
     public GameComponent
 {
 private:
@@ -28,19 +28,12 @@ private:
 
 
     // TODO: It doesnt work like that , points must declared somwhere else
-    DirectX::XMFLOAT4 points[8] = {
-        Vector4(-3.0f, 3.0f, -3.0f,1.0f),
-        Vector4(3.0f, 3.0f, -3.0f,1.0f),
-        Vector4(-3.0f, -3.0f, -3.0f,1.0f),
-        Vector4(3.0f, -3.0f, -3.0f,1.0f),
-        Vector4(-3.0f, 3.0f, 3.0f,1.0f),
-        Vector4(3.0f, 3.0f, 3.0f,1.0f),
-        Vector4(-3.0f, -3.0f, 3.0f,1.0f),
-        Vector4(3.0f, -3.0f, 3.0f,1.0f)
-    };
+    std::vector<Vector4> points;
+    std::vector<Vector4> dpoints;
+    std::vector<int> indeces;
 
     ID3DBlob* pixelB = nullptr;
-    ID3DBlob* errorPixelCode =nullptr;
+    ID3DBlob* errorPixelCode = nullptr;
 
     ID3DBlob* vertexBC = nullptr;
     ID3DBlob* errorVertexCode = nullptr;
@@ -49,20 +42,20 @@ private:
     ID3D11Buffer* ib;
     ID3DBlob* pixelBC;
 
-  
+
 
     ID3D11Buffer* vb;
     HRESULT res;
 
 public:
-    TriangleComponent(Engine::Application* app) : GameComponent(app) {
+    SphereComponent(Engine::Application* app) : GameComponent(app) {
 
     };
-    ~TriangleComponent();
+    ~SphereComponent();
     void DestroyResources();
     void Reload();
     bool Initialize();
-    void Update(DirectX::SimpleMath::Matrix mat,Vector4 offset, Vector4 scale, Matrix rotation);
+    void Update(DirectX::SimpleMath::Matrix mat, Vector4 offset, Vector4 scale, Matrix rotation);
     void Update();
     void Draw();
 };

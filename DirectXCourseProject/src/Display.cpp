@@ -2,6 +2,8 @@
 #include "Exports.h"
 #include "Display.h"
 
+#include "Application.h"
+
 
 
 
@@ -23,7 +25,7 @@ void WinApi_Display::OnChangeScreenSize() {
 
 bool WinApi_Display::PollMessages()
 {
-	//std::cout << "StartPollMessages\n";
+
 	MSG msg = {};
 	while (PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE)) {
 		TranslateMessage(&msg);
@@ -34,10 +36,12 @@ bool WinApi_Display::PollMessages()
 	if (msg.message == WM_QUIT) {
 		return false;
 	}
+	std::cout << "StartPollMessages\n";
+	
 
-	POINT p;
-	GetCursorPos(&p);
-	ScreenToClient(hWnd, &p);
+	//POINT p;
+	//GetCursorPos(&p);
+	//ScreenToClient(hWnd, &p);
 	//OnMouseMove.Broadcast(p.x, p.y);
 	//std::cout << "EndPollMessages\n";
 	return true;
@@ -66,22 +70,28 @@ void WinApi_Display::SetRawInputDevice()
 
 LRESULT WinApi_Display::WndProcStatic(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
-	WinApi_Display* pThis = nullptr;
-	if (message == WM_NCCREATE)
-	{
+	WinApi_Display* pThis; 
+	if (message == WM_NCCREATE) {
+
 		LPCREATESTRUCT lpcs = reinterpret_cast<LPCREATESTRUCT>(lParam);
 		pThis = static_cast<WinApi_Display*>(lpcs->lpCreateParams);
-		SetWindowLongPtr(hWnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(pThis));
+
+		SetWindowLongPtr(hWnd, GWLP_USERDATA,
+			reinterpret_cast<LONG_PTR>(pThis));
 	}
-	else
-	{
-		pThis = reinterpret_cast<WinApi_Display*>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
+	else {
+		pThis = reinterpret_cast<WinApi_Display*>(
+			GetWindowLongPtr(hWnd, GWLP_USERDATA));
+	}
+	if (pThis) {
 		return pThis->WndProc(hWnd, message, wParam, lParam);
 	}
-	if (pThis)
-		return pThis->WndProc(hWnd,message, wParam, lParam);
+
 	return DefWindowProc(hWnd, message, wParam, lParam);
+
 }
+	
+
 
 
 LRESULT WinApi_Display::WndProc(HWND hwnd, UINT umessage, WPARAM wparam, LPARAM lparam)
@@ -116,7 +126,7 @@ LRESULT WinApi_Display::WndProc(HWND hwnd, UINT umessage, WPARAM wparam, LPARAM 
 			//	raw->data.keyboard.Message,
 			//	raw->data.keyboard.VKey);
 
-			device.OnKeyDown(InputDevice::KeyboardInputEventArgs{
+			_app->getInput()->OnKeyDown(InputDevice::KeyboardInputEventArgs{
 				raw->data.keyboard.MakeCode,
 				raw->data.keyboard.Flags,
 				raw->data.keyboard.VKey,
@@ -135,7 +145,7 @@ LRESULT WinApi_Display::WndProc(HWND hwnd, UINT umessage, WPARAM wparam, LPARAM 
 			//printf(" Mouse: X=%04d Y:%04d \n", raw->data.mouse.lLastX, raw->data.mouse.lLastY);
 			//TODO: This delegates won't work rn
 
-			device.OnMouseMove(InputDevice::RawMouseEventArgs{
+			_app->getInput()->OnMouseMove(InputDevice::RawMouseEventArgs{
 			raw->data.mouse.usFlags,
 				raw->data.mouse.usButtonFlags,
 				static_cast<int>(raw->data.mouse.ulExtraInformation),
@@ -145,6 +155,7 @@ LRESULT WinApi_Display::WndProc(HWND hwnd, UINT umessage, WPARAM wparam, LPARAM 
 				raw->data.mouse.lLastY
 				});
 
+			
 
 			/*OnMouseMove.Broadcast({
 				raw->data.mouse.usFlags,
@@ -208,6 +219,8 @@ bool WinApi_Display::CreateDisplay()
 		std::cout << "Error while creating window!\n";
 		__debugbreak();
 	}
+
+
 	SetRawInputDevice();
 	ShowClientWindow();
 	

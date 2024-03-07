@@ -1,19 +1,8 @@
 #include "InputDevice.h"
-
+#include "Application.h"
 using namespace DirectX::SimpleMath;
 
-InputDevice& InputDevice::Instance()
-{
-	static InputDevice i{};
-	
-	return i;
-}
 
-
-InputDevice::InputDevice()
-{
-	Initialize();
-}
 
 InputDevice::~InputDevice()
 {
@@ -46,7 +35,12 @@ void InputDevice::OnMouseWheel(float mouseWheel)
 
 void InputDevice::OnMouseKey(int keyCode, bool isDown)
 {
-	/*if (args.ButtonFlags & static_cast<int>(MouseButtonFlags::LeftButtonDown))
+	
+}
+
+void InputDevice::OnMouseMove(RawMouseEventArgs args)
+{
+	if (args.ButtonFlags & static_cast<int>(MouseButtonFlags::LeftButtonDown))
 		AddPressedKey(Keys::LeftButton);
 	if (args.ButtonFlags & static_cast<int>(MouseButtonFlags::LeftButtonUp))
 		RemovePressedKey(Keys::LeftButton);
@@ -57,21 +51,15 @@ void InputDevice::OnMouseKey(int keyCode, bool isDown)
 	if (args.ButtonFlags & static_cast<int>(MouseButtonFlags::MiddleButtonDown))
 		AddPressedKey(Keys::MiddleButton);
 	if (args.ButtonFlags & static_cast<int>(MouseButtonFlags::MiddleButtonUp))
-		RemovePressedKey(Keys::MiddleButton);*/
-}
+		RemovePressedKey(Keys::MiddleButton);
 
-void InputDevice::OnMouseMove(RawMouseEventArgs args)
-{
-
-	
-
-
-	
+	MouseOffset.x = args.X;
+	MouseOffset.y= args.Y;
+	std::cout << args.X << " " << args.Y << "\n";
+	DOnMouseMove.Broadcast(MouseOffset);
 	MouseWheelDelta = args.WheelDelta;
+	//const MouseMoveEventArgs moveArgs = {MousePosition, MouseOffset, MouseWheelDelta};
 
-	const MouseMoveEventArgs moveArgs = {MousePosition, MouseOffset, MouseWheelDelta};
-
-	
 }
 
 void InputDevice::OnChangeScreenSize(int width, int height) {

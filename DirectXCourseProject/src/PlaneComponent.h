@@ -4,7 +4,7 @@
 #include "../external/SimpleMath.h"
 #include "MathTypes.h"
 
-class TriangleComponent :
+class PlaneComponent :
     public GameComponent
 {
 private:
@@ -40,7 +40,7 @@ private:
     };
 
     ID3DBlob* pixelB = nullptr;
-    ID3DBlob* errorPixelCode =nullptr;
+    ID3DBlob* errorPixelCode = nullptr;
 
     ID3DBlob* vertexBC = nullptr;
     ID3DBlob* errorVertexCode = nullptr;
@@ -49,20 +49,20 @@ private:
     ID3D11Buffer* ib;
     ID3DBlob* pixelBC;
 
-  
+
 
     ID3D11Buffer* vb;
     HRESULT res;
 
 public:
-    TriangleComponent(Engine::Application* app) : GameComponent(app) {
+    PlaneComponent(Engine::Application* app) : GameComponent(app) {
 
     };
-    ~TriangleComponent();
+    ~PlaneComponent();
     void DestroyResources();
     void Reload();
     bool Initialize();
-    void Update(DirectX::SimpleMath::Matrix mat,Vector4 offset, Vector4 scale, Matrix rotation);
+    void Update(DirectX::SimpleMath::Matrix mat, Vector4 offset, Vector4 scale, Matrix rotation);
     void Update();
     void Draw();
 };

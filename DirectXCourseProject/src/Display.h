@@ -4,11 +4,22 @@
 #include "../external/Delegates.h"
 #include <iostream>
 
+
+namespace Engine
+{
+	class Application;
+}
+
+
 class WinApi_Display
 {
 public:
 	WinApi_Display();
 	~WinApi_Display();
+	WinApi_Display(Engine::Application* app) : _app(app)
+	{
+
+	}
 	
 	bool CreateDisplay();
 	void ShowClientWindow();
@@ -27,9 +38,6 @@ public:
 	DECLARE_MULTICAST_DELEGATE(OnFocusChangedDelegate, bool);
 	OnFocusChangedDelegate OnFocusChanged;
 
-	DECLARE_MULTICAST_DELEGATE(OnMouseMoveDelegate,InputDevice::RawMouseEventArgs);
-	OnMouseMoveDelegate OnMouseMove;
-
 	DECLARE_MULTICAST_DELEGATE(OnKeyDownDelegate, InputDevice::KeyboardInputEventArgs);
 	OnKeyDownDelegate OnKeyDown;
 private:
@@ -44,7 +52,10 @@ private:
 	HINSTANCE hInstance;
 	RECT windowRect;
 
-	InputDevice device = InputDevice::Instance();
+	friend class Engine::Application;
+	Engine::Application* _app;
+
+	
 
 };
 

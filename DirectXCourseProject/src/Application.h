@@ -14,10 +14,12 @@ namespace Engine{
 	{
 	public:
 
-		static Application& Instance();
-
+		
 		Application();
 		~Application();
+
+
+		static Application* instance;
 		int Run();
 		void CreateBackBuffer();
 		void DestroyResources();
@@ -37,6 +39,8 @@ namespace Engine{
 			Vector4 offset;
 			Vector4 scale;
 			Vector2 speed;
+			float angle = 0;
+			Vector3 rotation;
 		};
 
 		bool intersect(Vector2 min_a, Vector2 max_a, Vector2 min_b, Vector2 max_b)
@@ -52,16 +56,28 @@ namespace Engine{
 		int player2_score = 0;
 		void ResetGame();
 
-		PlayerData players[3];
+		float angle = 0.0f;
 
-		WinApi_Display getDisplay() { return _display; };
+		PlayerData players[6];
+
+		
+
+
 		Microsoft::WRL::ComPtr<ID3D11Device> getDevice() { return device; };
 		ID3D11DeviceContext* getContext() { return context; };
+
+
+
+		WinApi_Display* getDisplay() { return _display; };
+		InputDevice* getInput() { return Device; }
+
+		std::chrono::time_point<std::chrono::steady_clock> PrevTime = std::chrono::steady_clock::now();
+		float	deltaTime;
 	private:
 
 		std::vector<GameComponent*> Components;
 
-		WinApi_Display _display;
+		WinApi_Display* _display;
 		DXGI_SWAP_CHAIN_DESC swapDesc;
 		Microsoft::WRL::ComPtr<ID3D11Device> device;
 		ID3D11DeviceContext* context;
@@ -78,10 +94,11 @@ namespace Engine{
 
 		
 
-		Camera camera;
+		Camera *camera;
+		InputDevice *Device;
 
 
-		std::chrono::time_point<std::chrono::steady_clock> PrevTime = std::chrono::steady_clock::now();
+		
 		float totalTime = 0;
 		unsigned int frameCount = 0;
 

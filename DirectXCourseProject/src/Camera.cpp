@@ -1,6 +1,8 @@
 #include "Camera.h"
 
-#include <ostream>
+#include <iostream>
+
+#include "Application.h"
 
 Camera::Camera()
 	: mPosition(0.0f, 0.0f, 0.0f),
@@ -8,7 +10,7 @@ Camera::Camera()
 	mUp(0.0f, 1.0f, 0.0f),
 	mLook(0.0f, 0.0f, 1.0f)
 {
-	SetLens(90 , 1.0f, 0.1f, 1000.0f);
+	SetLens(103 , 0.5, 0.1f, 1000.0f);
 }
 Camera::~Camera()
 {
@@ -122,7 +124,10 @@ void Camera::SetLens(float fovY, float aspect, float zn, float zf)
 	mNearWindowHeight = 2.0f * mNearZ * tanf(0.5f * mFovY);
 	mFarWindowHeight = 2.0f * mFarZ * tanf(0.5f * mFovY);
 
-	mProj = Matrix::CreatePerspectiveFieldOfView(mFovY, mAspect, mNearZ, mFarZ);;
+	mProj = Matrix::CreatePerspectiveFieldOfView(Math::Radians(mFovY), mAspect, mNearZ, mFarZ);
+	//mProj = DirectX::XMMatrixOrthographicLH(1600, 800, 0.1f, 1.0f);
+	
+	//mProj = Matrix::CreateOrthographic(800, 800, mNearZ, mFarZ);
 }
 
 void Camera::LookAt(Vector3 pos, Vector3 target, Vector3 worldUp)
@@ -166,6 +171,14 @@ void Camera::Walk(float d)
 	mPosition = p + (s * l);
 }
 
+void Camera::Fly(float d)
+{
+	Vector3 s(d);
+	Vector3 u = mUp;
+	Vector3 p = mPosition;
+	mPosition = p + (s * u);
+}
+
 void Camera::Pitch(float angle)
 {
 	Matrix R = Matrix::CreateFromAxisAngle(mRight, angle);
@@ -180,10 +193,37 @@ void Camera::RotateY(float angle)
 	Vector3::TransformNormal(mUp ,R, mUp);
 	Vector3::TransformNormal(mLook, R, mLook);
 }
+using namespace DirectX;
+inline XMVECTOR GMathFV(XMFLOAT3& val)
+{
+	return XMLoadFloat3(&val);
+}
+
+inline XMFLOAT3 GMathVF(XMVECTOR& vec)
+{
+	XMFLOAT3 val;
+	XMStoreFloat3(&val, vec);
+	return val;
+}
+
+void Camera::Rotate(Vector2 offset)
+{
+	angle_Pitch += (float)offset.y * ( _app->deltaTime) * SENSITIVITY;
+	angle_Yaw += (float)offset.x * (_app->deltaTime) * SENSITIVITY;
+	//std::cout << angle_Pitch << " " << angle_Yaw << "\n";
+	//std::cout << _app->deltaTime << " \n";
+	if (angle_Pitch > 89.0f)
+		angle_Pitch = 89.0f;
+	if (angle_Pitch < -89.0f)
+		angle_Pitch = -89.0f;
+ 	Pitch(Math::Radians(angle_Pitch));
+	RotateY(Math::Radians(angle_Yaw));
+}
 
 void Camera::UpdateViewMatrix()
 {
-	Vector3 R = mRight;
+	mView = XMMatrixLookAtLH(mPosition, mPosition + mLook, mUp);
+	/*Vector3 R = mRight;
 	Vector3 U = mUp;
 	Vector3 L = mLook;
 	Vector3 P = mPosition;
@@ -213,5 +253,10 @@ void Camera::UpdateViewMatrix()
 		mRight.y, mUp.y, mLook.y, 0.0f,
 		mRight.z, mUp.z, mLook.z, 0.0f,
 		x,y,z,1.0f
-	);
+	);*/
+}
+
+void Camera::Bind()
+{
+	_app->getInput()->DOnMouseMove.AddRaw(this, &Camera::Rotate);
 }

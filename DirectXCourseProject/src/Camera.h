@@ -4,11 +4,27 @@
 #include "iostream"
 
 
+namespace Engine
+{
+	class Application;
+}
+
 class Camera
 {
 public:
 	Camera();
 	~Camera();
+	Camera(Engine::Application* app) : _app(app)
+	{
+		mPosition = Vector3(0.0f, 0.0f, 0.0f);
+		mRight = Vector3(1.0f, 0.0f, 0.0f);
+		mUp = Vector3(0.0f, 1.0f, 0.0f);
+		mLook = Vector3(0.0f, 0.0f, 1.0f);
+		SetLens(103, 0.5, 0.1f, 1000.0f);
+	}
+	friend class Engine::Application;
+	Engine::Application* _app;
+
 
 	// Get/Set world camera position.
 	DirectX::XMVECTOR GetPositionXM()const;
@@ -52,13 +68,18 @@ public:
 	// Strafe/Walk the camera a distance d.
 	void Strafe(float d);
 	void Walk(float d);
+	void Fly(float d);
 
 	// Rotate the camera.
 	void Pitch(float angle);
 	void RotateY(float angle);
+	void Rotate(Vector2 offset);
 
 	// After modifying camera position/orientation, call to rebuild the view matrix.
 	void UpdateViewMatrix();
+
+
+	void Bind();
 
 private:
 
@@ -68,6 +89,8 @@ private:
 	Vector3 mUp;
 	Vector3 mLook;
 
+	Vector2 prevMousePos;
+
 	// Cache frustum properties.
 	float mNearZ;
 	float mFarZ;
@@ -75,6 +98,12 @@ private:
 	float mFovY;
 	float mNearWindowHeight;
 	float mFarWindowHeight;
+
+
+	const float SENSITIVITY = 0.01f;
+
+	float angle_Yaw=0;
+	float angle_Pitch=0;
 
 	// Cache View/Proj matrices.
 	Matrix mView;

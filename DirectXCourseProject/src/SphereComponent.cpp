@@ -1,22 +1,87 @@
-#include "TriangleComponent.h"
+#include "SphereComponent.h"
 #include "Application.h"
 
 
-TriangleComponent::~TriangleComponent()
+SphereComponent::~SphereComponent()
 {
 	std::cout << "We're creating triangle\n";
 }
 
-void TriangleComponent::DestroyResources()
+void SphereComponent::DestroyResources()
 {
 }
 
-void TriangleComponent::Reload()
+void SphereComponent::Reload()
 {
 }
 
-bool TriangleComponent::Initialize()
+bool SphereComponent::Initialize()
 {
+	float radius = 0.5f;
+	int sliceCount = 20;
+	int stackCount = 20;
+	float phiStep = DirectX::XM_PI / stackCount;
+	float thetaStep = 2.0f * DirectX::XM_PI / sliceCount;
+
+	points.push_back(Vector4(0, radius,0, 1 ));
+	points.push_back(Vector4(0, 1, 0, 1 ));
+	for (int i = 1; i <= stackCount - 1; i++)
+	{
+		float phi = i * phiStep;
+		for (int j = 0; j <= sliceCount; j++)
+		{
+			float theta = j * thetaStep;
+			Vector3 p = Vector3(
+				(radius * sinf(phi) * cosf(theta)),
+				(radius * cosf(phi)),
+				(radius * sinf(phi) * sinf(theta))
+			);
+			points.push_back(Vector4(p.x,p.y,p.z,1 ));
+			points.push_back(Vector4(p.x,p.y,p.z,1 ));
+		}
+	}
+	points.push_back(Vector4(0, -radius, 0, 1 ));
+	points.push_back(Vector4(0, -radius, 0, 1 ));
+
+	for (int i = 1; i <= sliceCount; i++)
+	{
+		indeces.push_back(0);
+		indeces.push_back(i + 1);
+		indeces.push_back(i);
+	}
+	int baseIndex = 1;
+	int ringVertexCount = sliceCount + 1;
+	for (int i = 0; i < stackCount - 2; i++)
+	{
+		for (int j = 0; j < sliceCount; j++)
+		{
+			indeces.push_back(baseIndex + i * ringVertexCount + j);
+			indeces.push_back(baseIndex + i * ringVertexCount + j + 1);
+			indeces.push_back(baseIndex + (i + 1) * ringVertexCount + j);
+
+			indeces.push_back(baseIndex + (i + 1) * ringVertexCount + j);
+			indeces.push_back(baseIndex + i * ringVertexCount + j + 1);
+			indeces.push_back(baseIndex + (i + 1) * ringVertexCount + j + 1);
+		}
+	}
+	int southPoleIndex = points.size() / 2 - 1;
+	baseIndex = southPoleIndex - ringVertexCount;
+	for (int i = 0; i < sliceCount; i++)
+	{
+		indeces.push_back(southPoleIndex);
+		indeces.push_back(baseIndex + i);
+		indeces.push_back(baseIndex + i + 1);
+	}
+
+	std::cout << points.size() << " " << indeces.size() << std::endl;
+
+	for (Vector4 p : points) {
+		DirectX::XMFLOAT4 XMp(p.x, p.y, p.z, p.w);
+		dpoints.push_back(XMp);
+	}
+
+
+
 	res = D3DCompileFromFile(L"./Shaders/MyVeryFirstShader.hlsl",
 	                         nullptr /*macros*/,
 	                         nullptr /*include*/,
@@ -48,7 +113,7 @@ bool TriangleComponent::Initialize()
 	D3D_SHADER_MACRO Shader_Macros[] = { "1", "TCOLOR", "float4(0.0f, 1.0f, 0.0f, 1.0f)", nullptr, nullptr};
 
 	res = D3DCompileFromFile(L"./Shaders/MyVeryFirstShader.hlsl", Shader_Macros /*macros*/, nullptr /*include*/,
-	                         "PSMain", "ps_5_0", D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION, 0, &pixelBC,
+	                         "PSMain", "ps_5_0", D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION | D3DCOMPILE_PACK_MATRIX_COLUMN_MAJOR, 0, &pixelBC,
 	                         &errorPixelCode);
 
 	if (FAILED(res))
@@ -115,40 +180,27 @@ bool TriangleComponent::Initialize()
 	vertexBufDesc.CPUAccessFlags = 0;
 	vertexBufDesc.MiscFlags = 0;
 	vertexBufDesc.StructureByteStride = 0;
-	vertexBufDesc.ByteWidth = sizeof(DirectX::XMFLOAT4) * std::size(points);
+	vertexBufDesc.ByteWidth = sizeof(Vector4) * dpoints.size();
 
 	D3D11_SUBRESOURCE_DATA vertexData = {};
-	vertexData.pSysMem = points;
+	vertexData.pSysMem = dpoints.data();
 	vertexData.SysMemPitch = 0;
 	vertexData.SysMemSlicePitch = 0;
 
 
 	_app->getDevice()->CreateBuffer(&vertexBufDesc, &vertexData, &vb);
 
-	int indeces[] = {
-		0, 1, 2,    // side 1
-		2, 1, 3,
-		4, 0, 6,    // side 2
-		6, 0, 2,
-		7, 5, 6,    // side 3
-		6, 5, 4,
-		3, 1, 7,    // side 4
-		7, 1, 5,
-		4, 5, 0,    // side 5
-		0, 5, 1,
-		3, 7, 2,  // side 6
-		2, 7, 6,
-};
+	
 	D3D11_BUFFER_DESC indexBufDesc = {};
 	indexBufDesc.Usage = D3D11_USAGE_DEFAULT;
 	indexBufDesc.BindFlags = D3D11_BIND_INDEX_BUFFER;
 	indexBufDesc.CPUAccessFlags = 0;
 	indexBufDesc.MiscFlags = 0;
 	indexBufDesc.StructureByteStride = 0;
-	indexBufDesc.ByteWidth = sizeof(int) * std::size(indeces);
+	indexBufDesc.ByteWidth = sizeof(int) * indeces.size();
 
 	D3D11_SUBRESOURCE_DATA indexData = {};
-	indexData.pSysMem = indeces;
+	indexData.pSysMem = indeces.data();
 	indexData.SysMemPitch = 0;
 	indexData.SysMemSlicePitch = 0;
 
@@ -166,12 +218,13 @@ bool TriangleComponent::Initialize()
 
 }
 
-void TriangleComponent::Update(DirectX::SimpleMath::Matrix mat,Vector4 offset, Vector4 scale, Matrix rotation)
+void SphereComponent::Update(DirectX::SimpleMath::Matrix mat,Vector4 offset, Vector4 scale, Matrix rotation)
 {
 	buffer.gWorldViewProj = mat;
 	buffer.offset = offset;
 	buffer.scale = scale;
 	buffer.rotation = rotation;
+
 
 	cbDesc.ByteWidth = sizeof(VS_CONSTANT_BUFFER);
 	cbDesc.Usage = D3D11_USAGE_DYNAMIC;
@@ -192,14 +245,14 @@ void TriangleComponent::Update(DirectX::SimpleMath::Matrix mat,Vector4 offset, V
 }
 
 
-void TriangleComponent::Update()
+void SphereComponent::Update()
 {
 
 }
 
-void TriangleComponent::Draw()
+void SphereComponent::Draw()
 {
-	UINT strides[] = {sizeof(Vector4)};
+	UINT strides[] = {sizeof(DirectX::XMFLOAT4)*2};
 	UINT offsets[] = {0};
 	_app->getContext()->RSSetState(rastState);
 	_app->getContext()->IASetInputLayout(layout);
@@ -209,5 +262,5 @@ void TriangleComponent::Draw()
 	_app->getContext()->VSSetShader(vertexShader, nullptr, 0);
 	_app->getContext()->PSSetShader(pixelShader, nullptr, 0);
 	_app->getContext()->VSSetConstantBuffers(0, 1, &g_pConstantBuffer11);
-	_app->getContext()->DrawIndexed(36, 0, 0);
+	_app->getContext()->DrawIndexed(indeces.size(), 0, 0);
 }

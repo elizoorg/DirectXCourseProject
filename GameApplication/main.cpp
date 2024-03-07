@@ -14,8 +14,9 @@
 
 
 #include <src/Application.h>
-
+using namespace Engine;
 int main()
 {
-	Engine::Application::Instance().Run();
+	Application app;
+	app.Run();
 }

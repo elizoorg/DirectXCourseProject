@@ -1,24 +1,26 @@
 #include "Application.h"
+
+#include "SphereComponent.h"
+
 namespace Engine {
-	Application& Application::Instance()
-	{
-		static Application a{};
-		return a;
-		// TODO: insert return statement here
-	}
+	
 	Application::Application()
 	{
+
+		instance = this;
+		Device = new InputDevice(this);
 		std::cout << "It's a Engine time\n";
 	}
-
+	Application* Application::instance = nullptr;
 	Application::~Application()
 	{
 	}
 
 
 	int Application::Run() {
-		
-		_display.CreateDisplay();
+
+		_display = new WinApi_Display(this);
+		_display->CreateDisplay();
 		//_display.OnMouseMove += [](InputDevice::RawMouseEventArgs args) {InputDevice::Instance().OnMouseMove(args); };
 		//_display.OnKeyDown += [](InputDevice::KeyboardInputEventArgs args) {InputDevice::Instance().OnKeyDown(args); };
 
@@ -55,8 +57,8 @@ namespace Engine {
 		context->ClearRenderTargetView(rtv, color);
 		context->ClearDepthStencilView(depthStencilView.Get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL,1.0f,0);
 		D3D11_VIEWPORT viewport = {};
-		viewport.Width = static_cast<float>(_display.getWidth());
-		viewport.Height = static_cast<float>(_display.getHeight());
+		viewport.Width = static_cast<float>(_display->getWidth());
+		viewport.Height = static_cast<float>(_display->getHeight());
 		viewport.TopLeftX = 0;
 		viewport.TopLeftY = 0;
 		viewport.MinDepth = 0;
@@ -90,17 +92,20 @@ namespace Engine {
 
 	void Application::Initialize()
 	{
-		camera.SetPosition(0, 0, 100);
+		Device = new InputDevice(this);
+		camera = new Camera(this);
+		camera->SetPosition(0, 0, 200);
+		camera->Bind();
 		swapDesc.BufferCount = 2;
-		swapDesc.BufferDesc.Width = _display.getWidth();
-		swapDesc.BufferDesc.Height = _display.getHeight();
+		swapDesc.BufferDesc.Width = _display->getWidth();
+		swapDesc.BufferDesc.Height = _display->getHeight();
 		swapDesc.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
 		swapDesc.BufferDesc.RefreshRate.Numerator = 60;
 		swapDesc.BufferDesc.RefreshRate.Denominator = 1;
 		swapDesc.BufferDesc.ScanlineOrdering = DXGI_MODE_SCANLINE_ORDER_UNSPECIFIED;
 		swapDesc.BufferDesc.Scaling = DXGI_MODE_SCALING_UNSPECIFIED;
 		swapDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
-		swapDesc.OutputWindow = _display.getHWND();
+		swapDesc.OutputWindow = _display->getHWND();
 		swapDesc.Windowed = true;
 		swapDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;
 		swapDesc.Flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH;
@@ -136,12 +141,18 @@ namespace Engine {
 			std::cout << "So,unexpected shit happens2\n";
 		}
 
-		TriangleComponent* trag = new TriangleComponent(&Application::Instance());
-		TriangleComponent* trag1 = new TriangleComponent(&Application::Instance());
-		TriangleComponent* trag2 = new TriangleComponent(&Application::Instance());
+		TriangleComponent* trag = new TriangleComponent(this);
+		TriangleComponent* trag1 = new TriangleComponent(this);
+		TriangleComponent* trag2 = new TriangleComponent(this);
+		SphereComponent* sphere = new SphereComponent(this);
+		SphereComponent* sphere2 = new SphereComponent(this);
+		SphereComponent* sphere3 = new SphereComponent(this);
 		Components.push_back(trag);
 		Components.push_back(trag1);
 		Components.push_back(trag2);
+		Components.push_back(sphere);
+		Components.push_back(sphere2);
+		Components.push_back(sphere3);
 
 		for (auto comp : Components) {
 			comp->Initialize();
@@ -164,8 +175,8 @@ namespace Engine {
 		}
 
 		D3D11_TEXTURE2D_DESC depthStencilDesc;
-		depthStencilDesc.Width= _display.getWidth();
-		depthStencilDesc.Height= _display.getHeight();
+		depthStencilDesc.Width= _display->getWidth();
+		depthStencilDesc.Height= _display->getHeight();
 		depthStencilDesc.MipLevels = 1;
 		depthStencilDesc.ArraySize = 1;
 		depthStencilDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
@@ -185,7 +196,6 @@ namespace Engine {
 		if (FAILED(res)) {
 			std::cout << "So,unexpected shit happens6\n";
 		}
-
 
 
 
@@ -211,46 +221,60 @@ namespace Engine {
 
 	bool Application::Update()
 	{
-		while (!_display.PollMessages()) {
-			//std::cout << InputDevice::Instance().getMousePos().x << InputDevice::Instance().getMousePos().y << std::endl;
-			//std::cout << "We are running!\n";
+		
+		while(!_display->PollMessages())
+		{
+			
 		}
-		if (InputDevice::Instance().IsKeyDown(Keys::Escape))
+		
+		if (Device->IsKeyDown(Keys::Escape))
 		{
 			isClosed = true;
 			return true;
 		}
-		if (InputDevice::Instance().IsKeyDown(Keys::D))
+		if (Device->IsKeyDown(Keys::D))
 		{
-			camera.Strafe(1);
+			camera->Strafe(1);
 		}
-		if (InputDevice::Instance().IsKeyDown(Keys::A))
+		if (Device->IsKeyDown(Keys::A))
 		{
-			camera.Strafe(-1);
+			camera->Strafe(-1);
 		}
-		if (InputDevice::Instance().IsKeyDown(Keys::W))
+		if (Device->IsKeyDown(Keys::S))
 		{
-			camera.Walk(1);
+			camera->Walk(1);
 		}
-		if (InputDevice::Instance().IsKeyDown(Keys::S))
+		if (Device->IsKeyDown(Keys::W))
 		{
-			camera.Walk(-1);
+			camera->Walk(-1);
 		}
-		if (InputDevice::Instance().IsKeyDown(Keys::U))
+		if (Device->IsKeyDown(Keys::Space))
+		{
+			camera->Fly(1);
+		}
+		if (Device->IsKeyDown(Keys::LeftShift))
+		{
+			camera->Fly(-1);
+		}
+		if (Device->IsKeyDown(Keys::U))
 		{
 			players[0].offset.y += 2;
 		}
-		if (InputDevice::Instance().IsKeyDown(Keys::J))
+		if (Device->IsKeyDown(Keys::J))
 		{
 			players[0].offset.y -= 2;
 		}
-		if (InputDevice::Instance().IsKeyDown(Keys::NumPad2))
+		if (Device->IsKeyDown(Keys::NumPad2))
 		{
 			players[1].offset.y -= 2;
 		}
-		if (InputDevice::Instance().IsKeyDown(Keys::NumPad8))
+		if (Device->IsKeyDown(Keys::NumPad8))
 		{
 			players[1].offset.y += 2;
+		}
+		
+		if (Device->IsKeyDown(Keys::LeftControl) || Device->IsKeyDown(Keys::RightAlt) ) {
+			std::cout << "It's working!\n";
 		}
 
 
@@ -273,7 +297,7 @@ namespace Engine {
 			{
 				player1_score++;
 				std::cout << "Player 1 :" << player1_score << " Player2 : " << player2_score << std::endl;
-				ResetGame();
+				//ResetGame();
 			}
 		}
 
@@ -293,7 +317,7 @@ namespace Engine {
 			{
 				player2_score++;
 				std::cout << "Player 1 :" << player1_score << " Player2 : " << player2_score << std::endl;
-				ResetGame();
+				//ResetGame();
 			}
 		}
 
@@ -301,29 +325,39 @@ namespace Engine {
 		if (players[2].speed.x < -0.6) players[2].speed.x = -0.6;
 
 
+		players[3].angle += 1;
+		players[4].angle -= 1;
+		players[5].angle += 5;
+
+		
+		players[4].offset = players[3].offset + Vector4::Transform(Vector4(50, 0, 0, 1.0f), Matrix::CreateFromAxisAngle(players[3].rotation,
+			Math::Radians(players[3].angle)));
+
+
 		//camera.Pitch(0.01);
 		//camera.RotateY(0.01);
 		//camera.Strafe(1);
-		camera.UpdateViewMatrix();
-		Vector3 scale(5.0f, 1.0f, 1.0f);
-		Vector3 offset(1.0f, 1.0f, 1.0f);
+		camera->UpdateViewMatrix();
+		//Vector3 scale(5.0f, 1.0f, 1.0f);
+		//Vector3 offset(1.0f, 1.0f, 1.0f);
 
-		for (auto comp : Components) {
+
 			for (size_t t = 0; t < Components.size(); t++) {
-				Components[t]->Update(camera.ViewProj(), players[t].offset, players[t].scale);
+				Components[t]->Update(camera->ViewProj(), players[t].offset, players[t].scale,
+					Matrix::CreateFromAxisAngle(players[t].rotation, Math::Radians(players[t].angle)));
 			}
 
 
 
 
 			return true;
-		}
+		
 	}
 
 		void Application::UpdateInternal()
 		{
 			auto	curTime = std::chrono::steady_clock::now();
-			float	deltaTime = std::chrono::duration_cast<std::chrono::microseconds>(curTime - PrevTime).count() / 1000000.0f;
+			deltaTime = std::chrono::duration_cast<std::chrono::microseconds>(curTime - PrevTime).count() / 1000000.0f;
 			PrevTime = curTime;
 
 			totalTime += deltaTime;
@@ -336,7 +370,7 @@ namespace Engine {
 
 				WCHAR text[256];
 				swprintf_s(text, TEXT("FPS: %f"), fps);
-				SetWindowText(_display.getHWND(), text);
+				SetWindowText(_display->getHWND(), text);
 
 				frameCount = 0;
 			}
@@ -352,6 +386,29 @@ namespace Engine {
 			players[2].offset = Vector4(0, 0, 0, 1.0f);
 			players[2].speed.x = ((double)std::rand() / (RAND_MAX + 1)) * 2;
 			players[2].speed.y = ((double)std::rand() / (RAND_MAX + 1)) * 2;
+
+
+			players[3].offset = Vector4(0, 0, 0, 1.0f);
+			players[3].scale = Vector4(10.0f, 10.0f, 10.0f, 1.0f);
+
+			players[3].rotation = Vector3(1, 0, 0);
+			players[4].rotation = Vector3(((double)rand() / (RAND_MAX)), ((double)rand() / (RAND_MAX)), ((double)rand() / (RAND_MAX)));
+			players[5].rotation = Vector3(((double)rand() / (RAND_MAX)), ((double)rand() / (RAND_MAX)), ((double)rand() / (RAND_MAX)));
+			
+			players[0].rotation = Vector3(0, 0, 0);
+			players[0].rotation = Vector3(1, 0, 0);
+			players[1].rotation = Vector3(0, 1, 0);
+			players[2].rotation = Vector3(0, 0, 1);
+			players[0].angle = 0;
+			players[1].angle = 0;
+			players[2].angle = 0;
+			
+			
+			players[4].offset = Vector4(-40, -40, 0, 1.0f);
+			players[4].scale = Vector4(10.0f, 10.0f, 10.0f, 1.0f);
+		
+			players[5].offset = Vector4(40, 40, 0, 1.0f);
+			players[5].scale = Vector4(10.0f, 10.0f, 10.0f, 1.0f);
 		}
 
 

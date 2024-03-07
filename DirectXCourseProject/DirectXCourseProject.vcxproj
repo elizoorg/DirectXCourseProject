@@ -19,6 +19,8 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\PlaneComponent.cpp" />
+    <ClCompile Include="src\SphereComponent.cpp" />
     <ClCompile Include="src\Camera.cpp" />
     <ClCompile Include="external\Delegates.cpp" />
     <ClCompile Include="external\SimpleMath.cpp" />
@@ -29,6 +31,8 @@
     <ClCompile Include="src\TriangleComponent.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\PlaneComponent.h" />
+    <ClInclude Include="src\SphereComponent.h" />
     <ClInclude Include="src\Camera.h" />
     <ClInclude Include="DirectXCourseProject.h" />
     <ClInclude Include="external\Delegates.h" />

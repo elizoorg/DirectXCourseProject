@@ -2,6 +2,14 @@
 #include "Exports.h"
 #include "../external/SimpleMath.h"
 #include "Keys.h"
+#include "../external/Delegates.h"
+#include "MathTypes.h"
+
+namespace Engine
+{
+	class Application;
+}
+
 struct ScreenSize {
 	int Width;
 	int Height;
@@ -15,7 +23,15 @@ class ENGINE_API InputDevice
 	struct KeyboardInputEventArgs;
 	struct RawMouseEventArgs;
 	std::unordered_set<Keys>* keys;
+
+	friend class Engine::Application;
+	Engine::Application* _app;
+
+
 public:
+
+	
+
 	struct RawMouseEventArgs
 	{
 		/*MOUSE_MOVE_RELATIVE*/
@@ -39,12 +55,19 @@ public:
 	int MouseWheelDelta;
 
 
+	DECLARE_MULTICAST_DELEGATE(OnMouseMoveDelegate, Vector2);
+	OnMouseMoveDelegate DOnMouseMove;
+
 	
 	
 public:
-	static InputDevice& Instance();
-	InputDevice();
 	~InputDevice();
+
+	InputDevice(Engine::Application* app) : _app(app)
+	{
+		Initialize();
+	}
+
 	ScreenSize ScreenParam;
 	struct KeyboardInputEventArgs {
 		/*
@@ -71,6 +94,7 @@ public:
 	void OnMouseWheel(float mouseWheel);
 	void OnChangeScreenSize(int width, int height);
 	DirectX::SimpleMath::Vector2 getMousePos() { return MousePosition; }
+	Vector2 getMouseOffset() { return MouseOffset; }
 protected:
 	
 	

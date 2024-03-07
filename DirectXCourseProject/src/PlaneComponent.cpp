@@ -1,31 +1,31 @@
-#include "TriangleComponent.h"
+#include "PlaneComponent.h"
 #include "Application.h"
 
 
-TriangleComponent::~TriangleComponent()
+PlaneComponent::~PlaneComponent()
 {
 	std::cout << "We're creating triangle\n";
 }
 
-void TriangleComponent::DestroyResources()
+void PlaneComponent::DestroyResources()
 {
 }
 
-void TriangleComponent::Reload()
+void PlaneComponent::Reload()
 {
 }
 
-bool TriangleComponent::Initialize()
+bool PlaneComponent::Initialize()
 {
 	res = D3DCompileFromFile(L"./Shaders/MyVeryFirstShader.hlsl",
-	                         nullptr /*macros*/,
-	                         nullptr /*include*/,
-	                         "VSMain",
-	                         "vs_5_0",
-	                         D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION,
-	                         0,
-	                         &vertexBC,
-	                         &errorVertexCode);
+		nullptr /*macros*/,
+		nullptr /*include*/,
+		"VSMain",
+		"vs_5_0",
+		D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION,
+		0,
+		&vertexBC,
+		&errorVertexCode);
 
 	if (FAILED(res))
 	{
@@ -45,11 +45,11 @@ bool TriangleComponent::Initialize()
 		return false;
 	}
 
-	D3D_SHADER_MACRO Shader_Macros[] = { "1", "TCOLOR", "float4(0.0f, 1.0f, 0.0f, 1.0f)", nullptr, nullptr};
+	D3D_SHADER_MACRO Shader_Macros[] = { "1", "TCOLOR", "float4(0.0f, 1.0f, 0.0f, 1.0f)", nullptr, nullptr };
 
 	res = D3DCompileFromFile(L"./Shaders/MyVeryFirstShader.hlsl", Shader_Macros /*macros*/, nullptr /*include*/,
-	                         "PSMain", "ps_5_0", D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION, 0, &pixelBC,
-	                         &errorPixelCode);
+		"PSMain", "ps_5_0", D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION, 0, &pixelBC,
+		&errorPixelCode);
 
 	if (FAILED(res))
 	{
@@ -138,7 +138,7 @@ bool TriangleComponent::Initialize()
 		0, 5, 1,
 		3, 7, 2,  // side 6
 		2, 7, 6,
-};
+	};
 	D3D11_BUFFER_DESC indexBufDesc = {};
 	indexBufDesc.Usage = D3D11_USAGE_DEFAULT;
 	indexBufDesc.BindFlags = D3D11_BIND_INDEX_BUFFER;
@@ -158,7 +158,7 @@ bool TriangleComponent::Initialize()
 
 	CD3D11_RASTERIZER_DESC rastDesc = {};
 	rastDesc.CullMode = D3D11_CULL_NONE;
-	rastDesc.FillMode = D3D11_FILL_SOLID;
+	rastDesc.FillMode = D3D11_FILL_WIREFRAME;
 
 	//ID3D11RasterizerState* rastState;
 	res = _app->getDevice()->CreateRasterizerState(&rastDesc, &rastState);
@@ -166,7 +166,7 @@ bool TriangleComponent::Initialize()
 
 }
 
-void TriangleComponent::Update(DirectX::SimpleMath::Matrix mat,Vector4 offset, Vector4 scale, Matrix rotation)
+void PlaneComponent::Update(DirectX::SimpleMath::Matrix mat, Vector4 offset, Vector4 scale, Matrix rotation)
 {
 	buffer.gWorldViewProj = mat;
 	buffer.offset = offset;
@@ -187,20 +187,20 @@ void TriangleComponent::Update(DirectX::SimpleMath::Matrix mat,Vector4 offset, V
 	InitData.SysMemSlicePitch = 0;
 	_app->getDevice()->CreateBuffer(&cbDesc, &InitData,
 		&g_pConstantBuffer11);
-	
+
 
 }
 
 
-void TriangleComponent::Update()
+void PlaneComponent::Update()
 {
 
 }
 
-void TriangleComponent::Draw()
+void PlaneComponent::Draw()
 {
-	UINT strides[] = {sizeof(Vector4)};
-	UINT offsets[] = {0};
+	UINT strides[] = { sizeof(Vector4) };
+	UINT offsets[] = { 0 };
 	_app->getContext()->RSSetState(rastState);
 	_app->getContext()->IASetInputLayout(layout);
 	_app->getContext()->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);

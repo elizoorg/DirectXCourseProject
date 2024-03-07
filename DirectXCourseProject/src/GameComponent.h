@@ -9,6 +9,7 @@ namespace Engine {
 class GameComponent
 {
 protected:
+	friend class Engine::Application;
 	Engine::Application* _app;
 public:
 	GameComponent(Engine::Application* app) : _app(app)
@@ -22,5 +23,5 @@ public:
 	virtual bool Initialize() = 0;
 	virtual void Reload() = 0;
 	virtual void Update() = 0;
-	virtual void Update(DirectX::SimpleMath::Matrix mat, Vector4 offset, Vector4 scale) = 0;
+	virtual void Update(DirectX::SimpleMath::Matrix mat, Vector4 offset, Vector4 scale,Matrix rotation) = 0;
 };
