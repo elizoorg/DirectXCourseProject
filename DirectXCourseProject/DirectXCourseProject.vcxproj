@@ -29,6 +29,7 @@
     <ClCompile Include="src\GameComponent.cpp" />
     <ClCompile Include="src\InputDevice.cpp" />
     <ClCompile Include="src\TriangleComponent.cpp" />
+    <ClCompile Include="src\Transform.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\PlaneComponent.h" />
@@ -49,6 +50,7 @@
     <ClInclude Include="src\Keys.h" />
     <ClInclude Include="src\TriangleComponent.h" />
     <ClInclude Include="targetver.h" />
+    <ClInclude Include="src\Transform.h" />
   </ItemGroup>
   <ItemGroup>
     <Natvis Include="external\Delegates.natvis" />

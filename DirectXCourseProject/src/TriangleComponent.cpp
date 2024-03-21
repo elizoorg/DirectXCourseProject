@@ -166,11 +166,11 @@ bool TriangleComponent::Initialize()
 
 }
 
-void TriangleComponent::Update(DirectX::SimpleMath::Matrix mat,Vector4 offset, Vector4 scale, Matrix rotation)
+void TriangleComponent::Update(DirectX::SimpleMath::Matrix mat, Vector3 offset, Vector3 scale, Matrix rotation)
 {
 	buffer.gWorldViewProj = mat;
-	buffer.offset = offset;
-	buffer.scale = scale;
+	buffer.offset = Vector4(offset.x,offset.y,offset.z,1.0f);
+	buffer.scale = Vector4(scale.x, scale.y,scale.z, 1.0f);;
 	buffer.rotation = rotation;
 
 	cbDesc.ByteWidth = sizeof(VS_CONSTANT_BUFFER);

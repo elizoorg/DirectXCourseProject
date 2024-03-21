@@ -34,14 +34,6 @@ namespace Engine{
 		bool Update();
 		void UpdateInternal();
 
-		struct PlayerData
-		{
-			Vector4 offset;
-			Vector4 scale;
-			Vector2 speed;
-			float angle = 0;
-			Vector3 rotation;
-		};
 
 		bool intersect(Vector2 min_a, Vector2 max_a, Vector2 min_b, Vector2 max_b)
 		{
@@ -56,12 +48,7 @@ namespace Engine{
 		int player2_score = 0;
 		void ResetGame();
 
-		float angle = 0.0f;
-
-		PlayerData players[6];
-
-		
-
+		Transform transform[6];
 
 		Microsoft::WRL::ComPtr<ID3D11Device> getDevice() { return device; };
 		ID3D11DeviceContext* getContext() { return context; };

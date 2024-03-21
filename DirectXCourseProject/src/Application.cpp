@@ -17,7 +17,7 @@ namespace Engine {
 	}
 
 
-	int Application::Run() {
+	int Application::Run() { 
 
 		_display = new WinApi_Display(this);
 		_display->CreateDisplay();
@@ -256,82 +256,19 @@ namespace Engine {
 		{
 			camera->Fly(-1);
 		}
-		if (Device->IsKeyDown(Keys::U))
-		{
-			players[0].offset.y += 2;
-		}
-		if (Device->IsKeyDown(Keys::J))
-		{
-			players[0].offset.y -= 2;
-		}
-		if (Device->IsKeyDown(Keys::NumPad2))
-		{
-			players[1].offset.y -= 2;
-		}
-		if (Device->IsKeyDown(Keys::NumPad8))
-		{
-			players[1].offset.y += 2;
-		}
+		
 		
 		if (Device->IsKeyDown(Keys::LeftControl) || Device->IsKeyDown(Keys::RightAlt) ) {
 			std::cout << "It's working!\n";
 		}
 
-
-		players[2].offset.x += players[2].speed.x;
-		players[2].offset.y += players[2].speed.y;
-
-		if (players[2].offset.y > 100 || players[2].offset.y < -100) players[2].speed.y *= -1;
-
-		if (players[2].offset.x + 6 > players[1].offset.x)
-		{
-			if (intersect(Vector2(players[2].offset.x - 3, players[2].offset.y - 3),
-				Vector2(players[2].offset.x + 3, players[2].offset.y + 3),
-				Vector2(players[1].offset.x - 3, players[1].offset.y - 15),
-				Vector2(players[1].offset.x + 3, players[1].offset.y + 15))
-				)
-			{
-				players[2].speed.x *= -1.5;
-			}
-			else
-			{
-				player1_score++;
-				std::cout << "Player 1 :" << player1_score << " Player2 : " << player2_score << std::endl;
-				//ResetGame();
-			}
-		}
-
-		if (players[2].offset.x - 6 < players[0].offset.x)
-		{
-			if (intersect(
-				Vector2(players[0].offset.x - 3, players[0].offset.y - 15),
-				Vector2(players[0].offset.x + 3, players[0].offset.y + 15),
-				Vector2(players[2].offset.x - 3, players[2].offset.y - 3),
-				Vector2(players[2].offset.x + 3, players[2].offset.y + 3)
-			))
-
-			{
-				players[2].speed.x *= -1.5;
-			}
-			else
-			{
-				player2_score++;
-				std::cout << "Player 1 :" << player1_score << " Player2 : " << player2_score << std::endl;
-				//ResetGame();
-			}
-		}
-
-		if (players[2].speed.x > 0.6) players[2].speed.x = 0.6;
-		if (players[2].speed.x < -0.6) players[2].speed.x = -0.6;
-
-
-		players[3].angle += 1;
-		players[4].angle -= 1;
-		players[5].angle += 5;
+		transform[3].setRotationSpeed(1);
+		transform[4].setRotationSpeed(-1);
+		transform[5].setRotationSpeed(5);
 
 		
-		players[4].offset = players[3].offset + Vector4::Transform(Vector4(50, 0, 0, 1.0f), Matrix::CreateFromAxisAngle(players[3].rotation,
-			Math::Radians(players[3].angle)));
+		transform[4].setPosition( transform[3].getPosition() + Vector3::Transform(Vector3(50, 0, 0), Matrix::CreateFromAxisAngle(transform[3].getRotationVector(),
+			Math::Radians(transform[3].getRotationAngle().x))));
 
 
 		//camera.Pitch(0.01);
@@ -339,18 +276,19 @@ namespace Engine {
 		//camera.Strafe(1);
 		camera->UpdateViewMatrix();
 		//Vector3 scale(5.0f, 1.0f, 1.0f);
-		//Vector3 offset(1.0f, 1.0f, 1.0f);
+		//Vector3 setPosition(1.0f, 1.0f, 1.0f);
+
+		for (size_t t = 0; t < 6; t++) {
+			transform[t].Update();
+		}
 
 
 			for (size_t t = 0; t < Components.size(); t++) {
-				Components[t]->Update(camera->ViewProj(), players[t].offset, players[t].scale,
-					Matrix::CreateFromAxisAngle(players[t].rotation, Math::Radians(players[t].angle)));
+				Components[t]->Update(camera->ViewProj(), transform[t].getPosition(), transform[t].getScale(),
+					Matrix::CreateTranslation(Vector3(50,50,50)) * Matrix::CreateFromAxisAngle(transform[t].getRotationVector(), Math::Radians(transform[t].getRotationAngle().x)));
 			}
 
-
-
-
-			return true;
+		return true;
 		
 	}
 
@@ -377,38 +315,39 @@ namespace Engine {
 		}
 		void Application::ResetGame()
 		{
-			players[0].offset = Vector4(-100, 0, 0, 1.0f);
-			players[1].offset = Vector4(100, 0, 0, 1.0f);
+			transform[0].setPosition(Vector3(-100, 0, 0));
+			transform[1].setPosition(Vector3(100, 0, 0));
 
-			players[0].scale = Vector4(1, 10, 1, 1);
-			players[1].scale = Vector4(1, 10, 1, 1);
-			players[2].scale = Vector4(1.0f, 1.0f, 1.0f, 1);
-			players[2].offset = Vector4(0, 0, 0, 1.0f);
-			players[2].speed.x = ((double)std::rand() / (RAND_MAX + 1)) * 2;
-			players[2].speed.y = ((double)std::rand() / (RAND_MAX + 1)) * 2;
+			transform[0].setScale(Vector3(1, 10, 1));
+			transform[1].setScale(Vector3(1, 10, 1));
+			transform[2].setScale(Vector3(1.0f, 1.0f, 1.0f));
+			transform[2].setPosition(Vector3(0, 0, 0));
+			transform[2].setSpeed(Vector3((double)std::rand() / (RAND_MAX + 1) * 2,
+			(double)std::rand() / (RAND_MAX + 1) * 2 , 0));
+
+			transform[3].setRotationAngle(Vector3(0, 0, 0));
+			transform[3].setPosition(Vector3(0, 0, 0));
+			transform[3].setScale(Vector3(10.0f, 10.0f, 10.0f));
+
+			transform[3].setRotationVector(Vector3(1, 0, 0));
 
 
-			players[3].offset = Vector4(0, 0, 0, 1.0f);
-			players[3].scale = Vector4(10.0f, 10.0f, 10.0f, 1.0f);
-
-			players[3].rotation = Vector3(1, 0, 0);
-			players[4].rotation = Vector3(((double)rand() / (RAND_MAX)), ((double)rand() / (RAND_MAX)), ((double)rand() / (RAND_MAX)));
-			players[5].rotation = Vector3(((double)rand() / (RAND_MAX)), ((double)rand() / (RAND_MAX)), ((double)rand() / (RAND_MAX)));
+			transform[4].setRotationVector(Vector3(((double)rand() / (RAND_MAX)), ((double)rand() / (RAND_MAX)), ((double)rand() / (RAND_MAX))));
+			transform[5].setRotationVector(Vector3(((double)rand() / (RAND_MAX)), ((double)rand() / (RAND_MAX)), ((double)rand() / (RAND_MAX))));
 			
-			players[0].rotation = Vector3(0, 0, 0);
-			players[0].rotation = Vector3(1, 0, 0);
-			players[1].rotation = Vector3(0, 1, 0);
-			players[2].rotation = Vector3(0, 0, 1);
-			players[0].angle = 0;
-			players[1].angle = 0;
-			players[2].angle = 0;
+			transform[0].setRotationVector(Vector3(1, 0, 0));
+			transform[1].setRotationVector(Vector3(0, 1, 0));
+			transform[2].setRotationVector(Vector3(0, 0, 1));
+
+			transform[0].setRotationAngle(Vector3(0,0,0));
+			transform[1].setRotationAngle(Vector3(0, 0, 0));
+			transform[2].setRotationAngle(Vector3(0, 0, 0));
 			
-			
-			players[4].offset = Vector4(-40, -40, 0, 1.0f);
-			players[4].scale = Vector4(10.0f, 10.0f, 10.0f, 1.0f);
+			transform[4].setPosition(Vector3(-40, -40, 0));
+			transform[4].setScale(Vector3(10.0f, 10.0f, 10.0f));
 		
-			players[5].offset = Vector4(40, 40, 0, 1.0f);
-			players[5].scale = Vector4(10.0f, 10.0f, 10.0f, 1.0f);
+			transform[5].setPosition(Vector3(40, 40, 0));
+			transform[5].setScale(Vector3(10.0f, 10.0f, 10.0f));
 		}
 
 

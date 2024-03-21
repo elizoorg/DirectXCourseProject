@@ -62,7 +62,7 @@ public:
     void DestroyResources();
     void Reload();
     bool Initialize();
-    void Update(DirectX::SimpleMath::Matrix mat, Vector4 offset, Vector4 scale, Matrix rotation);
+    virtual void Update(DirectX::SimpleMath::Matrix mat, Vector3 offset, Vector3 scale, Matrix rotation);
     void Update();
     void Draw();
 };
