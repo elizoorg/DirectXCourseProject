@@ -1,5 +1,6 @@
 #include "InputDevice.h"
 #include "Application.h"
+#include <imgui.h>
 using namespace DirectX::SimpleMath;
 
 
@@ -40,6 +41,8 @@ void InputDevice::OnMouseKey(int keyCode, bool isDown)
 
 void InputDevice::OnMouseMove(RawMouseEventArgs args)
 {
+
+
 	if (args.ButtonFlags & static_cast<int>(MouseButtonFlags::LeftButtonDown))
 		AddPressedKey(Keys::LeftButton);
 	if (args.ButtonFlags & static_cast<int>(MouseButtonFlags::LeftButtonUp))

@@ -301,6 +301,17 @@
 		{
 			camera->Fly(-1);
 		}
+		if (Device->IsKeyDown(Keys::LeftButton)) {
+			ImGuiIO& io = ImGui::GetIO();
+			io.AddMouseButtonEvent(0, true);
+		}
+		else {
+			ImGuiIO& io = ImGui::GetIO();
+			io.AddMouseButtonEvent(0, false);
+		}
+
+
+		
 
 
 		if (Device->IsKeyDown(Keys::LeftControl) || Device->IsKeyDown(Keys::RightAlt)) {
