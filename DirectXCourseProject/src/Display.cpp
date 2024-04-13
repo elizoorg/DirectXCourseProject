@@ -3,6 +3,7 @@
 #include "Display.h"
 
 #include "Application.h"
+#include "../external/ImGui/imgui.h"
 
 
 
@@ -36,7 +37,6 @@ bool WinApi_Display::PollMessages()
 	if (msg.message == WM_QUIT) {
 		return false;
 	}
-	std::cout << "StartPollMessages\n";
 	
 
 	//POINT p;
@@ -70,6 +70,8 @@ void WinApi_Display::SetRawInputDevice()
 
 LRESULT WinApi_Display::WndProcStatic(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
+
+
 	WinApi_Display* pThis; 
 	if (message == WM_NCCREATE) {
 
@@ -91,11 +93,15 @@ LRESULT WinApi_Display::WndProcStatic(HWND hWnd, UINT message, WPARAM wParam, LP
 
 }
 	
-
+extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
 
 LRESULT WinApi_Display::WndProc(HWND hwnd, UINT umessage, WPARAM wparam, LPARAM lparam)
 {
+	if (ImGui_ImplWin32_WndProcHandler(hWnd, umessage, wparam, lparam))
+		return true;
+
+
 	switch (umessage)
 	{
 	case WM_DESTROY:

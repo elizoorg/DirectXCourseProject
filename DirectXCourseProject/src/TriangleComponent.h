@@ -4,7 +4,7 @@
 #include "../external/SimpleMath.h"
 #include "MathTypes.h"
 
-class TriangleComponent :
+class ENGINE_API TriangleComponent :
     public GameComponent
 {
 private:

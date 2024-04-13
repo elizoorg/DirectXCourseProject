@@ -4,7 +4,7 @@
 #include "../external/SimpleMath.h"
 #include "MathTypes.h"
 
-class SphereComponent :
+class ENGINE_API SphereComponent :
     public GameComponent
 {
 private:

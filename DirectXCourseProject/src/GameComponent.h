@@ -3,11 +3,12 @@
 #include "../external/SimpleMath.h"
 #include "Transform.h"
 #include "MathTypes.h"
+
 namespace Engine {
 	class Application;
 }
 
-class GameComponent
+class ENGINE_API GameComponent
 {
 protected:
 	friend class Engine::Application;
@@ -15,11 +16,16 @@ protected:
 	Transform transform;
 
 public:
-	GameComponent(Engine::Application* app) : _app(app)
-	{
+	GameComponent(Engine::Application* app) : _app(app){
 
 	};
-	GameComponent& operator= (const GameComponent&) {}
+	GameComponent& operator= (const GameComponent& other) {
+		if (this == &other)
+			return *this;
+		transform = std::move(other.transform);
+		return *this;
+			
+	}
 	~GameComponent();
 	virtual void DestroyResources() = 0;
 	virtual void Draw() = 0;

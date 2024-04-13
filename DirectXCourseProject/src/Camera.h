@@ -1,6 +1,7 @@
 #pragma once
 #include "../external/SimpleMath.h"
 #include "MathTypes.h"
+#include "Exports.h"
 #include "iostream"
 
 
@@ -9,7 +10,7 @@ namespace Engine
 	class Application;
 }
 
-class Camera
+class ENGINE_API Camera
 {
 public:
 	Camera();
@@ -99,11 +100,13 @@ private:
 	float mNearWindowHeight;
 	float mFarWindowHeight;
 
+	DirectX::SimpleMath::Quaternion rotation_;
 
-	const float SENSITIVITY = 0.01f;
 
-	float angle_Yaw=0;
-	float angle_Pitch=0;
+	const double SENSITIVITY = 0.000000001f;
+
+	float angle_Yaw=-180.0f;
+	float angle_Pitch=0.0f;
 
 	// Cache View/Proj matrices.
 	Matrix mView;

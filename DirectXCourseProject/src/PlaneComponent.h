@@ -4,7 +4,7 @@
 #include "../external/SimpleMath.h"
 #include "MathTypes.h"
 
-class PlaneComponent :
+class ENGINE_API PlaneComponent :
     public GameComponent
 {
 private:

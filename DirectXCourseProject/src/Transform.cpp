@@ -56,6 +56,6 @@ void Transform::UpdateChilds()
 
 void Transform::Update()
 {
-	Position += Speed;
+	Position += Velocity;
 	RotationAngles += RotationSpeed;
 }

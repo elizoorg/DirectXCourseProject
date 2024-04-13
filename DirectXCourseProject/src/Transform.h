@@ -1,8 +1,9 @@
 #pragma once
 #include "MathTypes.h"
+#include "Exports.h"
 #include "pch.h"
 
-class Transform
+class ENGINE_API Transform
 {
 	Vector3 Position;
 	Vector3 RotationVector;

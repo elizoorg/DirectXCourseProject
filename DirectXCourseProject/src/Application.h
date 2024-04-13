@@ -13,26 +13,20 @@ namespace Engine{
 	class ENGINE_API Application
 	{
 	public:
-
-		
-		Application();
-		~Application();
-
-
 		static Application* instance;
-		int Run();
-		void CreateBackBuffer();
-		void DestroyResources();
-		void Draw();
-		void EndFrame();
-		void Exit();
-		void Initialize();
-		void MessageHandler();
-		void PrepareFrame();
-		void PrepareRecources();
-		void RestoreTargets();
-		bool Update();
-		void UpdateInternal();
+		virtual int Run() = 0;
+		virtual void DestroyResources() = 0;
+		virtual void Draw() = 0;
+		virtual void CreateBackBuffer() = 0;
+		virtual void EndFrame() = 0;
+		virtual void Exit() = 0;
+		virtual void Initialize() = 0;
+		virtual void MessageHandler() = 0;
+		virtual void PrepareFrame() = 0;
+		virtual void PrepareRecources() = 0;
+		virtual void RestoreTargets() = 0;
+		virtual bool Update() = 0;
+		virtual void UpdateInternal() = 0;
 
 
 		bool intersect(Vector2 min_a, Vector2 max_a, Vector2 min_b, Vector2 max_b)
@@ -59,8 +53,8 @@ namespace Engine{
 		InputDevice* getInput() { return Device; }
 
 		std::chrono::time_point<std::chrono::steady_clock> PrevTime = std::chrono::steady_clock::now();
-		float	deltaTime;
-	private:
+		float	deltaTime = 0;
+	protected:
 
 		std::vector<GameComponent*> Components;
 

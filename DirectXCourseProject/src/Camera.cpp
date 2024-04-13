@@ -157,6 +157,7 @@ Matrix Camera::ViewProj() const
 
 void Camera::Strafe(float d)
 {
+	// TODO: fix movement, it must depend by rotation quaternion
 	Vector3 s(d);
 	Vector3 r = mRight;
 	Vector3 p = mPosition;
@@ -181,6 +182,7 @@ void Camera::Fly(float d)
 
 void Camera::Pitch(float angle)
 {
+	std::cout << "RotateY " << angle << std::endl;
 	Matrix R = Matrix::CreateFromAxisAngle(mRight, angle);
 	Vector3::TransformNormal(mUp, R, mUp);
 	Vector3::TransformNormal(mLook, R, mLook);
@@ -188,6 +190,7 @@ void Camera::Pitch(float angle)
 
 void Camera::RotateY(float angle)
 {
+	std::cout << "RotateX " << angle << std::endl;
 	Matrix R = Matrix::CreateRotationY(angle);
 	Vector3::TransformNormal(mRight, R, mRight);
 	Vector3::TransformNormal(mUp ,R, mUp);
@@ -208,21 +211,31 @@ inline XMFLOAT3 GMathVF(XMVECTOR& vec)
 
 void Camera::Rotate(Vector2 offset)
 {
-	angle_Pitch += (float)offset.y * ( _app->deltaTime) * SENSITIVITY;
-	angle_Yaw += (float)offset.x * (_app->deltaTime) * SENSITIVITY;
+	//std::cout << _app->deltaTime << std::endl;
+	//std::cout << (float)offset.y * (_app->deltaTime) << " " <<(float)offset.x * (_app->deltaTime) << std::endl;
+	//offset.x *= SENSITIVITY;
+	//offset.y *= SENSITIVITY;
+	//angle_Pitch += offset.x * _app->deltaTime;
+	//angle_Yaw += offset.y * _app->deltaTime;
 	//std::cout << angle_Pitch << " " << angle_Yaw << "\n";
 	//std::cout << _app->deltaTime << " \n";
-	if (angle_Pitch > 89.0f)
-		angle_Pitch = 89.0f;
-	if (angle_Pitch < -89.0f)
-		angle_Pitch = -89.0f;
- 	Pitch(Math::Radians(angle_Pitch));
-	RotateY(Math::Radians(angle_Yaw));
+	rotation_ *= Quaternion::CreateFromAxisAngle(Vector3::Up, static_cast<float>(offset.x) * _app->deltaTime);
+	rotation_ *= Quaternion::CreateFromAxisAngle(Vector3::Right, static_cast<float>(-offset.y) * _app->deltaTime);
+
+
+	//Pitch(Math::Radians(angle_Pitch));
+	//RotateY(Math::Radians(angle_Yaw));
 }
 
 void Camera::UpdateViewMatrix()
 {
-	mView = XMMatrixLookAtLH(mPosition, mPosition + mLook, mUp);
+    const auto rot = rotation_.ToEuler();
+	const auto rotation = Quaternion::CreateFromYawPitchRoll(-rot.y, rot.x, 0);
+	const auto target = Vector3::Transform(Vector3::Forward, rotation);
+	const auto up = Vector3::Transform(Vector3::Up, rotation);
+	mView = XMMatrixLookAtLH(mPosition, mPosition + target, up);
+	//angle_Yaw += 1;
+	//Rotate(Vector2(0.0f,0.0f));
 	/*Vector3 R = mRight;
 	Vector3 U = mUp;
 	Vector3 L = mLook;

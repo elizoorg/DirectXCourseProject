@@ -11,7 +11,7 @@ namespace Engine
 }
 
 
-class WinApi_Display
+class ENGINE_API WinApi_Display
 {
 public:
 	WinApi_Display();

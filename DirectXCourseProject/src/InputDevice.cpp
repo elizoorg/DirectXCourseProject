@@ -55,7 +55,8 @@ void InputDevice::OnMouseMove(RawMouseEventArgs args)
 
 	MouseOffset.x = args.X;
 	MouseOffset.y= args.Y;
-	std::cout << args.X << " " << args.Y << "\n";
+
+
 	DOnMouseMove.Broadcast(MouseOffset);
 	MouseWheelDelta = args.WheelDelta;
 	//const MouseMoveEventArgs moveArgs = {MousePosition, MouseOffset, MouseWheelDelta};
