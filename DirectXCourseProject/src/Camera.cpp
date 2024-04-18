@@ -229,7 +229,7 @@ void Camera::Rotate(Vector2 offset)
 
 void Camera::UpdateViewMatrix()
 {
-    const auto rot = rotation_.ToEuler();
+	const auto rot = rotation_.ToEuler();
 	const auto rotation = Quaternion::CreateFromYawPitchRoll(-rot.y, rot.x, 0);
 	const auto target = Vector3::Transform(Vector3::Forward, rotation);
 	const auto up = Vector3::Transform(Vector3::Up, rotation);
