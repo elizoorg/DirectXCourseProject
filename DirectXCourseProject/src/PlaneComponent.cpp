@@ -4,11 +4,16 @@
 
 PlaneComponent::~PlaneComponent()
 {
+	DestroyResources();
 	std::cout << "We're creating triangle\n";
 }
 
 void PlaneComponent::DestroyResources()
 {
+	g_pConstantBuffer11->Release();
+	ib->Release();
+	vb->Release();
+
 }
 
 void PlaneComponent::Reload()
@@ -166,12 +171,14 @@ bool PlaneComponent::Initialize()
 
 }
 
-void PlaneComponent::Update(DirectX::SimpleMath::Matrix mat, Vector3 offset, Vector3 scale, Matrix rotation)
+void PlaneComponent::Update(Matrix cameraProjection,Matrix cameraView, Matrix world)
 {
-	buffer.gWorldViewProj = mat;
-	buffer.offset = Vector4(offset.x, offset.y, offset.z, 1.0f);
-	buffer.scale = Vector4(scale.x, scale.y, scale.z, 1.0f);;
-	buffer.rotation = rotation;
+	if (g_pConstantBuffer11) {
+		g_pConstantBuffer11->Release();
+	}
+	buffer.cameraProj = cameraProjection;
+	buffer.cameraView = cameraView;
+	buffer.world = world;
 
 	cbDesc.ByteWidth = sizeof(VS_CONSTANT_BUFFER);
 	cbDesc.Usage = D3D11_USAGE_DYNAMIC;

@@ -30,8 +30,8 @@ public:
 	int getHeight() { return screenHeight; }
 	HWND getHWND() { return hWnd; }
 
-	int screenWidth =1600;
-	int screenHeight = 800;
+	int screenWidth =1920;
+	int screenHeight = 1080;
 
 	static constexpr const char* WINDOW_CLASS_NAME = "WndClass";
 

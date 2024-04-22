@@ -18,12 +18,12 @@ private:
     D3D11_SUBRESOURCE_DATA InitData;
 
 
+
     struct VS_CONSTANT_BUFFER
     {
-        Matrix gWorldViewProj;
-        Vector4 offset;
-        Vector4 scale;
-        Matrix rotation;
+        Matrix world;
+        Matrix cameraView;
+        Matrix cameraProj;
     } buffer;
 
 
@@ -62,7 +62,7 @@ public:
     void DestroyResources();
     void Reload();
     bool Initialize();
-    virtual void Update(DirectX::SimpleMath::Matrix mat, Vector3 offset, Vector3 scale, Matrix rotation);
+    virtual void Update(Matrix cameraProjection, Matrix cameraView, Matrix world);
     void Update();
     void Draw();
 };

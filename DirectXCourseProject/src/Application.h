@@ -42,6 +42,8 @@ namespace Engine{
 		int player2_score = 0;
 		void ResetGame();
 
+		bool isMouseUsed = true;
+
 		Transform transform[6];
 
 		Microsoft::WRL::ComPtr<ID3D11Device> getDevice() { return device; };

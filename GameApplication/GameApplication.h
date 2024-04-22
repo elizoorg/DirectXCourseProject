@@ -10,14 +10,15 @@
 #include <src/SphereComponent.h>
 #include <cstdlib>
 #include <ctime>
-
+#include <math.h>
 
 #include "ImGui/imgui.h"
 #include "ImGui/imgui_impl_win32.h"
 #include "ImGui/imgui_impl_dx11.h"
 
 class ENGINE_API Engine::Application;
-	class GameApplication: public Engine::Application
+
+class GameApplication: public Engine::Application
 	{
 	public:
 
@@ -42,6 +43,7 @@ class ENGINE_API Engine::Application;
 		void UpdateInternal() override;
 
 
+
 		bool intersect(Vector2 min_a, Vector2 max_a, Vector2 min_b, Vector2 max_b)
 		{
 			return (min_a.x <= max_b.x) &&
@@ -55,9 +57,26 @@ class ENGINE_API Engine::Application;
 		int player2_score = 0;
 		void ResetGame();
 
+		float angle = 0;
+
+
 		ID3D11RenderTargetView* g_mainRenderTargetView = nullptr;
 
-		Transform transform[6];
+		Transform transform[22];
+
+		float rand_FloatRange(float a, float b)
+		{
+			return ((b - a) * ((float)rand() / RAND_MAX)) + a;
+		}
+
+		struct PlanetTransform {
+			Vector3 joint = Vector3(0,0,0);
+			float radius;
+			float angle=5.0f;
+			float angle2=5.0f;
+			float angleSpeed;
+			float angleSpeed2;
+		} planets[22];
 
 
 	};

@@ -4,11 +4,15 @@
 
 TriangleComponent::~TriangleComponent()
 {
+	DestroyResources();
 	std::cout << "We're creating triangle\n";
 }
 
 void TriangleComponent::DestroyResources()
 {
+	g_pConstantBuffer11->Release();
+	ib->Release();
+	vb->Release();
 }
 
 void TriangleComponent::Reload()
@@ -166,12 +170,14 @@ bool TriangleComponent::Initialize()
 
 }
 
-void TriangleComponent::Update(DirectX::SimpleMath::Matrix mat, Vector3 offset, Vector3 scale, Matrix rotation)
+void TriangleComponent::Update(Matrix cameraProjection, Matrix cameraView, Matrix world)
 {
-	buffer.gWorldViewProj = mat;
-	buffer.offset = Vector4(offset.x,offset.y,offset.z,1.0f);
-	buffer.scale = Vector4(scale.x, scale.y,scale.z, 1.0f);;
-	buffer.rotation = rotation;
+	if (g_pConstantBuffer11) {
+		g_pConstantBuffer11->Release();
+	}
+	buffer.cameraProj = cameraProjection;
+	buffer.cameraView = cameraView;
+	buffer.world = world;
 
 	cbDesc.ByteWidth = sizeof(VS_CONSTANT_BUFFER);
 	cbDesc.Usage = D3D11_USAGE_DYNAMIC;
@@ -187,9 +193,10 @@ void TriangleComponent::Update(DirectX::SimpleMath::Matrix mat, Vector3 offset, 
 	InitData.SysMemSlicePitch = 0;
 	_app->getDevice()->CreateBuffer(&cbDesc, &InitData,
 		&g_pConstantBuffer11);
-	
+
 
 }
+
 
 
 void TriangleComponent::Update()

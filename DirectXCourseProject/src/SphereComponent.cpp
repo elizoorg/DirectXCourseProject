@@ -4,11 +4,15 @@
 
 SphereComponent::~SphereComponent()
 {
+	DestroyResources();
 	std::cout << "We're creating triangle\n";
 }
 
 void SphereComponent::DestroyResources()
 {
+	g_pConstantBuffer11->Release();
+	ib->Release();
+	vb->Release();
 }
 
 void SphereComponent::Reload()
@@ -218,12 +222,14 @@ bool SphereComponent::Initialize()
 
 }
 
-void SphereComponent::Update(DirectX::SimpleMath::Matrix mat, Vector3 offset, Vector3 scale, Matrix rotation)
+void SphereComponent::Update(Matrix cameraProjection, Matrix cameraView, Matrix world)
 {
-	buffer.gWorldViewProj = mat;
-	buffer.offset = Vector4(offset.x, offset.y, offset.z, 1.0f);
-	buffer.scale = Vector4(scale.x, scale.y, scale.z, 1.0f);;
-	buffer.rotation = rotation;
+	if (g_pConstantBuffer11) {
+		g_pConstantBuffer11->Release();
+	}
+	buffer.cameraProj = cameraProjection;
+	buffer.cameraView = cameraView;
+	buffer.world = world;
 
 	cbDesc.ByteWidth = sizeof(VS_CONSTANT_BUFFER);
 	cbDesc.Usage = D3D11_USAGE_DYNAMIC;
@@ -239,9 +245,10 @@ void SphereComponent::Update(DirectX::SimpleMath::Matrix mat, Vector3 offset, Ve
 	InitData.SysMemSlicePitch = 0;
 	_app->getDevice()->CreateBuffer(&cbDesc, &InitData,
 		&g_pConstantBuffer11);
-	
+
 
 }
+
 
 
 void SphereComponent::Update()
