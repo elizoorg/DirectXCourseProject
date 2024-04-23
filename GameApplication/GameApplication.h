@@ -8,6 +8,7 @@
 #include <src/Camera.h>
 #include <src/MathTypes.h>
 #include <src/SphereComponent.h>
+#include <src/DebugRenderSysImpl.h>
 #include <cstdlib>
 #include <ctime>
 #include <math.h>
@@ -26,7 +27,8 @@ class GameApplication: public Engine::Application
 		~GameApplication();
 
 
-
+	
+		DebugRenderSysImpl* system;
 		static GameApplication* instance;
 		int Run() override;
 		void CreateBackBuffer() override;
@@ -62,7 +64,7 @@ class GameApplication: public Engine::Application
 
 		ID3D11RenderTargetView* g_mainRenderTargetView = nullptr;
 
-		Transform transform[22];
+		Transform transform[23];
 
 		float rand_FloatRange(float a, float b)
 		{

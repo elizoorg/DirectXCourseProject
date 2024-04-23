@@ -28,3 +28,4 @@ namespace Math {
 	inline constexpr float Degrees(float radians) { return radians * RadiansToDegrees; }
 
 }
+

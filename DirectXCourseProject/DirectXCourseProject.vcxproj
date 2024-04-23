@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
@@ -27,6 +27,7 @@
     <ClCompile Include="external\ImGui\imgui_tables.cpp" />
     <ClCompile Include="external\ImGui\imgui_widgets.cpp" />
     <ClCompile Include="external\SimpleMath.cpp" />
+    <ClCompile Include="src\DebugRenderSysImpl.cpp" />
     <ClCompile Include="src\PlaneComponent.cpp" />
     <ClCompile Include="src\SphereComponent.cpp" />
     <ClCompile Include="src\Camera.cpp" />
@@ -36,6 +37,9 @@
     <ClCompile Include="src\InputDevice.cpp" />
     <ClCompile Include="src\TriangleComponent.cpp" />
     <ClCompile Include="src\Transform.cpp" />
+    <ClCompile Include="src\VertexPositionColor.cpp" />
+    <ClCompile Include="src\VertexPositionNormalBinormalTangentColorTex.cpp" />
+    <ClCompile Include="src\VertexPositionTex.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="external\Delegates.h" />
@@ -48,6 +52,7 @@
     <ClInclude Include="external\ImGui\imstb_textedit.h" />
     <ClInclude Include="external\ImGui\imstb_truetype.h" />
     <ClInclude Include="external\SimpleMath.h" />
+    <ClInclude Include="src\DebugRenderSysImpl.h" />
     <ClInclude Include="src\PlaneComponent.h" />
     <ClInclude Include="src\SphereComponent.h" />
     <ClInclude Include="src\Camera.h" />
@@ -63,8 +68,11 @@
     <ClInclude Include="src\InputDevice.h" />
     <ClInclude Include="src\Keys.h" />
     <ClInclude Include="src\TriangleComponent.h" />
+    <ClInclude Include="src\VertexPositionColor.h" />
     <ClInclude Include="targetver.h" />
     <ClInclude Include="src\Transform.h" />
+    <ClInclude Include="src\VertexPositionNormalBinormalTangentColorTex.h" />
+    <ClInclude Include="src\VertexPositionTex.h" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="DirectXCourseProject.ico" />

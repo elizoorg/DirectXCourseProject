@@ -2,6 +2,7 @@
 #include "Exports.h"
 #include "Display.h"
 #include "InputDevice.h"
+#include "DebugRenderSysImpl.h"
 #include "TriangleComponent.h"
 #include "GameComponent.h"
 #include "Camera.h"
@@ -27,6 +28,7 @@ namespace Engine{
 		virtual void RestoreTargets() = 0;
 		virtual bool Update() = 0;
 		virtual void UpdateInternal() = 0;
+
 
 
 		bool intersect(Vector2 min_a, Vector2 max_a, Vector2 min_b, Vector2 max_b)

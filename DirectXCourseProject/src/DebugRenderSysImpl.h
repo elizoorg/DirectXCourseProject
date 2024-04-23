@@ -6,20 +6,29 @@
 namespace Engine
 {
 	class Application;
-	
 }
 
 class Camera;
 
-class DebugRenderSysImpl
-{
-	friend class Game;
-	
-	Engine::Application* game = nullptr;
-	Camera*		camera = nullptr;
-	ID3D11Buffer* constBuf;
+std::vector<Vector4> GetFrustumCornersWorldSpace(const Matrix& view, const Matrix& proj);
 
-	DebugRenderSysImpl(Engine::Application* inGame);
+class ENGINE_API DebugRenderSysImpl
+{
+public:
+	DebugRenderSysImpl(Engine::Application* app);
+	void SetCamera(Camera* inCamera);
+
+
+	friend class Engine::Application;
+
+	Engine::Application* game = nullptr;
+	Camera* camera = nullptr;
+	ID3D11Buffer* constBuf;
+private:
+
+
+	
+
 
 
 #pragma region Primitives
@@ -72,22 +81,21 @@ class DebugRenderSysImpl
 
 #pragma endregion Quads
 
+
 	
 protected:
 
 	void InitPrimitives();
 	void InitQuads();
-	void InitMeshes();
 	
 	void DrawPrimitives();;
 	void DrawQuads();
-	void DrawMeshes();
 
 	void UpdateLinesBuffer();
 	
 public:
 	~DebugRenderSysImpl();
-	void SetCamera(Camera* inCamera);
+	
 	void Draw(float dTime);
 	void Clear();
 
@@ -105,6 +113,6 @@ public:
 
 	virtual void DrawTextureOnScreen(ID3D11ShaderResourceView* tex, int x, int y, int width, int height, int zOrder);
 
-	
+
 };
 

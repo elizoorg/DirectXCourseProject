@@ -2,24 +2,12 @@
 #include "DebugRenderSysImpl.h"
 #include "Application.h"
 #include "Camera.h"
+#include "VertexPositionNormalBinormalTangentColorTex.h"
+#include "VertexPositionTex.h"
+
 
 using namespace DirectX::SimpleMath;
 
-DebugRenderSysImpl::DebugRenderSysImpl(Engine::Application* inGame) : game(inGame)
-{
-	D3D11_BUFFER_DESC constDesc = {};
-	constDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-	constDesc.CPUAccessFlags = 0;
-	constDesc.MiscFlags = 0;
-	constDesc.Usage = D3D11_USAGE_DEFAULT;
-	constDesc.ByteWidth = sizeof(Matrix);
-
-	game->getDevice()->CreateBuffer(&constDesc, nullptr, &constBuf);
-	
-	InitPrimitives();
-	InitQuads();
-	InitMeshes();
-}
 
 
 void DebugRenderSysImpl::InitPrimitives()
@@ -54,7 +42,7 @@ void DebugRenderSysImpl::InitPrimitives()
 	game->getDevice()->CreateVertexShader(vertexPrimCompResult->GetBufferPointer(), vertexPrimCompResult->GetBufferSize(), nullptr, &vertexPrimShader);
 	game->getDevice()->CreatePixelShader(pixelPrimCompResult->GetBufferPointer(), pixelPrimCompResult->GetBufferSize(), nullptr, &pixelPrimShader);
 
-	layoutPrim = VertexPositionColor::GetLayout(vertexPrimCompResult);
+	layoutPrim = VertexPositionColor::GetLayout(vertexPrimCompResult,game);
 
 
 	D3D11_BUFFER_DESC bufDesc = {};
@@ -69,7 +57,7 @@ void DebugRenderSysImpl::InitPrimitives()
 	
 	
 	CD3D11_RASTERIZER_DESC rastDesc = {};
-	rastDesc.CullMode = D3D11_CULL_NONE;
+	rastDesc.CullMode =   D3D11_CULL_FRONT;
 	rastDesc.FillMode = D3D11_FILL_WIREFRAME;
 
 	res = game->getDevice()->CreateRasterizerState(&rastDesc, &rastState);
@@ -101,7 +89,7 @@ void DebugRenderSysImpl::InitQuads()
 	if (errorCode)errorCode->Release();
 
 
-	quadLayout = VertexPositionTex::GetLayout(vertexQuadCompResult);
+	quadLayout = VertexPositionTex::GetLayout(vertexQuadCompResult,game);
 	quadBindingStride = VertexPositionTex::Stride;
 
 	quads.reserve(10);
@@ -148,7 +136,7 @@ void DebugRenderSysImpl::InitQuads()
 
 	D3D11_RASTERIZER_DESC rastDesc = {};
 	{
-		rastDesc.CullMode = D3D11_CULL_NONE;
+		rastDesc.CullMode =   D3D11_CULL_FRONT;
 		rastDesc.FillMode = D3D11_FILL_SOLID;
 	}
 
@@ -156,33 +144,7 @@ void DebugRenderSysImpl::InitQuads()
 }
 
 
-void DebugRenderSysImpl::InitMeshes()
-{
-	ID3DBlob* errorCode;
 
-	D3DCompileFromFile(L"Shaders/Simple.hlsl", nullptr, nullptr, "VSMainMesh", "vs_5_0", D3DCOMPILE_PACK_MATRIX_ROW_MAJOR, 0, &vertexMeshCompResult, &errorCode);
-	game->getDevice()->CreateVertexShader(vertexMeshCompResult->GetBufferPointer(), vertexMeshCompResult->GetBufferSize(), nullptr, &vertexMeshShader);
-
-	if(errorCode) errorCode->Release();
-
-	D3DCompileFromFile(L"Shaders/Simple.hlsl", nullptr, nullptr, "PSMain", "ps_5_0", D3DCOMPILE_PACK_MATRIX_ROW_MAJOR, 0, &pixelMeshCompResult, &errorCode);
-	game->getDevice()->CreatePixelShader(pixelMeshCompResult->GetBufferPointer(), pixelMeshCompResult->GetBufferSize(), nullptr, &pixelMeshShader);
-
-	if (errorCode) errorCode->Release();
-
-	meshLayout = VertexPositionNormalBinormalTangentColorTex::GetLayout(vertexMeshCompResult);
-
-	D3D11_BUFFER_DESC bufDesc = {};
-	{
-		bufDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-		bufDesc.CPUAccessFlags = 0;
-		bufDesc.MiscFlags = 0;
-		bufDesc.Usage = D3D11_USAGE_DEFAULT;
-		bufDesc.ByteWidth = sizeof(MeshConstData);
-	}
-
-	game->getDevice()->CreateBuffer(&bufDesc, nullptr, &meshBuf);
-}
 
 
 void DebugRenderSysImpl::DrawPrimitives()
@@ -194,7 +156,7 @@ void DebugRenderSysImpl::DrawPrimitives()
 		isPrimitivesDirty = false;
 	}
 
-	auto mat = camera->GetCameraMatrix();
+	auto mat = (camera->View() * camera->Proj()).Transpose();
 
 	game->getContext()->UpdateSubresource(constBuf, 0, nullptr, &mat, 0, 0);
 
@@ -246,36 +208,7 @@ void DebugRenderSysImpl::DrawQuads()
 }
 
 
-void DebugRenderSysImpl::DrawMeshes()
-{
-	if (meshes.empty()) return;
 
-	game->getContext()->OMSetDepthStencilState(depthState, 0);
-	game->getContext()->RSSetState(rastState);
-
-	game->getContext()->VSSetShader(vertexMeshShader, nullptr, 0);
-	game->getContext()->PSSetShader(pixelMeshShader, nullptr, 0);
-
-	game->getContext()->IASetInputLayout(meshLayout);
-	game->getContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-
-	game->getContext()->VSSetConstantBuffers(1, 1, &meshBuf);
-	
-	const UINT offset = 0;
-	for(auto& mesh : meshes) {
-		game->getContext()->IASetVertexBuffers(0, 1, &mesh.Mesh->VertexBuffer, &mesh.Mesh->Stride, &offset);
-		game->getContext()->IASetIndexBuffer(mesh.Mesh->IndexBuffer, DXGI_FORMAT_R32_UINT, 0);
-
-		MeshConstData data = MeshConstData {
-			mesh.Transform * camera->ViewMatrix * camera->ProjMatrix,
-			mesh.Color
-		};
-
-		game->getContext()->UpdateSubresource(meshBuf, 0, nullptr, &data, 0, 0);
-		
-		game->getContext()->DrawIndexed(mesh.Mesh->IndexCount, 0, 0);
-	}
-}
 
 
 void DebugRenderSysImpl::UpdateLinesBuffer()
@@ -294,6 +227,21 @@ DebugRenderSysImpl::~DebugRenderSysImpl()
 }
 
 
+DebugRenderSysImpl::DebugRenderSysImpl(Engine::Application* app) : game(app)
+{
+	D3D11_BUFFER_DESC constDesc = {};
+	constDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+	constDesc.CPUAccessFlags = 0;
+	constDesc.MiscFlags = 0;
+	constDesc.Usage = D3D11_USAGE_DEFAULT;
+	constDesc.ByteWidth = sizeof(Matrix);
+
+	game->getDevice()->CreateBuffer(&constDesc, nullptr, &constBuf);
+
+	InitPrimitives();
+	InitQuads();
+}
+
 void DebugRenderSysImpl::SetCamera(Camera* inCamera)
 {
 	camera = inCamera;
@@ -310,8 +258,8 @@ void DebugRenderSysImpl::Draw(float dTime)
 	D3D11_VIEWPORT viewport = {
 		0,
 		0,
-		static_cast<float>(game->Display->ClientWidth),
-		static_cast<float>(game->Display->ClientHeight),
+		static_cast<float>(game->getDisplay()->getWidth()),
+		static_cast<float>(game->getDisplay()->getHeight()),
 		0,
 		1
 	};
@@ -320,7 +268,6 @@ void DebugRenderSysImpl::Draw(float dTime)
 
 	DrawPrimitives();
 	DrawQuads();
-	DrawMeshes();
 }
 
 
@@ -328,7 +275,6 @@ void DebugRenderSysImpl::Clear()
 {
 	lines.clear();
 	quads.clear();
-	meshes.clear();
 }
 
 
@@ -403,10 +349,10 @@ void DebugRenderSysImpl::DrawArrow(const DirectX::SimpleMath::Vector3& p0, const
 {
 	DrawLine(p0, p1, color);
 
-	auto a = Vector3::Lerp(p0, p1, 0.85f);
+	Vector3 a = Vector3::Lerp(p0, p1, 0.85f);
 
-	auto diff = p1 - p0;
-	auto side = Vector3::Cross(n, diff) * 0.05f;
+	Vector3 diff = p1 - p0;
+	Vector3 side = n.Cross(diff) * 0.05f;
 
 	DrawLine(a + side, p1, color);
 	DrawLine(a - side, p1, color);
@@ -479,26 +425,26 @@ void DebugRenderSysImpl::DrawSphere(const double& radius, const DirectX::SimpleM
 
 void DebugRenderSysImpl::DrawPlane(const DirectX::SimpleMath::Vector4& p, const DirectX::SimpleMath::Color& color, float sizeWidth, float sizeNormal, bool drawCenterCross)
 {
-	auto dir = Vector3(p.x, p.y, p.z);
+	Vector3 dir = Vector3(p.x, p.y, p.z);
 	if (dir.Length() == 0.0f) return;
 	dir.Normalize();
 	
-	auto up = Vector3(0, 0, 1);
-	auto right = Vector3::Cross(dir, up);
+	Vector3 up = Vector3(0, 0, 1);
+	Vector3 right = dir.Cross(up);
 	if(right.Length() < 0.01f) {
 		up = Vector3(0, 1, 0);
-		right = Vector3::Cross(dir, up);
+		right = dir.Cross(up);
 	}
 	right.Normalize();
 
-	up = Vector3::Cross(right, dir);
+	up = dir.Cross(up);
 	
-	auto pos = -dir * p.w;
+	Vector3 pos = -dir * p.w;
 
-	auto leftPoint	= pos - right * sizeWidth;
-	auto rightPoint	= pos + right * sizeWidth;
-	auto downPoint	= pos - up * sizeWidth;
-	auto upPoint		= pos + up * sizeWidth;
+	Vector3 leftPoint	= pos - right * sizeWidth;
+	Vector3 rightPoint	= pos + right * sizeWidth;
+	Vector3 downPoint	= pos - up * sizeWidth;
+	Vector3 upPoint		= pos + up * sizeWidth;
 
 	DrawLine(leftPoint + up * sizeWidth, rightPoint + up * sizeWidth, color);
 	DrawLine(leftPoint - up * sizeWidth, rightPoint - up * sizeWidth, color);
@@ -515,10 +461,31 @@ void DebugRenderSysImpl::DrawPlane(const DirectX::SimpleMath::Vector4& p, const 
 	DrawArrow(pos, pos + dir*sizeNormal, color, right);
 }
 
+std::vector<Vector4> GetFrustumCornersWorldSpace(const Matrix& view, const Matrix& proj)
+{
+	const auto viewProj = view * proj;
+	const auto inv = viewProj.Invert();
+
+	std::vector<Vector4> frustumCorners;
+	frustumCorners.reserve(8);
+	for (unsigned int x = 0; x < 2; ++x)
+	{
+		for (unsigned int y = 0; y < 2; ++y)
+		{
+			for (unsigned int z = 0; z < 2; ++z)
+			{
+				const Vector4 pt = Vector4::Transform(Vector4(2.0f * static_cast<float>(x) - 1.0f, 2.0f * static_cast<float>(y) - 1.0f, static_cast<float>(z), 1.0f), inv);
+				frustumCorners.push_back(pt / pt.w);
+			}
+		}
+	}
+
+	return frustumCorners;
+}
 
 void DebugRenderSysImpl::DrawFrustrum(const DirectX::SimpleMath::Matrix& view, const DirectX::SimpleMath::Matrix& proj)
 {
-	const auto corners = MathHelper::GetFrustumCornersWorldSpace(view, proj);
+	const auto corners = GetFrustumCornersWorldSpace(view, proj);
 
 	//for (int i = 0; i < corners.size(); ++i) {
 	//	DrawPoint(corners[i].ToVec3(), 2.0f * (i+1));
@@ -527,20 +494,20 @@ void DebugRenderSysImpl::DrawFrustrum(const DirectX::SimpleMath::Matrix& view, c
 	auto invView = view.Invert();
 	DrawPoint(invView.Translation(), 1.0f);
 
-	DrawLine(corners[0].ToVec3(), corners[1].ToVec3(), Vector4(0.0f, 0.0f, 1.0f, 1.0f));
-	DrawLine(corners[2].ToVec3(), corners[3].ToVec3(), Vector4(0.0f, 0.0f, 1.0f, 1.0f));
-	DrawLine(corners[4].ToVec3(), corners[5].ToVec3(), Vector4(0.0f, 0.0f, 1.0f, 1.0f));
-	DrawLine(corners[6].ToVec3(), corners[7].ToVec3(), Vector4(0.0f, 0.0f, 1.0f, 1.0f));
+	DrawLine(Vector3(corners[0].x, corners[0].y,corners[0].z), Vector3(corners[1].x, corners[1].y, corners[1].z), Vector4(0.0f, 0.0f, 1.0f, 1.0f));
+	DrawLine(Vector3(corners[2].x, corners[2].y, corners[2].z), Vector3(corners[3].x, corners[3].y, corners[3].z), Vector4(0.0f, 0.0f, 1.0f, 1.0f));
+	DrawLine(Vector3(corners[4].x, corners[4].y, corners[4].z), Vector3(corners[5].x, corners[5].y, corners[5].z), Vector4(0.0f, 0.0f, 1.0f, 1.0f));
+	DrawLine(Vector3(corners[6].x, corners[6].y, corners[6].z), Vector3(corners[7].x, corners[7].y, corners[7].z), Vector4(0.0f, 0.0f, 1.0f, 1.0f));
 
-	DrawLine(corners[0].ToVec3(), corners[2].ToVec3(), Vector4(0.0f, 1.0f, 0.0f, 1.0f));
-	DrawLine(corners[1].ToVec3(), corners[3].ToVec3(), Vector4(0.0f, 0.5f, 0.0f, 1.0f));
-	DrawLine(corners[4].ToVec3(), corners[6].ToVec3(), Vector4(0.0f, 1.0f, 0.0f, 1.0f));
-	DrawLine(corners[5].ToVec3(), corners[7].ToVec3(), Vector4(0.0f, 0.5f, 0.0f, 1.0f));
+	DrawLine(Vector3(corners[0].x, corners[0].y, corners[0].z), Vector3(corners[2].x, corners[2].y, corners[2].z), Vector4(0.0f, 1.0f, 0.0f, 1.0f));
+	DrawLine(Vector3(corners[1].x, corners[1].y, corners[1].z), Vector3(corners[3].x, corners[3].y, corners[3].z), Vector4(0.0f, 0.5f, 0.0f, 1.0f));
+	DrawLine(Vector3(corners[4].x, corners[4].y, corners[4].z), Vector3(corners[6].x, corners[6].y, corners[6].z), Vector4(0.0f, 1.0f, 0.0f, 1.0f));
+	DrawLine(Vector3(corners[5].x, corners[5].y, corners[5].z), Vector3(corners[7].x, corners[7].y, corners[7].z), Vector4(0.0f, 0.5f, 0.0f, 1.0f));
 
-	DrawLine(corners[0].ToVec3(), corners[4].ToVec3(), Vector4(1.0f, 0.0f, 0.0f, 1.0f));
-	DrawLine(corners[1].ToVec3(), corners[5].ToVec3(), Vector4(0.5f, 0.0f, 0.0f, 1.0f));
-	DrawLine(corners[2].ToVec3(), corners[6].ToVec3(), Vector4(1.0f, 0.0f, 0.0f, 1.0f));
-	DrawLine(corners[3].ToVec3(), corners[7].ToVec3(), Vector4(0.5f, 0.0f, 0.0f, 1.0f));
+	DrawLine(Vector3(corners[0].x, corners[0].y, corners[0].z), Vector3(corners[4].x, corners[4].y, corners[4].z), Vector4(1.0f, 0.0f, 0.0f, 1.0f));
+	DrawLine(Vector3(corners[1].x, corners[1].y, corners[1].z), Vector3(corners[5].x, corners[5].y, corners[5].z), Vector4(0.5f, 0.0f, 0.0f, 1.0f));
+	DrawLine(Vector3(corners[2].x, corners[2].y, corners[2].z), Vector3(corners[6].x, corners[6].y, corners[6].z), Vector4(1.0f, 0.0f, 0.0f, 1.0f));
+	DrawLine(Vector3(corners[3].x, corners[3].y, corners[3].z), Vector3(corners[7].x, corners[7].y, corners[7].z), Vector4(0.5f, 0.0f, 0.0f, 1.0f));
 }
 
 

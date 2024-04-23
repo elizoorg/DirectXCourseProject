@@ -1,9 +1,11 @@
 #include "GameApplication.h"
+#include <src/PlaneComponent.h>
 
 	GameApplication::GameApplication()
 	{
 		instance = this;
 		Device = new InputDevice(this);
+		
 	}
 	GameApplication* GameApplication::instance = nullptr;
 	GameApplication::~GameApplication()
@@ -63,11 +65,11 @@
 	void GameApplication::Draw()
 	{
 
+	
+
+
 		context->OMSetRenderTargets(1, &rtv, depthStencilView.Get());
-
-
-
-		float color[] = { 0.0f, 0.0f, 0.0f, 1.0f };
+		float color[] = { 0.6f, 0.6f, 0.6f, 1.0f };
 		context->ClearRenderTargetView(rtv, color);
 		context->ClearDepthStencilView(depthStencilView.Get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 		D3D11_VIEWPORT viewport = {};
@@ -80,13 +82,17 @@
 
 		context->RSSetViewports(1, &viewport);
 
+		Components[22]->Draw();
+		
+		for (size_t t = 0; t < Components.size() - 1; t++)
+		{
+			Components[t]->Draw();
+		}
 
 
 
-		for (auto& comp : Components)
-			comp->Draw();
-
-
+		
+		//system->Draw(deltaTime);
 		
 		bool qq = false;
 
@@ -169,8 +175,9 @@
 	{
 		Device = new InputDevice(this);
 		camera = new Camera(this);
-		camera->SetPosition(0, 0, 200);
+		camera->SetPosition(0, 0, 0);
 		camera->Bind();
+	
 		swapDesc.BufferCount = 2;
 		swapDesc.BufferDesc.Width = _display->getWidth();
 		swapDesc.BufferDesc.Height = _display->getHeight();
@@ -240,6 +247,7 @@
 		TriangleComponent* cube13 = new TriangleComponent(this);
 		TriangleComponent* cube14 = new TriangleComponent(this);
 		TriangleComponent* cube15 = new TriangleComponent(this);
+		PlaneComponent* plane = new PlaneComponent(this);
 
 		Components.push_back(sphere);
 		Components.push_back(sphere2);
@@ -265,15 +273,18 @@
 		Components.push_back( cube14);
 		Components.push_back( cube15);
 
+		Components.push_back(plane);
+
 		std::cout << Components.size();
 
 		for (auto comp : Components) {
 			comp->Initialize();
 		}
 
+		//system = new DebugRenderSysImpl(this);
+		//system->SetCamera(camera);
 
-
-		rastDesc.CullMode = D3D11_CULL_NONE;
+		rastDesc.CullMode = D3D11_CULL_FRONT;
 		rastDesc.FillMode = D3D11_FILL_WIREFRAME;
 
 
@@ -292,13 +303,14 @@
 		depthStencilDesc.Height = _display->getHeight();
 		depthStencilDesc.MipLevels = 1;
 		depthStencilDesc.ArraySize = 1;
-		depthStencilDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
+		depthStencilDesc.Format = DXGI_FORMAT_D32_FLOAT;
 		depthStencilDesc.SampleDesc.Count = 1;
 		depthStencilDesc.SampleDesc.Quality = 0;
 		depthStencilDesc.Usage = D3D11_USAGE_DEFAULT;
 		depthStencilDesc.BindFlags = D3D11_BIND_DEPTH_STENCIL;
 		depthStencilDesc.CPUAccessFlags = 0;
 		depthStencilDesc.MiscFlags = 0;
+		depthStencilDesc.SampleDesc = { 1,0 };
 
 		res = device->CreateTexture2D(&depthStencilDesc, NULL, depthStencilBuffer.GetAddressOf());
 		if (FAILED(res)) {
@@ -426,7 +438,7 @@
 		planets[21].joint = transform[5].GetWorldPosition();
 
 
-		for (size_t t = 0; t < 22; t++) {
+		for (size_t t = 0; t < 23; t++) {
 			Components[t]->Update(camera->Proj().Transpose(), camera->View().Transpose(), transform[t].GetWorldMatrix().Transpose());
 		}
 
@@ -470,6 +482,11 @@
 		transform[5].SetScale(Vector3(15.0f,15.0f,15.0f));
 		transform[6].SetScale(Vector3(30.0f,30.0f,30.0f));
 
+		transform[23].SetPosition(Vector3(0, 0, 0));
+		transform[23].SetScale(Vector3(4.0f, 4.0f, 4.0f));
+		transform[23].SetEulerRotate(Vector3(0, 0, 0));
+
+
 		for (size_t t = 7; t < 22; t++) {
 			transform[t].SetPosition(Vector3(2.0f, 2.0f, 2.0f));
 		}
@@ -506,5 +523,13 @@
 		planets[4].radius = rand_FloatRange(30, 90);
 		planets[5].radius = rand_FloatRange(30, 90);
 		planets[6].radius = 0;
+
+
+		//system->DrawLine(Vector3(0, -200, 0), Vector3(0, 200, 0), Color(0, 255, 0, 255));
+		//system->DrawLine(Vector3(-200, 0, 0), Vector3(200, 0, 0), Color(255, 0, 0, 255));
+		//system->DrawLine(Vector3(0, 0, -200), Vector3(0, 0, 200), Color(0, 0, 255, 255));
+		//system->DrawCircle(1, Color(255, 0, 0, 255), transform[1].GetWorldMatrix(), 10);
+		//system->DrawSphere(1, Color(255, 255, 255, 255), transform[1].GetWorldMatrix(), 10);
+		//system->DrawFrustrum(camera->View(), camera->Proj());
 	}
 

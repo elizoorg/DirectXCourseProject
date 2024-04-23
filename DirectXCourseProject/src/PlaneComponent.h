@@ -16,7 +16,11 @@ private:
     ID3D11Buffer* g_pConstantBuffer11 = NULL;
     D3D11_BUFFER_DESC cbDesc;
     D3D11_SUBRESOURCE_DATA InitData;
-
+    struct Point
+    {
+        DirectX::SimpleMath::Vector4 pos;
+        DirectX::SimpleMath::Vector4 col;
+    };
 
     struct VS_CONSTANT_BUFFER
     {
@@ -27,16 +31,8 @@ private:
 
 
     // TODO: It doesnt work like that , points must declared somwhere else
-    DirectX::XMFLOAT4 points[8] = {
-        Vector4(-3.0f, 3.0f, -3.0f,1.0f),
-        Vector4(3.0f, 3.0f, -3.0f,1.0f),
-        Vector4(-3.0f, -3.0f, -3.0f,1.0f),
-        Vector4(3.0f, -3.0f, -3.0f,1.0f),
-        Vector4(-3.0f, 3.0f, 3.0f,1.0f),
-        Vector4(3.0f, 3.0f, 3.0f,1.0f),
-        Vector4(-3.0f, -3.0f, 3.0f,1.0f),
-        Vector4(3.0f, -3.0f, 3.0f,1.0f)
-    };
+    std::vector<Point> points;
+    std::vector<int> indices;
 
     ID3DBlob* pixelB = nullptr;
     ID3DBlob* errorPixelCode = nullptr;
@@ -55,7 +51,26 @@ private:
 
 public:
     PlaneComponent(Engine::Application* app) : GameComponent(app) {
+        float cellSize = 1.0f;
+        int lineCount = 100;
+        constexpr Vector4 color = Vector4(0.15f, 0.15f, 0.15f, 1.0f);
+        constexpr Vector4 boldColor = Vector4(0.3f, 0.3f, 0.3f, 1.0f);
 
+        int k = 0;
+        for (int i = 0 - lineCount / 2; i < lineCount / 2; ++i)
+        {
+            points.push_back(Point({ Vector4(static_cast<float>(i), 0.0f, -cellSize * lineCount / 2, 1.0f), i % 5 == 0 ? boldColor : color }));
+            indices.push_back(k++);
+            points.push_back(Point({ Vector4(static_cast<float>(i), 0.0f, cellSize * lineCount / 2, 1.0f), i % 5 == 0 ? boldColor : color }));
+            indices.push_back(k++);
+        }
+        for (int i = 0 - lineCount / 2; i < lineCount / 2; ++i)
+        {
+            points.push_back(Point({ Vector4(-cellSize * lineCount / 2, 0.0f, static_cast<float>(i), 1.0f), i % 5 == 0 ? boldColor : color }));
+            indices.push_back(k++);
+            points.push_back(Point({ Vector4(cellSize * lineCount / 2, 0.0f, static_cast<float>(i), 1.0f), i % 5 == 0 ? boldColor : color }));
+            indices.push_back(k++);
+        }
     };
     ~PlaneComponent();
     void DestroyResources();

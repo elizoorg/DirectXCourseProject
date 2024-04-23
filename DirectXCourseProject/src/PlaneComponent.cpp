@@ -120,40 +120,25 @@ bool PlaneComponent::Initialize()
 	vertexBufDesc.CPUAccessFlags = 0;
 	vertexBufDesc.MiscFlags = 0;
 	vertexBufDesc.StructureByteStride = 0;
-	vertexBufDesc.ByteWidth = sizeof(DirectX::XMFLOAT4) * std::size(points);
+	vertexBufDesc.ByteWidth = sizeof(Vector4) * points.size()*2;
 
 	D3D11_SUBRESOURCE_DATA vertexData = {};
-	vertexData.pSysMem = points;
+	vertexData.pSysMem = points.data();
 	vertexData.SysMemPitch = 0;
 	vertexData.SysMemSlicePitch = 0;
 
-
 	_app->getDevice()->CreateBuffer(&vertexBufDesc, &vertexData, &vb);
 
-	int indeces[] = {
-		0, 1, 2,    // side 1
-		2, 1, 3,
-		4, 0, 6,    // side 2
-		6, 0, 2,
-		7, 5, 6,    // side 3
-		6, 5, 4,
-		3, 1, 7,    // side 4
-		7, 1, 5,
-		4, 5, 0,    // side 5
-		0, 5, 1,
-		3, 7, 2,  // side 6
-		2, 7, 6,
-	};
 	D3D11_BUFFER_DESC indexBufDesc = {};
 	indexBufDesc.Usage = D3D11_USAGE_DEFAULT;
 	indexBufDesc.BindFlags = D3D11_BIND_INDEX_BUFFER;
 	indexBufDesc.CPUAccessFlags = 0;
 	indexBufDesc.MiscFlags = 0;
 	indexBufDesc.StructureByteStride = 0;
-	indexBufDesc.ByteWidth = sizeof(int) * std::size(indeces);
+	indexBufDesc.ByteWidth = sizeof(int) * indices.size();
 
 	D3D11_SUBRESOURCE_DATA indexData = {};
-	indexData.pSysMem = indeces;
+	indexData.pSysMem = indices.data();
 	indexData.SysMemPitch = 0;
 	indexData.SysMemSlicePitch = 0;
 
@@ -162,8 +147,8 @@ bool PlaneComponent::Initialize()
 
 
 	CD3D11_RASTERIZER_DESC rastDesc = {};
-	rastDesc.CullMode = D3D11_CULL_NONE;
-	rastDesc.FillMode = D3D11_FILL_WIREFRAME;
+	rastDesc.CullMode =   D3D11_CULL_FRONT;
+	rastDesc.FillMode = D3D11_FILL_SOLID;
 
 	//ID3D11RasterizerState* rastState;
 	res = _app->getDevice()->CreateRasterizerState(&rastDesc, &rastState);
@@ -206,15 +191,15 @@ void PlaneComponent::Update()
 
 void PlaneComponent::Draw()
 {
-	UINT strides[] = { sizeof(Vector4) };
+	UINT strides[] = { sizeof(Vector4)*2};
 	UINT offsets[] = { 0 };
 	_app->getContext()->RSSetState(rastState);
 	_app->getContext()->IASetInputLayout(layout);
-	_app->getContext()->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	_app->getContext()->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_LINELIST);
 	_app->getContext()->IASetIndexBuffer(ib, DXGI_FORMAT_R32_UINT, 0);
 	_app->getContext()->IASetVertexBuffers(0, 1, &vb, strides, offsets);
 	_app->getContext()->VSSetShader(vertexShader, nullptr, 0);
 	_app->getContext()->PSSetShader(pixelShader, nullptr, 0);
 	_app->getContext()->VSSetConstantBuffers(0, 1, &g_pConstantBuffer11);
-	_app->getContext()->DrawIndexed(36, 0, 0);
+	_app->getContext()->DrawIndexed(indices.size(), 0, 0);
 }

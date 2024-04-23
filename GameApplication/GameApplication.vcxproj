@@ -147,12 +147,6 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <FxCompile Include="Shaders\MyVeryFirstShader.hlsl">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
-      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
-    </FxCompile>
-  </ItemGroup>
-  <ItemGroup>
     <ClInclude Include="..\DirectXCourseProject\external\ImGui\imconfig.h" />
     <ClInclude Include="..\DirectXCourseProject\external\ImGui\imgui.h" />
     <ClInclude Include="..\DirectXCourseProject\external\ImGui\imgui_impl_dx11.h" />
@@ -162,6 +156,18 @@
     <ClInclude Include="..\DirectXCourseProject\external\ImGui\imstb_textedit.h" />
     <ClInclude Include="..\DirectXCourseProject\external\ImGui\imstb_truetype.h" />
     <ClInclude Include="GameApplication.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="Shaders\MyVeryFirstShader.hlsl">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+    </FxCompile>
+    <FxCompile Include="Shaders\Simple.hlsl">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</DeploymentContent>
+    </FxCompile>
+    <FxCompile Include="Shaders\TexturedShader.hlsl">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+    </FxCompile>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
