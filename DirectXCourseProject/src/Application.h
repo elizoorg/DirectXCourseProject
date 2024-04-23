@@ -49,6 +49,7 @@ namespace Engine{
 		Transform transform[6];
 
 		Microsoft::WRL::ComPtr<ID3D11Device> getDevice() { return device; };
+		Microsoft::WRL::ComPtr<ID3D11DepthStencilState> getStencilState() { return depthStencilState.Get(); };
 		ID3D11DeviceContext* getContext() { return context; };
 
 
@@ -76,6 +77,7 @@ namespace Engine{
 
 		Microsoft::WRL::ComPtr<ID3D11Texture2D> depthStencilBuffer;
 		Microsoft::WRL::ComPtr<ID3D11DepthStencilView> depthStencilView;
+		Microsoft::WRL::ComPtr<ID3D11DepthStencilState> depthStencilState;
 
 		
 

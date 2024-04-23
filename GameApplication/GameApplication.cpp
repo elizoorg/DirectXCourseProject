@@ -72,6 +72,11 @@
 		float color[] = { 0.6f, 0.6f, 0.6f, 1.0f };
 		context->ClearRenderTargetView(rtv, color);
 		context->ClearDepthStencilView(depthStencilView.Get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
+
+
+		
+
+
 		D3D11_VIEWPORT viewport = {};
 		viewport.Width = static_cast<float>(_display->getWidth());
 		viewport.Height = static_cast<float>(_display->getHeight());
@@ -312,6 +317,14 @@
 		depthStencilDesc.MiscFlags = 0;
 		depthStencilDesc.SampleDesc = { 1,0 };
 
+		D3D11_DEPTH_STENCIL_DESC depthstencildesc;
+
+		depthstencildesc.DepthEnable = true;
+		depthstencildesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
+		depthstencildesc.DepthFunc = D3D11_COMPARISON_LESS_EQUAL;
+
+	
+
 		res = device->CreateTexture2D(&depthStencilDesc, NULL, depthStencilBuffer.GetAddressOf());
 		if (FAILED(res)) {
 			std::cout << "So,unexpected shit happens5\n";
@@ -322,7 +335,10 @@
 			std::cout << "So,unexpected shit happens6\n";
 		}
 
-
+		res = device->CreateDepthStencilState(&depthstencildesc, this->depthStencilState.GetAddressOf());
+		if (FAILED(res)) {
+			std::cout << "So,unexpected shit happens7\n";
+		}
 
 
 	}

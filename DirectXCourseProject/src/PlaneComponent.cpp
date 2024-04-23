@@ -194,6 +194,7 @@ void PlaneComponent::Draw()
 	UINT strides[] = { sizeof(Vector4)*2};
 	UINT offsets[] = { 0 };
 	_app->getContext()->RSSetState(rastState);
+	_app->getContext()->OMSetDepthStencilState(_app->getStencilState().Get(), 0);
 	_app->getContext()->IASetInputLayout(layout);
 	_app->getContext()->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_LINELIST);
 	_app->getContext()->IASetIndexBuffer(ib, DXGI_FORMAT_R32_UINT, 0);
