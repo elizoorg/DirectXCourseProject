@@ -156,7 +156,7 @@ void DebugRenderSysImpl::DrawPrimitives()
 		isPrimitivesDirty = false;
 	}
 
-	auto mat = (camera->View() * camera->Proj()).Transpose();
+	auto mat = (camera->View() * camera->Proj());
 
 	game->getContext()->UpdateSubresource(constBuf, 0, nullptr, &mat, 0, 0);
 

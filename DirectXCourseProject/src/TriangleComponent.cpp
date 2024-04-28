@@ -161,8 +161,9 @@ bool TriangleComponent::Initialize()
 
 
 	CD3D11_RASTERIZER_DESC rastDesc = {};
-	rastDesc.CullMode =   D3D11_CULL_FRONT;
+	rastDesc.CullMode =   D3D11_CULL_NONE;
 	rastDesc.FillMode = D3D11_FILL_SOLID;
+	rastDesc.FrontCounterClockwise = true;
 
 	//ID3D11RasterizerState* rastState;
 	res = _app->getDevice()->CreateRasterizerState(&rastDesc, &rastState);

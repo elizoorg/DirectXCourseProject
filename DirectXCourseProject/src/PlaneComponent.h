@@ -76,7 +76,7 @@ public:
     void DestroyResources();
     void Reload();
     bool Initialize();
-    virtual void PlaneComponent::Update(Matrix cameraProjection, Matrix cameraView, Matrix world);
+    virtual void Update(Matrix cameraProjection, Matrix cameraView, Matrix world);
     void Update();
     void Draw();
 };

@@ -10,7 +10,7 @@ Camera::Camera()
 	mUp(0.0f, 1.0f, 0.0f),
 	mLook(0.0f, 0.0f, 1.0f)
 {
-	SetLens(103 ,1, 0.1f, 1000.0f);
+	SetLens(70, _app->getDisplay()->getWidth() / _app->getDisplay()->getHeight(), 0.1f, 1000.0f);
 }
 Camera::~Camera()
 {

@@ -77,8 +77,6 @@ bool SphereComponent::Initialize()
 		indeces.push_back(baseIndex + i + 1);
 	}
 
-	std::cout << points.size() << " " << indeces.size() << std::endl;
-
 	for (Vector4 p : points) {
 		DirectX::XMFLOAT4 XMp(p.x, p.y, p.z, p.w);
 		dpoints.push_back(XMp);
@@ -213,8 +211,9 @@ bool SphereComponent::Initialize()
 
 
 	CD3D11_RASTERIZER_DESC rastDesc = {};
-	rastDesc.CullMode =   D3D11_CULL_FRONT;
+	rastDesc.CullMode = D3D11_CULL_NONE;
 	rastDesc.FillMode = D3D11_FILL_SOLID;
+	rastDesc.FrontCounterClockwise = true;
 
 	//ID3D11RasterizerState* rastState;
 	res = _app->getDevice()->CreateRasterizerState(&rastDesc, &rastState);

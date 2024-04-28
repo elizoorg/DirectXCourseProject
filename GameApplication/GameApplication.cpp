@@ -97,7 +97,7 @@
 
 
 		
-		//system->Draw(deltaTime);
+		system->Draw(deltaTime);
 		
 		bool qq = false;
 
@@ -280,14 +280,13 @@
 
 		Components.push_back(plane);
 
-		std::cout << Components.size();
 
 		for (auto comp : Components) {
 			comp->Initialize();
 		}
 
-		//system = new DebugRenderSysImpl(this);
-		//system->SetCamera(camera);
+		system = new DebugRenderSysImpl(this);
+		system->SetCamera(camera);
 
 		rastDesc.CullMode = D3D11_CULL_FRONT;
 		rastDesc.FillMode = D3D11_FILL_WIREFRAME;
@@ -308,7 +307,7 @@
 		depthStencilDesc.Height = _display->getHeight();
 		depthStencilDesc.MipLevels = 1;
 		depthStencilDesc.ArraySize = 1;
-		depthStencilDesc.Format = DXGI_FORMAT_D32_FLOAT;
+		depthStencilDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
 		depthStencilDesc.SampleDesc.Count = 1;
 		depthStencilDesc.SampleDesc.Quality = 0;
 		depthStencilDesc.Usage = D3D11_USAGE_DEFAULT;
@@ -319,9 +318,21 @@
 
 		D3D11_DEPTH_STENCIL_DESC depthstencildesc;
 
+
 		depthstencildesc.DepthEnable = true;
 		depthstencildesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
 		depthstencildesc.DepthFunc = D3D11_COMPARISON_LESS_EQUAL;
+
+		depthstencildesc.FrontFace.StencilFailOp = D3D11_STENCIL_OP_KEEP; //KEEP
+		depthstencildesc.FrontFace.StencilDepthFailOp = D3D11_STENCIL_OP_INCR; //INCR
+		depthstencildesc.FrontFace.StencilPassOp = D3D11_STENCIL_OP_KEEP; //KEEP
+		depthstencildesc.FrontFace.StencilFunc = D3D11_COMPARISON_ALWAYS;
+
+		// Stencil operations if pixel is back-facing
+		depthstencildesc.BackFace.StencilFailOp = D3D11_STENCIL_OP_KEEP; //KEEP
+		depthstencildesc.BackFace.StencilDepthFailOp = D3D11_STENCIL_OP_DECR; //DECR
+		depthstencildesc.BackFace.StencilPassOp = D3D11_STENCIL_OP_KEEP; //KEEP
+		depthstencildesc.BackFace.StencilFunc = D3D11_COMPARISON_ALWAYS;
 
 	
 
@@ -335,7 +346,8 @@
 			std::cout << "So,unexpected shit happens6\n";
 		}
 
-		res = device->CreateDepthStencilState(&depthstencildesc, this->depthStencilState.GetAddressOf());
+
+		res = device->CreateDepthStencilState(&depthstencildesc, depthStencilState.GetAddressOf());
 		if (FAILED(res)) {
 			std::cout << "So,unexpected shit happens7\n";
 		}
@@ -357,6 +369,7 @@
 
 	void GameApplication::RestoreTargets()
 	{
+		context->OMSetRenderTargets(1, &rtv, depthStencilView.Get());
 	}
 
 	bool GameApplication::Update()
@@ -541,11 +554,8 @@
 		planets[6].radius = 0;
 
 
-		//system->DrawLine(Vector3(0, -200, 0), Vector3(0, 200, 0), Color(0, 255, 0, 255));
-		//system->DrawLine(Vector3(-200, 0, 0), Vector3(200, 0, 0), Color(255, 0, 0, 255));
-		//system->DrawLine(Vector3(0, 0, -200), Vector3(0, 0, 200), Color(0, 0, 255, 255));
-		//system->DrawCircle(1, Color(255, 0, 0, 255), transform[1].GetWorldMatrix(), 10);
-		//system->DrawSphere(1, Color(255, 255, 255, 255), transform[1].GetWorldMatrix(), 10);
-		//system->DrawFrustrum(camera->View(), camera->Proj());
+		system->DrawLine(Vector3(0, -200, 0), Vector3(0, 200, 0), Color(0, 255, 0, 255));
+		system->DrawLine(Vector3(-200, 0, 0), Vector3(200, 0, 0), Color(255, 0, 0, 255));
+		system->DrawLine(Vector3(0,0, -200), Vector3(0, 0, 200), Color(0, 0, 255, 255));
 	}
 
