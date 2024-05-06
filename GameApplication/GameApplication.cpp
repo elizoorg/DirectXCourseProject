@@ -1,5 +1,6 @@
 #include "GameApplication.h"
 #include <src/PlaneComponent.h>
+#include <src/ModelComponent.h>
 
 	GameApplication::GameApplication()
 	{
@@ -87,16 +88,16 @@
 
 		context->RSSetViewports(1, &viewport);
 
-		Components[22]->Draw();
-		
-		for (size_t t = 0; t < Components.size() - 1; t++)
+		/*
+		for (size_t t = 0; t < Components.size(); t++)
 		{
 			Components[t]->Draw();
 		}
 
 
+		*/
 
-		
+		Components[23]->Draw();
 		system->Draw(deltaTime);
 		
 		bool qq = false;
@@ -254,6 +255,9 @@
 		TriangleComponent* cube15 = new TriangleComponent(this);
 		PlaneComponent* plane = new PlaneComponent(this);
 
+
+		ModelComponent* model = new ModelComponent(this);
+
 		Components.push_back(sphere);
 		Components.push_back(sphere2);
 		Components.push_back(sphere3);
@@ -280,16 +284,20 @@
 
 		Components.push_back(plane);
 
+		Components.push_back(model);
+
 
 		for (auto comp : Components) {
 			comp->Initialize();
 		}
 
+		
+
 		system = new DebugRenderSysImpl(this);
 		system->SetCamera(camera);
 
 		rastDesc.CullMode = D3D11_CULL_FRONT;
-		rastDesc.FillMode = D3D11_FILL_WIREFRAME;
+		rastDesc.FillMode = D3D11_FILL_SOLID;
 
 
 		std::srand(std::time(nullptr));
@@ -351,6 +359,9 @@
 		if (FAILED(res)) {
 			std::cout << "So,unexpected shit happens7\n";
 		}
+
+
+		static_cast<ModelComponent*>(Components[23])->LoadModel("assets/Sponza/models/sponza.obj");
 
 
 	}
@@ -467,7 +478,7 @@
 		planets[21].joint = transform[5].GetWorldPosition();
 
 
-		for (size_t t = 0; t < 23; t++) {
+		for (size_t t = 0; t < 24; t++) {
 			Components[t]->Update(camera->Proj().Transpose(), camera->View().Transpose(), transform[t].GetWorldMatrix().Transpose());
 		}
 
@@ -501,7 +512,9 @@
 		for (size_t t = 0; t < 22; t++) {
 			transform[t].SetPosition(Vector3(0, 0, 0));
 		}
-	
+		
+
+
 
 		transform[0].SetScale(Vector3(15.0f,15.0f,15.0f));
 		transform[1].SetScale(Vector3(15.0f,15.0f,15.0f));
@@ -511,9 +524,9 @@
 		transform[5].SetScale(Vector3(15.0f,15.0f,15.0f));
 		transform[6].SetScale(Vector3(30.0f,30.0f,30.0f));
 
-		transform[23].SetPosition(Vector3(0, 0, 0));
-		transform[23].SetScale(Vector3(4.0f, 4.0f, 4.0f));
-		transform[23].SetEulerRotate(Vector3(0, 0, 0));
+		transform[22].SetPosition(Vector3(0, 0, 0));
+		transform[22].SetScale(Vector3(2.0f, 2.0f, 2.0f));
+		transform[22].SetEulerRotate(Vector3(0, 0, 0));
 
 
 		for (size_t t = 7; t < 22; t++) {
@@ -557,5 +570,11 @@
 		system->DrawLine(Vector3(0, -200, 0), Vector3(0, 200, 0), Color(0, 255, 0, 255));
 		system->DrawLine(Vector3(-200, 0, 0), Vector3(200, 0, 0), Color(255, 0, 0, 255));
 		system->DrawLine(Vector3(0,0, -200), Vector3(0, 0, 200), Color(0, 0, 255, 255));
+
+		transform[23].SetPosition(Vector3(0, 0, 0));
+		transform[23].SetEulerRotate(Vector3(0, 0, 0));
+		transform[23].SetScale(Vector3(0.05f, 0.05f, 0.05f));
+
+
 	}
 

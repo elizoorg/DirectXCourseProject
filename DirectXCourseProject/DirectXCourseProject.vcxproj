@@ -27,6 +27,8 @@
     <ClCompile Include="external\ImGui\imgui_tables.cpp" />
     <ClCompile Include="external\ImGui\imgui_widgets.cpp" />
     <ClCompile Include="external\SimpleMath.cpp" />
+    <ClCompile Include="src\ModelLoader.cpp" />
+    <ClCompile Include="src\ModelComponent.cpp" />
     <ClCompile Include="src\DebugRenderSysImpl.cpp" />
     <ClCompile Include="src\PlaneComponent.cpp" />
     <ClCompile Include="src\SphereComponent.cpp" />
@@ -40,6 +42,7 @@
     <ClCompile Include="src\VertexPositionColor.cpp" />
     <ClCompile Include="src\VertexPositionNormalBinormalTangentColorTex.cpp" />
     <ClCompile Include="src\VertexPositionTex.cpp" />
+    <ClCompile Include="src\TextureLoader.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="external\Delegates.h" />
@@ -52,8 +55,12 @@
     <ClInclude Include="external\ImGui\imstb_textedit.h" />
     <ClInclude Include="external\ImGui\imstb_truetype.h" />
     <ClInclude Include="external\SimpleMath.h" />
+    <ClInclude Include="src\Mesh.h" />
+    <ClInclude Include="src\ModelLoader.h" />
+    <ClInclude Include="src\ModelComponent.h" />
     <ClInclude Include="src\DebugRenderSysImpl.h" />
     <ClInclude Include="src\PlaneComponent.h" />
+    <ClInclude Include="src\SafeRelease.hpp" />
     <ClInclude Include="src\SphereComponent.h" />
     <ClInclude Include="src\Camera.h" />
     <ClInclude Include="DirectXCourseProject.h" />
@@ -73,6 +80,7 @@
     <ClInclude Include="src\Transform.h" />
     <ClInclude Include="src\VertexPositionNormalBinormalTangentColorTex.h" />
     <ClInclude Include="src\VertexPositionTex.h" />
+    <ClInclude Include="src\TextureLoader.h" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="DirectXCourseProject.ico" />

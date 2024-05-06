@@ -9,6 +9,7 @@
 #include <src/MathTypes.h>
 #include <src/SphereComponent.h>
 #include <src/DebugRenderSysImpl.h>
+#include <src/ModelLoader.h>
 #include <cstdlib>
 #include <ctime>
 #include <math.h>
@@ -16,6 +17,14 @@
 #include "ImGui/imgui.h"
 #include "ImGui/imgui_impl_win32.h"
 #include "ImGui/imgui_impl_dx11.h"
+
+
+#include <assimp/Importer.hpp>
+#include <assimp/mesh.h>
+#include <assimp/scene.h>
+#include <assimp/postprocess.h>
+
+
 
 class ENGINE_API Engine::Application;
 
@@ -46,6 +55,7 @@ class GameApplication: public Engine::Application
 
 
 
+
 		bool intersect(Vector2 min_a, Vector2 max_a, Vector2 min_b, Vector2 max_b)
 		{
 			return (min_a.x <= max_b.x) &&
@@ -61,10 +71,12 @@ class GameApplication: public Engine::Application
 
 		float angle = 0;
 
+		aiNode* node;
+		Assimp::Importer importer;
 
 		ID3D11RenderTargetView* g_mainRenderTargetView = nullptr;
 
-		Transform transform[23];
+		Transform transform[24];
 
 		float rand_FloatRange(float a, float b)
 		{
