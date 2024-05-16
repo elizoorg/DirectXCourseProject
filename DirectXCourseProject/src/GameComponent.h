@@ -11,7 +11,7 @@ namespace Engine {
 class ENGINE_API GameComponent
 {
 protected:
-	friend class Engine::Application;
+	friend class Game;
 	Engine::Application* _app;
 	Transform transform;
 

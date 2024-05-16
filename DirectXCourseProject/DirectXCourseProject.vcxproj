@@ -19,6 +19,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\DirectionalLight.cpp" />
     <ClCompile Include="external\Delegates.cpp" />
     <ClCompile Include="external\ImGui\imgui.cpp" />
     <ClCompile Include="external\ImGui\imgui_draw.cpp" />
@@ -45,6 +46,7 @@
     <ClCompile Include="src\TextureLoader.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\DirectionalLight.h" />
     <ClInclude Include="external\Delegates.h" />
     <ClInclude Include="external\ImGui\imconfig.h" />
     <ClInclude Include="external\ImGui\imgui.h" />
@@ -55,6 +57,7 @@
     <ClInclude Include="external\ImGui\imstb_textedit.h" />
     <ClInclude Include="external\ImGui\imstb_truetype.h" />
     <ClInclude Include="external\SimpleMath.h" />
+    <ClInclude Include="src\LightData.h" />
     <ClInclude Include="src\Mesh.h" />
     <ClInclude Include="src\ModelLoader.h" />
     <ClInclude Include="src\ModelComponent.h" />

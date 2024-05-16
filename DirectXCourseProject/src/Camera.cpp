@@ -1,7 +1,5 @@
 #include "Camera.h"
-
 #include <iostream>
-
 #include "Application.h"
 
 Camera::Camera()
@@ -10,7 +8,7 @@ Camera::Camera()
 	mUp(0.0f, 1.0f, 0.0f),
 	mLook(0.0f, 0.0f, 1.0f)
 {
-	SetLens(90, _app->getDisplay()->getWidth() / _app->getDisplay()->getHeight(), 0.1f, 1000.0f);
+	SetLens(FOV, ASPECT_RATIO, 0.1f, 1000.0f);
 }
 Camera::~Camera()
 {

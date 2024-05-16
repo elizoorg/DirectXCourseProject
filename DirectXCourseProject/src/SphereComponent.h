@@ -46,7 +46,7 @@ private:
     HRESULT res;
 
 public:
-    SphereComponent(Engine::Application* app) : GameComponent(app) {
+    SphereComponent(Engine::Application* app) :GameComponent(app) {
 
     };
     ~SphereComponent();

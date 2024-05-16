@@ -5,7 +5,6 @@
 #include "Transform.h"
 #include "iostream"
 
-
 namespace Engine
 {
 	class Application;
@@ -22,10 +21,16 @@ public:
 		mRight = Vector3(1.0f, 0.0f, 0.0f);
 		mUp = Vector3(0.0f, 1.0f, 0.0f);
 		mLook = Vector3(0.0f, 0.0f, 1.0f);
-		SetLens(90, 0.5, 0.1f, 1000.0f);
+		SetLens(FOV, ASPECT_RATIO, 0.1f, 1000.0f);
 	}
 	friend class Engine::Application;
 	Engine::Application* _app;
+
+	const int FOV = 90;
+	const float ASPECT_RATIO = 1920 / 1080;
+	const float NEAR_PLANE = 0.1f;
+	const float FAR_PLANE = 1000.0f;
+
 
 
 	// Get/Set world camera position.
@@ -112,7 +117,7 @@ public:
 		return &transform;
 	}
 
-
+	
 private:
 
 	Matrix mView;

@@ -51,7 +51,7 @@ namespace Engine{
 		Microsoft::WRL::ComPtr<ID3D11Device> getDevice() { return device; };
 		Microsoft::WRL::ComPtr<ID3D11DepthStencilState> getStencilState() { return depthStencilState.Get(); };
 		ID3D11DeviceContext* getContext() { return context; };
-
+		Camera* getCamera(){return camera;}
 
 
 		WinApi_Display* getDisplay() { return _display; };
