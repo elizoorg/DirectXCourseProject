@@ -62,8 +62,9 @@ public:
     void DestroyResources();
     void Reload();
     bool Initialize();
-    virtual void Update(Matrix cameraProjection, Matrix cameraView, Matrix world);
+    virtual void Update(Matrix cameraProjection, Matrix cameraView, Matrix world, Matrix InverseView);
     void Update();
     void Draw();
+    void PrepareFrame();
 };
 

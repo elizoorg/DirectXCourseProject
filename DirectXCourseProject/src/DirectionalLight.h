@@ -1,5 +1,6 @@
 #pragma once
 #include "LightData.h"
+#include "Exports.h"
 
 namespace Engine
 {
@@ -7,7 +8,7 @@ namespace Engine
 }
 
 
-class DirectionalLight
+class ENGINE_API DirectionalLight
 {
     DirectX::SimpleMath::Vector4 lightDirection_;
     DirectX::SimpleMath::Vector4 lightColor_;

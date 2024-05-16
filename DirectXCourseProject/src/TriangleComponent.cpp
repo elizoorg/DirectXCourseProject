@@ -171,7 +171,7 @@ bool TriangleComponent::Initialize()
 
 }
 
-void TriangleComponent::Update(Matrix cameraProjection, Matrix cameraView, Matrix world)
+void TriangleComponent::Update(Matrix cameraProjection, Matrix cameraView, Matrix world, Matrix InverseView)
 {
 	if (g_pConstantBuffer11) {
 		g_pConstantBuffer11->Release();
@@ -219,4 +219,8 @@ void TriangleComponent::Draw()
 	_app->getContext()->PSSetShader(pixelShader, nullptr, 0);
 	_app->getContext()->VSSetConstantBuffers(0, 1, &g_pConstantBuffer11);
 	_app->getContext()->DrawIndexed(36, 0, 0);
+}
+
+void TriangleComponent::PrepareFrame()
+{
 }

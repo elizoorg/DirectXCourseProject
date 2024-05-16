@@ -221,7 +221,7 @@ bool SphereComponent::Initialize()
 
 }
 
-void SphereComponent::Update(Matrix cameraProjection, Matrix cameraView, Matrix world)
+void SphereComponent::Update(Matrix cameraProjection, Matrix cameraView, Matrix world, Matrix InverseView)
 {
 	if (g_pConstantBuffer11) {
 		g_pConstantBuffer11->Release();
@@ -269,4 +269,8 @@ void SphereComponent::Draw()
 	_app->getContext()->PSSetShader(pixelShader, nullptr, 0);
 	_app->getContext()->VSSetConstantBuffers(0, 1, &g_pConstantBuffer11);
 	_app->getContext()->DrawIndexed(indeces.size(), 0, 0);
+}
+
+void SphereComponent::PrepareFrame()
+{
 }

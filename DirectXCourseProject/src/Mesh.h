@@ -18,6 +18,7 @@ using namespace DirectX;
 struct VERTEX {
     FLOAT X, Y, Z;
     XMFLOAT2 texcoord;
+    FLOAT NX, NY, NZ;
 };
 
 struct Texture {

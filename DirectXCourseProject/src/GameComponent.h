@@ -32,5 +32,6 @@ public:
 	virtual bool Initialize() = 0;
 	virtual void Reload() = 0;
 	virtual void Update() = 0;
-	virtual void Update(Matrix cameraProjection, Matrix cameraView, Matrix world) = 0;
+	virtual void Update(Matrix cameraProjection, Matrix cameraView, Matrix world, Matrix InverseView) = 0;
+	virtual void PrepareFrame() = 0;
 };
