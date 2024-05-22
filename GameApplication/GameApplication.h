@@ -76,6 +76,10 @@ class GameApplication: public Engine::Application
 
 		ID3D11RenderTargetView* g_mainRenderTargetView = nullptr;
 
+
+		Microsoft::WRL::ComPtr<ID3D11SamplerState> depthSamplerState_ = nullptr;
+		Microsoft::WRL::ComPtr<ID3D11DepthStencilState> defaultDepthState_;
+
 		Transform transform[24];
 
 		float rand_FloatRange(float a, float b)
@@ -91,6 +95,10 @@ class GameApplication: public Engine::Application
 			float angleSpeed;
 			float angleSpeed2;
 		} planets[22];
+
+
+		Vector4 tmp = Vector4(20.0f, 50.0f, 20.0f, 0.0f);
+		CSM_CONSTANT_BUFFER cascadeData = {};
 
 
 	};

@@ -7,4 +7,5 @@ struct ENGINE_API LightData {
 	Vector4 LightColor;
 	Vector4 AmbientSpecularRowType;
 	Matrix T;
+	Matrix ViewMatrix;
 };

@@ -27,7 +27,7 @@ class ENGINE_API ModelComponent:
     D3D11_SUBRESOURCE_DATA InitData;
 
     ID3D11SamplerState* TexSamplerState = nullptr;
-    ID3D11SamplerState* depthSamplerState_ = nullptr;;
+
 
 
 

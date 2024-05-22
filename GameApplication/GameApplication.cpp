@@ -69,13 +69,15 @@
 	{
 
 		context->ClearState();
+		//context->OMSetDepthStencilState(defaultDepthState_.Get(), 0);
+
+
 		context->OMSetRenderTargets(1, &rtv, depthStencilView.Get());
 		float color[] = { 0.6f, 0.6f, 0.6f, 1.0f };
 		context->ClearRenderTargetView(rtv, color);
 		context->ClearDepthStencilView(depthStencilView.Get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 
 
-		
 
 
 		D3D11_VIEWPORT viewport = {};
@@ -87,6 +89,10 @@
 		viewport.MaxDepth = 1.0f;
 
 		context->RSSetViewports(1, &viewport);
+
+		context->PSSetShaderResources(1, 1, depthShadowSrv.GetAddressOf());
+		context->PSSetSamplers(0, 1, depthSamplerState_.GetAddressOf());
+
 
 		/*
 		for (size_t t = 0; t < Components.size(); t++)
@@ -147,6 +153,14 @@
 		ImGui::SliderFloat("Platen4", &planets[4].angle, 0.0f, 360.28f);
 		ImGui::SliderFloat("Platen5", &planets[5].angle, 0.0f, 360.28f);
 		ImGui::SliderFloat("Platen6", &planets[6].angle, 0.0f, 360.28f);
+
+
+
+
+		ImGui::SliderFloat("Direction of light x", &tmp.x, 0.0f, 360.28f);
+		ImGui::SliderFloat("Direction of light y", &tmp.y, 0.0f, 360.28f);
+		ImGui::SliderFloat("Direction of light z ", &tmp.z, 0.0f, 360.28f);
+		ImGui::SliderFloat("Direction of light w", &tmp.w, 0.0f, 360.28f);
 
 
 		ImGui::End();
@@ -356,8 +370,8 @@
 		static_cast<ModelComponent*>(Components[23])->LoadModel("assets/Sponza/models/sponza.obj");
 
 		D3D11_TEXTURE2D_DESC depthDescription = {};
-		depthDescription.Width = 1024;
-		depthDescription.Height = 1024;
+		depthDescription.Width = 2048;
+		depthDescription.Height = 2048;
 		depthDescription.ArraySize = 5;
 		depthDescription.BindFlags = D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_DEPTH_STENCIL;
 		depthDescription.Format = DXGI_FORMAT_R32_TYPELESS;
@@ -413,8 +427,11 @@
 		constBufPerSceneDesc.MiscFlags = 0;
 		constBufPerSceneDesc.StructureByteStride = 0;
 		constBufPerSceneDesc.ByteWidth = sizeof(LightData);
-		device->CreateBuffer(&constBufPerSceneDesc, nullptr, LightBuffer.GetAddressOf());
-
+		res = device->CreateBuffer(&constBufPerSceneDesc, nullptr, LightBuffer.GetAddressOf());
+		if (FAILED(res))
+		{
+			OutputDebugString(TEXT("Fatal error: Failed to create CSM depth SRV!\n"));
+		}
 		D3D11_BUFFER_DESC constBufCascadeDesc;
 		constBufCascadeDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
 		constBufCascadeDesc.Usage = D3D11_USAGE_DEFAULT;
@@ -424,6 +441,41 @@
 		constBufCascadeDesc.ByteWidth = sizeof(Matrix) * 5 + sizeof(Vector4);
 
 		device->CreateBuffer(&constBufCascadeDesc, nullptr, cascadeCBuffer_.GetAddressOf());
+
+		D3D11_SAMPLER_DESC depthSamplerStateDesc = {};
+		depthSamplerStateDesc.Filter = D3D11_FILTER_COMPARISON_MIN_MAG_MIP_LINEAR;
+		depthSamplerStateDesc.ComparisonFunc = D3D11_COMPARISON_GREATER_EQUAL;
+		depthSamplerStateDesc.AddressU = D3D11_TEXTURE_ADDRESS_BORDER;
+		depthSamplerStateDesc.AddressV = D3D11_TEXTURE_ADDRESS_BORDER;
+		depthSamplerStateDesc.AddressW = D3D11_TEXTURE_ADDRESS_BORDER;
+		depthSamplerStateDesc.BorderColor[0] = 1.0f;
+		depthSamplerStateDesc.BorderColor[1] = 1.0f;
+		depthSamplerStateDesc.BorderColor[2] = 1.0f;
+		depthSamplerStateDesc.BorderColor[3] = 1.0f;
+
+		res = device->CreateSamplerState(&depthSamplerStateDesc, &depthSamplerState_);
+
+
+		if (FAILED(res))
+		{
+			OutputDebugString(TEXT("Cannot make depth sampler state!\n"));
+		}
+
+		D3D11_DEPTH_STENCIL_DESC defaultDepthDesc = {};
+
+		defaultDepthDesc.DepthEnable = true;
+		defaultDepthDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
+		defaultDepthDesc.DepthFunc = D3D11_COMPARISON_LESS;
+
+		res = device->CreateDepthStencilState(&defaultDepthDesc, defaultDepthState_.GetAddressOf());
+
+
+
+
+
+
+	
+
 
 
 	}
@@ -436,11 +488,10 @@
 	{
 
 		context->ClearState();
+
 		context->OMSetRenderTargets(0, nullptr, depthShadowDsv.Get());
 
 		context->ClearDepthStencilView(depthShadowDsv.Get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
-
-
 		
 		for (auto comp : Components)
 			comp->PrepareFrame();
@@ -516,9 +567,9 @@
 			std::cout << "It's working!\n";
 		}
 
-		auto tmp = Vector4(20.0f, 50.0f, 20.0f, 0.0f);
-		tmp.Normalize();
-		light->SetDirection(tmp);
+		auto test = tmp;
+		test.Normalize();
+		light->SetDirection(test);
 		lightData.LightPos = Vector4::Transform(light->GetDirection(), camera->View());
 		lightData.LightPos.Normalize();
 		lightData.LightColor = light->GetColor();
@@ -528,9 +579,8 @@
 			0.0f, -0.5f, 0.0f, 0.0f,
 			0.0f, 0.0f, 1.0f, 0.0f,
 			0.5f, 0.5f, 0.0f, 1.0f);
-		context->UpdateSubresource(LightBuffer.Get(), 0, nullptr, &lightData, 0, 0);
+		lightData.ViewMatrix = camera->View();
 
-		CSM_CONSTANT_BUFFER cascadeData = {};
 		auto tmp2 = getLight()->GetLightSpaceMatrices();
 		for (int i = 0; i < 5; ++i)
 		{
@@ -539,6 +589,8 @@
 		cascadeData.Distance = getLight()->GetShadowCascadeDistances();
 
 		context->UpdateSubresource(cascadeCBuffer_.Get(), 0, nullptr, &cascadeData, 0, 0);
+		context->UpdateSubresource(LightBuffer.Get(), 0, nullptr, &lightData, 0, 0);
+
 
 
 		camera->Update();
@@ -548,8 +600,10 @@
 			planets[t].angle += planets[t].angleSpeed;
 			planets[t].angle2 += planets[t].angleSpeed2;
 			Vector3 rot = {
-			planets[t].joint.x + planets[t].radius * sin(Math::Radians(planets[t].angle)) * cos(Math::Radians(planets[t].angle2)),
-			planets[t].joint.y + planets[t].radius * sin(Math::Radians(planets[t].angle)) * sin(Math::Radians(planets[t].angle2)),
+			planets[t].joint.x + planets[t].radius * sin(Math::Radians(planets[t].angle)) * 
+			cos(Math::Radians(planets[t].angle2)),
+			planets[t].joint.y + planets[t].radius * sin(Math::Radians(planets[t].angle)) * 
+				sin(Math::Radians(planets[t].angle2)),
 			planets[t].joint.z + planets[t].radius * cos(Math::Radians(planets[t].angle)),
 			
 			};

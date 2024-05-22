@@ -211,7 +211,7 @@ bool ModelComponent::Initialize()
 	sampDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
 	sampDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
 	sampDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
-	sampDesc.ComparisonFunc = D3D11_COMPARISON_NEVER;
+	//sampDesc.ComparisonFunc = D3D11_COMPARISON_NEVER;
 	sampDesc.MinLOD = 0;
 	sampDesc.MaxLOD = D3D11_FLOAT32_MAX;
 
@@ -220,63 +220,28 @@ bool ModelComponent::Initialize()
 		std::cout << "Something is going wrong with texture sampler";
 	}
 		
-	D3D11_SAMPLER_DESC depthSamplerStateDesc = {};
-	depthSamplerStateDesc.Filter = D3D11_FILTER_COMPARISON_MIN_MAG_MIP_LINEAR;
-	depthSamplerStateDesc.ComparisonFunc = D3D11_COMPARISON_GREATER_EQUAL;
-	depthSamplerStateDesc.AddressU = D3D11_TEXTURE_ADDRESS_BORDER;
-	depthSamplerStateDesc.AddressV = D3D11_TEXTURE_ADDRESS_BORDER;
-	depthSamplerStateDesc.AddressW = D3D11_TEXTURE_ADDRESS_BORDER;
-	depthSamplerStateDesc.BorderColor[0] = 1.0f;
-	depthSamplerStateDesc.BorderColor[1] = 1.0f;
-	depthSamplerStateDesc.BorderColor[2] = 1.0f;
-	depthSamplerStateDesc.BorderColor[3] = 1.0f;
-
-	res = _app->getDevice()->CreateSamplerState(&depthSamplerStateDesc, &depthSamplerState_);
+	
 
 
+
+
+	cbDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+	cbDesc.Usage = D3D11_USAGE_DEFAULT;
+	cbDesc.CPUAccessFlags = 0;
+	cbDesc.MiscFlags = 0;
+	cbDesc.StructureByteStride = 0;
+	cbDesc.ByteWidth = sizeof(VS_CONSTANT_BUFFER);
+
+	_app->getDevice()->CreateBuffer(&cbDesc, NULL,
+		&g_pConstantBuffer11);
 }
 
 void ModelComponent::Update(Matrix cameraProjection, Matrix cameraView, Matrix world, Matrix InverseView)
 {
-	if (g_pConstantBuffer11) {
-		g_pConstantBuffer11->Release();
-	}
 	buffer.cameraProj = cameraProjection;
 	buffer.cameraView = cameraView;
 	buffer.world = world;
 	buffer.InvWorldView = InverseView;
-
-	cbDesc.ByteWidth = sizeof(VS_CONSTANT_BUFFER);
-	cbDesc.Usage = D3D11_USAGE_DYNAMIC;
-	cbDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-	cbDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-	cbDesc.MiscFlags = 0;
-	cbDesc.StructureByteStride = 0;
-
-	// Fill in the subresource data.
-
-	InitData.pSysMem = &buffer;
-	InitData.SysMemPitch = 0;
-	InitData.SysMemSlicePitch = 0;
-
-
-
-	_app->getDevice()->CreateBuffer(&cbDesc, &InitData,
-		&g_pConstantBuffer11);
-
-
-	cbcsmDesc.ByteWidth = sizeof(Matrix) * 5 + sizeof(Vector4);
-	cbcsmDesc.Usage = D3D11_USAGE_DYNAMIC;
-	cbcsmDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-	cbcsmDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-	cbcsmDesc.MiscFlags = 0;
-	cbcsmDesc.StructureByteStride = 0;
-
-	// Fill in the subresource data.
-
-	_app->getDevice()->CreateBuffer(&cbcsmDesc, nullptr,
-		&g_pConstantBuffer12);
-
 }
 
 
@@ -301,17 +266,20 @@ void ModelComponent::Draw()
 	_app->getContext()->IASetInputLayout(layout);
 
 
-	_app->getContext()->PSSetSamplers(0, 1, &TexSamplerState);
-	_app->getContext()->PSSetSamplers(1, 1, &depthSamplerState_);
-
-	auto csm = _app->getCSM();
+	_app->getContext()->PSSetSamplers(1, 1, &TexSamplerState);
 
 
-	_app->getContext()->PSSetShaderResources(1, 1, &csm);
+	//auto csm = _app->getCSM();
+
+
+	//_app->getContext()->PSSetShaderResources(1, 1, &csm);
 
 	_app->getContext()->UpdateSubresource(g_pConstantBuffer11, 0, nullptr, &buffer, 0, 0);
 	_app->getContext()->VSSetConstantBuffers(0, 1, &g_pConstantBuffer11);
-	_app->getContext()->PSSetConstantBuffers(0, 1, _app->getLightBuffer().GetAddressOf());
+
+
+	_app->getContext()->PSSetConstantBuffers(1, 1, _app->getLightBuffer().GetAddressOf());
+	_app->getContext()->PSSetConstantBuffers(2, 1, _app->getCascadeBuffer().GetAddressOf());
 
 
 
@@ -323,8 +291,8 @@ void ModelComponent::PrepareFrame()
 	_app->getContext()->RSSetState(rastState);
 
 	D3D11_VIEWPORT viewport = {};
-	viewport.Width = 1024.0f;
-	viewport.Height = 1024.0f;
+	viewport.Width = 2048.0f;
+	viewport.Height = 2048.0f;
 	viewport.TopLeftX = 0;
 	viewport.TopLeftY = 0;
 	viewport.MinDepth = 0;
@@ -336,12 +304,15 @@ void ModelComponent::PrepareFrame()
 	_app->getContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
 	_app->getContext()->VSSetShader(vertexShaderCSM, nullptr, 0);
+	_app->getContext()->PSSetShader(nullptr, nullptr, 0);
+	_app->getContext()->GSSetShader(geomertyShaderCSM, nullptr, 0);
+
+
+
+
 	_app->getContext()->VSSetConstantBuffers(0, 1, &g_pConstantBuffer11);
 
-	_app->getContext()->PSSetShader(nullptr, nullptr, 0);
-
-	_app->getContext()->GSSetShader(geomertyShaderCSM, nullptr, 0);
-	_app->getContext()->GSSetConstantBuffers(0, 1, &g_pConstantBuffer12);
+	_app->getContext()->GSSetConstantBuffers(0, 1, _app->getCascadeBuffer().GetAddressOf());
 
 
 	loader.Draw(_app->getContext());

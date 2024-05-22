@@ -57,7 +57,10 @@ namespace Engine{
 		}
 
 
+
+
 		Microsoft::WRL::ComPtr<ID3D11Buffer> getLightBuffer() { return LightBuffer; }
+		Microsoft::WRL::ComPtr<ID3D11Buffer> getCascadeBuffer() { return cascadeCBuffer_; }
 
 		ID3D11DeviceContext* getContext() { return context; };
 		Camera* getCamera(){return camera;}

@@ -39,6 +39,9 @@ PS_IN VSMain(VS_IN input)
 float4 PSMain(PS_IN input) : SV_Target
 {
     float4 color = DiffuseMap.SampleLevel(Sampler, input.tex.xy, 0);
+    
+    
+    
 
     return color;
 }

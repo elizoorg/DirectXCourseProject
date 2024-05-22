@@ -21,6 +21,7 @@ cbuffer cbPerObject : register(b0)
     float4x4 world;
     float4x4 cameraView;
     float4x4 cameraProj;
+    float4x4 InvWorldView;
 };
 
 GS_IN VSMain(VS_IN input)
