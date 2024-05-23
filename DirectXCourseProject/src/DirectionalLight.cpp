@@ -12,6 +12,9 @@ lightColor_(1.0f, 1.0f, 1.0f, 1.0f), app_(g)
 	shadowCascadeLevels_.push_back(1000.0f / 25.0f);
     shadowCascadeLevels_.push_back(1000.0f / 10.0f);
     shadowCascadeLevels_.push_back(1000.0f / 2.0f);
+
+
+    lightColor_ *= 0.7f;
 }
 
 Matrix DirectionalLight::GetLightSpaceMatrix(const float nearPlane, const float farPlane)

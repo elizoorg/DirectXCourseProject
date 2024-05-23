@@ -59,12 +59,12 @@ PS_IN VSMain(VS_IN input)
     PS_IN output = (PS_IN) 0;
 	
 	
-    output.pos = mul(float4(input.pos.xyz,0.0f), world);
+    output.pos = mul(float4(input.pos.xyz,1.0f), world);
     output.pos = mul(float4(output.pos.xyz, 1.0f), cameraView);
     output.pos = mul(float4(output.pos.xyz, 1.0f), cameraProj);
     output.normal = mul(float4(input.normal.xyz, 1.0f), InvWorldView);
-    output.viewPos = mul(float4(input.pos.xyz, 0.0f), mul(world, cameraView));
-    output.worldPos = mul(float4(input.pos.xyz, 0.0f), world);
+    output.viewPos = mul(float4(input.pos.xyz, 1.0f), cameraView);
+    output.worldPos = mul(float4(input.pos.xyz, 1.0f), world);
 	
     output.tex = input.tex.xy;
 	
@@ -137,7 +137,6 @@ float4 PSMain(PS_IN input) : SV_Target
 {
     float4 norm = normalize(input.normal);
 	
-    float shadow = ShadowCalculation(input.worldPos, input.viewPos, dot(norm, lightPos));
 	
     float4 ambient = ambientSpecularPowType.x * float4(lightColor.xyz, 1.0f);
     float4 objColor = DiffuseMap.SampleLevel(Sampler, input.tex.xy, 0);
@@ -146,9 +145,13 @@ float4 PSMain(PS_IN input) : SV_Target
     float4 diffuse = diff * float4(lightColor.xyz, 1.0f);
 
     float4 reflectDir = reflect(-lightPos, norm);
-    float3 viewDir = -normalize(input.viewPos.xyz);
+    float3 viewDir = -normalize(mul(input.worldPos, gView).xyz);
     float spec = pow(max(dot(viewDir, reflectDir.xyz), 0.0f), ambientSpecularPowType.z);
+  
     float4 specular = ambientSpecularPowType.y * spec * float4(lightColor.xyz, 1.0f);
+    
+    
+    float shadow = ShadowCalculation(input.worldPos, input.viewPos, dot(norm, lightPos));
 
     float4 result = (ambient + (1.0f - shadow) * (diffuse + specular)) * objColor;
 	

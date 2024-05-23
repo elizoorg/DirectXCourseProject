@@ -94,16 +94,14 @@
 		context->PSSetSamplers(0, 1, depthSamplerState_.GetAddressOf());
 
 
-		/*
-		for (size_t t = 0; t < Components.size(); t++)
+		
+		for (size_t t = 23; t < 30; t++)
 		{
 			Components[t]->Draw();
 		}
 
-		*/
 		
-
-		Components[23]->Draw();
+		
 		system->Draw(deltaTime);
 		
 		bool qq = false;
@@ -133,7 +131,7 @@
 		ImGui::Text("Mouse clicked: %s", ImGui::IsMouseDown(ImGuiMouseButton_Left) ? "Yes" : "No");
 
 
-		ImGui::Text("%f %f %f %f", camera->GetPosition().x, camera->GetPosition().y, camera->GetPosition().z,1.0f);
+		ImGui::Text("%f %f %f %f", camera->getTransform()->GetWorldPosition().x, camera->getTransform()->GetWorldPosition().y,camera->getTransform()->GetWorldPosition().z, 1.0f);
 
 		ImGui::Text("%f %f %f %f", transform[0].GetWorldPosition().x, transform[0].GetWorldPosition().y, transform[0].GetWorldPosition().z, planets[0].radius);
 		ImGui::Text("%f %f %f %f", transform[1].GetWorldPosition().x, transform[1].GetWorldPosition().y, transform[1].GetWorldPosition().z, planets[1].radius);
@@ -263,6 +261,13 @@
 
 
 		ModelComponent* model = new ModelComponent(this);
+		ModelComponent* model2 = new ModelComponent(this);
+		ModelComponent* model3 = new ModelComponent(this);
+		ModelComponent* model4 = new ModelComponent(this);
+		ModelComponent* model5 = new ModelComponent(this);
+		ModelComponent* model6 = new ModelComponent(this);
+		ModelComponent* model7 = new ModelComponent(this);
+		ModelComponent* model8 = new ModelComponent(this);
 
 		Components.push_back(sphere);
 		Components.push_back(sphere2);
@@ -291,6 +296,13 @@
 		Components.push_back(plane);
 
 		Components.push_back(model);
+		Components.push_back(model2);
+		Components.push_back(model3);
+		Components.push_back(model4);
+		Components.push_back(model5);
+		Components.push_back(model6);
+		Components.push_back(model7);
+		Components.push_back(model8);
 
 
 		for (auto comp : Components) {
@@ -367,7 +379,14 @@
 		}
 
 
-		static_cast<ModelComponent*>(Components[23])->LoadModel("assets/Sponza/models/sponza.obj");
+		static_cast<ModelComponent*>(Components[23])->LoadModel("assets/Plane/untitled.obj");
+		static_cast<ModelComponent*>(Components[24])->LoadModel("assets/cat2/12221_Cat_v1_l3.obj");
+		static_cast<ModelComponent*>(Components[25])->LoadModel("assets/cat2/12221_Cat_v1_l3.obj");
+		static_cast<ModelComponent*>(Components[26])->LoadModel("assets/cat2/12221_Cat_v1_l3.obj");
+		static_cast<ModelComponent*>(Components[27])->LoadModel("assets/cat2/12221_Cat_v1_l3.obj");
+		static_cast<ModelComponent*>(Components[28])->LoadModel("assets/cat2/12221_Cat_v1_l3.obj");
+		static_cast<ModelComponent*>(Components[29])->LoadModel("assets/cat2/12221_Cat_v1_l3.obj");
+		static_cast<ModelComponent*>(Components[30])->LoadModel("assets/cat2/12221_Cat_v1_l3.obj");
 
 		D3D11_TEXTURE2D_DESC depthDescription = {};
 		depthDescription.Width = 2048;
@@ -582,6 +601,8 @@
 		lightData.ViewMatrix = camera->View();
 
 		auto tmp2 = getLight()->GetLightSpaceMatrices();
+
+
 		for (int i = 0; i < 5; ++i)
 		{
 			cascadeData.ViewProj[i] = tmp2[i];
@@ -595,44 +616,12 @@
 
 		camera->Update();
 
-
-		for (size_t t = 0; t < 22; t++) {
-			planets[t].angle += planets[t].angleSpeed;
-			planets[t].angle2 += planets[t].angleSpeed2;
-			Vector3 rot = {
-			planets[t].joint.x + planets[t].radius * sin(Math::Radians(planets[t].angle)) * 
-			cos(Math::Radians(planets[t].angle2)),
-			planets[t].joint.y + planets[t].radius * sin(Math::Radians(planets[t].angle)) * 
-				sin(Math::Radians(planets[t].angle2)),
-			planets[t].joint.z + planets[t].radius * cos(Math::Radians(planets[t].angle)),
-			
-			};
-			transform[t].SetPosition(rot); 
-			transform[t].AdjustEulerRotation(Vector3(planets[t].angleSpeed2, planets[t].angleSpeed, 0));
+		for (size_t t = 0; t < 30; t++)
 			transform[t].Update();
-		}
-
-		planets[7].joint = transform[0].GetWorldPosition();
-		planets[8].joint = transform[0].GetWorldPosition();
-		planets[9].joint = transform[0].GetWorldPosition();
-		planets[10].joint = transform[1].GetWorldPosition();
-		planets[11].joint = transform[1].GetWorldPosition();
-		planets[12].joint = transform[1].GetWorldPosition();
-		planets[13].joint = transform[2].GetWorldPosition();
-		planets[14].joint = transform[2].GetWorldPosition();
-		planets[15].joint = transform[2].GetWorldPosition();
-		planets[16].joint = transform[3].GetWorldPosition();
-		planets[17].joint = transform[3].GetWorldPosition();
-		planets[18].joint = transform[3].GetWorldPosition();
-		planets[19].joint = transform[4].GetWorldPosition();
-		planets[20].joint = transform[4].GetWorldPosition();
-		planets[21].joint = transform[5].GetWorldPosition();
-
 		
-		for (size_t t = 0; t < 24; t++) {
+		for (size_t t = 0; t < 30; t++) {
 			Components[t]->Update(camera->Proj(), camera->View(), transform[t].GetWorldMatrix(),
-				(Matrix::CreateScale(transform->GetScale())* Matrix::CreateFromQuaternion(transform->GetQuaternionRotate()).Invert().Transpose() * camera->View())
-				);
+				(transform[t].GetWorldMatrix()*camera->View()).Invert());
 		}
 
 		return true;
@@ -720,13 +709,28 @@
 		planets[6].radius = 0;
 
 
-		system->DrawLine(Vector3(0, -200, 0), Vector3(0, 200, 0), Color(0, 255, 0, 255));
-		system->DrawLine(Vector3(-200, 0, 0), Vector3(200, 0, 0), Color(255, 0, 0, 255));
-		system->DrawLine(Vector3(0,0, -200), Vector3(0, 0, 200), Color(0, 0, 255, 255));
+		system->DrawLine(Vector3(0, 0, 0), Vector3(0, 200, 0), Color(0, 255, 0, 255));
+		system->DrawLine(Vector3(0, 0, 0), Vector3(200, 0, 0), Color(255, 0, 0, 255));
+		system->DrawLine(Vector3(0,0, 0), Vector3(0, 0, 200), Color(0, 0, 255, 255));
 
-		transform[23].SetPosition(Vector3(0, 0, 0));
+		transform[23].SetPosition(Vector3(50, 0, 0));
 		transform[23].SetEulerRotate(Vector3(0, 0, 0));
-		transform[23].SetScale(Vector3(0.05f, 0.05f, 0.05f));
+		transform[23].SetScale(Vector3(20, 1, 20));
+
+		for (size_t t = 24; t < 30; t++) {
+			transform[t].SetEulerRotate(Vector3(0, 90, 0));
+			transform[t].SetScale(Vector3(0.05f, 0.05f, 0.05f));
+		}
+
+
+
+		transform[24].SetPosition(Vector3(0, 0, 0));
+		transform[25].SetPosition(Vector3(-10, 0, 0));
+		transform[26].SetPosition(Vector3(-15, 0, 0));
+		transform[27].SetPosition(Vector3(20, 0, 0));
+		transform[28].SetPosition(Vector3(15, 0, 10));
+		transform[29].SetPosition(Vector3(30, 0, -15));
+ 
 
 
 	}

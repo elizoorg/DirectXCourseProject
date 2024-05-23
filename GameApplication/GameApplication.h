@@ -80,7 +80,7 @@ class GameApplication: public Engine::Application
 		Microsoft::WRL::ComPtr<ID3D11SamplerState> depthSamplerState_ = nullptr;
 		Microsoft::WRL::ComPtr<ID3D11DepthStencilState> defaultDepthState_;
 
-		Transform transform[24];
+		Transform transform[30];
 
 		float rand_FloatRange(float a, float b)
 		{
@@ -94,7 +94,7 @@ class GameApplication: public Engine::Application
 			float angle2=5.0f;
 			float angleSpeed;
 			float angleSpeed2;
-		} planets[22];
+		} planets[30];
 
 
 		Vector4 tmp = Vector4(20.0f, 50.0f, 20.0f, 0.0f);
