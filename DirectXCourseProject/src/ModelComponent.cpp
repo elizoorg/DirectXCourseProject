@@ -195,7 +195,7 @@ bool ModelComponent::Initialize()
 	rastDesc.DepthBiasClamp = 0.0f;
 	rastDesc.DepthClipEnable = true;
 	rastDesc.FillMode = D3D11_FILL_SOLID;
-	rastDesc.FrontCounterClockwise = false;
+	rastDesc.FrontCounterClockwise = true;
 	rastDesc.MultisampleEnable = false;
 	rastDesc.ScissorEnable = false;
 	rastDesc.SlopeScaledDepthBias = 0.0f;

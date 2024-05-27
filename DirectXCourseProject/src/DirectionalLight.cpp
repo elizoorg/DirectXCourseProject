@@ -33,7 +33,7 @@ Matrix DirectionalLight::GetLightSpaceMatrix(const float nearPlane, const float 
     }
     center /= static_cast<float>(corners.size());
 
-    const auto lightView = Matrix::CreateLookAt(center, center - lightDirection_, Vector3::Up);
+    const auto lightView = Matrix::CreateLookAt(center,   center-lightDirection_ , Vector3::Up);
 #undef max
     float minX = std::numeric_limits<float>:: max();
     float maxX = std::numeric_limits<float>::lowest();

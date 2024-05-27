@@ -19,6 +19,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\GBuffer.cpp" />
     <ClCompile Include="src\DirectionalLight.cpp" />
     <ClCompile Include="external\Delegates.cpp" />
     <ClCompile Include="external\ImGui\imgui.cpp" />
@@ -46,6 +47,7 @@
     <ClCompile Include="src\TextureLoader.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\GBuffer.h" />
     <ClInclude Include="src\DirectionalLight.h" />
     <ClInclude Include="external\Delegates.h" />
     <ClInclude Include="external\ImGui\imconfig.h" />
@@ -152,7 +154,7 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>C:\Programming\DirectXCourseProject\DirectXCourseProject\external\ImGui;$(IncludePath)</IncludePath>
+    <IncludePath>C:\Programming\C++\Framework\DirectXCourseProject\DirectXCourseProject\external;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>

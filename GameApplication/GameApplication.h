@@ -10,6 +10,7 @@
 #include <src/SphereComponent.h>
 #include <src/DebugRenderSysImpl.h>
 #include <src/ModelLoader.h>
+#include <src/GBuffer.h>
 #include <cstdlib>
 #include <ctime>
 #include <math.h>
@@ -99,6 +100,8 @@ class GameApplication: public Engine::Application
 
 		Vector4 tmp = Vector4(20.0f, 50.0f, 20.0f, 0.0f);
 		CSM_CONSTANT_BUFFER cascadeData = {};
+
+		GBuffer *gBuffer_;
 
 
 	};

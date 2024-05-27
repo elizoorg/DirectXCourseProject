@@ -2,10 +2,12 @@
 #include <src/PlaneComponent.h>
 #include <src/ModelComponent.h>
 
+
 	GameApplication::GameApplication()
 	{
 		instance = this;
 		Device = new InputDevice(this);
+		gBuffer_ = new GBuffer(this);
 		
 	}
 	GameApplication* GameApplication::instance = nullptr;
@@ -490,7 +492,7 @@
 
 
 
-
+		gBuffer_->Initialize();
 
 
 	
@@ -620,8 +622,13 @@
 			transform[t].Update();
 		
 		for (size_t t = 0; t < 30; t++) {
+			Vector3 scale, pos;
+			Quaternion rot;
+			Matrix world = transform[t].GetWorldMatrix();
+			world.Decompose(scale, rot, pos);
+
 			Components[t]->Update(camera->Proj(), camera->View(), transform[t].GetWorldMatrix(),
-				(transform[t].GetWorldMatrix()*camera->View()).Invert());
+				(Matrix::CreateScale(scale)*Matrix::CreateFromQuaternion(rot)).Invert().Transpose());
 		}
 
 		return true;
@@ -713,13 +720,13 @@
 		system->DrawLine(Vector3(0, 0, 0), Vector3(200, 0, 0), Color(255, 0, 0, 255));
 		system->DrawLine(Vector3(0,0, 0), Vector3(0, 0, 200), Color(0, 0, 255, 255));
 
-		transform[23].SetPosition(Vector3(50, 0, 0));
+		transform[23].SetPosition(Vector3(50, 0, -50));
 		transform[23].SetEulerRotate(Vector3(0, 0, 0));
 		transform[23].SetScale(Vector3(20, 1, 20));
 
 		for (size_t t = 24; t < 30; t++) {
 			transform[t].SetEulerRotate(Vector3(0, 90, 0));
-			transform[t].SetScale(Vector3(0.05f, 0.05f, 0.05f));
+			transform[t].SetScale(Vector3(0.5f, 0.5f, 0.5f));
 		}
 
 

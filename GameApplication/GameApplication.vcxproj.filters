@@ -14,7 +14,7 @@
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
     <Filter Include="ImGui">
-      <UniqueIdentifier>{5bd85c9a-6cee-47b8-986c-7be6751abe96}</UniqueIdentifier>
+      <UniqueIdentifier>{05d821cb-c275-4e7a-88d9-1568435e56ff}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -78,5 +78,6 @@
     <FxCompile Include="Shaders\TexturedShader.hlsl" />
     <FxCompile Include="Shaders\csm.hlsl" />
     <FxCompile Include="Shaders\TexturedShaderCSM.hlsl" />
+    <FxCompile Include="Shaders\CommonShader.hlsl" />
   </ItemGroup>
 </Project>

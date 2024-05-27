@@ -62,9 +62,11 @@ PS_IN VSMain(VS_IN input)
     output.pos = mul(float4(input.pos.xyz,1.0f), world);
     output.pos = mul(float4(output.pos.xyz, 1.0f), cameraView);
     output.pos = mul(float4(output.pos.xyz, 1.0f), cameraProj);
-    output.normal = mul(float4(input.normal.xyz, 1.0f), InvWorldView);
-    output.viewPos = mul(float4(input.pos.xyz, 1.0f), cameraView);
+    
+    
+    output.normal = mul(float4(input.normal.xyz, 0.0f), InvWorldView);
     output.worldPos = mul(float4(input.pos.xyz, 1.0f), world);
+    output.viewPos = mul(float4(output.worldPos.xyz, 1.0f), cameraView);
 	
     output.tex = input.tex.xy;
 	
@@ -73,6 +75,21 @@ PS_IN VSMain(VS_IN input)
     
 }
 
+static const float4 vCascadeColorsMultiplier[8] =
+{
+    float4(1.5f, 0.0f, 0.0f, 1.0f),
+    float4(0.0f, 1.5f, 0.0f, 1.0f),
+    float4(0.0f, 0.0f, 5.5f, 1.0f),
+    float4(1.5f, 0.0f, 5.5f, 1.0f),
+    float4(1.5f, 1.5f, 0.0f, 1.0f),
+    float4(1.0f, 1.0f, 1.0f, 1.0f),
+    float4(0.0f, 1.0f, 5.5f, 1.0f),
+    float4(0.5f, 3.5f, 0.75f, 1.0f)
+};
+
+
+
+static float4 cascadeColor;
 
 float ShadowCalculation(float4 posWorldSpace, float4 posViewSpace, float dotN)
 {
@@ -83,12 +100,14 @@ float ShadowCalculation(float4 posWorldSpace, float4 posViewSpace, float dotN)
     {
         if (depthValue < gDistances[i])
         {
+            cascadeColor = vCascadeColorsMultiplier[i];
             layer = i;
             break;
         }
     }
     if (layer == -1)
     {
+        cascadeColor = vCascadeColorsMultiplier[CASCADE_COUNT];
         layer = CASCADE_COUNT;
     }
 
@@ -125,6 +144,11 @@ float ShadowCalculation(float4 posWorldSpace, float4 posViewSpace, float dotN)
         }
     }
     shadow /= 9.0f;
+    
+    if (projCoords.z > 1.0)
+    {
+        shadow = 0.0f;
+    }
 
 	//float shadow = CascadeShadowMap.SampleCmp(DepthSampler, float3(projCoords.xy, layer), currentDepth);
 
@@ -145,7 +169,7 @@ float4 PSMain(PS_IN input) : SV_Target
     float4 diffuse = diff * float4(lightColor.xyz, 1.0f);
 
     float4 reflectDir = reflect(-lightPos, norm);
-    float3 viewDir = -normalize(mul(input.worldPos, gView).xyz);
+    float3 viewDir = normalize(-mul(input.worldPos, gView).xyz);
     float spec = pow(max(dot(viewDir, reflectDir.xyz), 0.0f), ambientSpecularPowType.z);
   
     float4 specular = ambientSpecularPowType.y * spec * float4(lightColor.xyz, 1.0f);
@@ -153,7 +177,7 @@ float4 PSMain(PS_IN input) : SV_Target
     
     float shadow = ShadowCalculation(input.worldPos, input.viewPos, dot(norm, lightPos));
 
-    float4 result = (ambient + (1.0f - shadow) * (diffuse + specular)) * objColor;
+    float4 result = (ambient + (1.0f - shadow) * (diffuse + specular)) * objColor ;
 	
     return float4(result.xyz, 1.0f);
 }

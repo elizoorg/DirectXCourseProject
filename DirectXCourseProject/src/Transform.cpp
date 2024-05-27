@@ -38,7 +38,7 @@ Vector3 Transform::GetForwardVector()
 {
 	Vector3 v = Vector3{ worldTranspose._13, worldTranspose._23, worldTranspose._33 };
 	v.Normalize();
-	return v * -1;
+	return v;
 }
 
 Matrix Transform::GetWorldMatrix()
