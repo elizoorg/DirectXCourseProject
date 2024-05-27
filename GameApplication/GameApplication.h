@@ -101,6 +101,10 @@ class GameApplication: public Engine::Application
 		Vector4 tmp = Vector4(20.0f, 50.0f, 20.0f, 0.0f);
 		CSM_CONSTANT_BUFFER cascadeData = {};
 
+		Microsoft::WRL::ComPtr<ID3D11DepthStencilState> quadDepthState_;
+		Microsoft::WRL::ComPtr<ID3D11RasterizerState> rastState_;
+		Microsoft::WRL::ComPtr<ID3D11BlendState> blendState_;
+
 		GBuffer *gBuffer_;
 
 

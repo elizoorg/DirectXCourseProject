@@ -71,13 +71,36 @@
 	{
 
 		context->ClearState();
-		//context->OMSetDepthStencilState(defaultDepthState_.Get(), 0);
+		context->OMSetDepthStencilState(defaultDepthState_.Get(), 0);
 
 
-		context->OMSetRenderTargets(1, &rtv, depthStencilView.Get());
-		float color[] = { 0.6f, 0.6f, 0.6f, 1.0f };
-		context->ClearRenderTargetView(rtv, color);
+		const auto rtvs = new ID3D11RenderTargetView * [3];
+		rtvs[0] = gBuffer_->albedoRtv_.Get();
+		rtvs[1] = gBuffer_->positionRtv_.Get();
+		rtvs[2] = gBuffer_->normalRtv_.Get();
+
+
+		float color[] = { 0.0f, 0.0f, 0.0f, 1.0f };
+		context->OMSetRenderTargets(3, &rtvs, depthStencilView.Get());
+		context->ClearRenderTargetView(gBuffer_->albedoRtv_.Get(), color);
+		context->ClearRenderTargetView(gBuffer_->positionRtv_.Get(), color);
+		context->ClearRenderTargetView(gBuffer_->normalRtv_.Get(), color);
 		context->ClearDepthStencilView(depthStencilView.Get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
+
+		for (size_t t = 23; t < 30; t++)
+		{
+			Components[t]->Draw();
+		}
+
+
+		context->ClearState();
+
+		context->RSSetState(rastState_.Get());
+		context->OMSetDepthStencilState(quadDepthState_.Get(), 0);
+
+		//context->OMSetRenderTargets(1, &rtv, depthStencilView.Get());
+		//context->ClearRenderTargetView(rtv, color);
+		
 
 
 
@@ -92,16 +115,19 @@
 
 		context->RSSetViewports(1, &viewport);
 
+		context->OMSetRenderTargets(1, &g_mainRenderTargetView, nullptr);
+		context->OMSetBlendState(nullptr, nullptr, 0xffffffff);
+
+		context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
+
 		context->PSSetShaderResources(1, 1, depthShadowSrv.GetAddressOf());
 		context->PSSetSamplers(0, 1, depthSamplerState_.GetAddressOf());
 
 
-		
-		for (size_t t = 23; t < 30; t++)
-		{
-			Components[t]->Draw();
-		}
 
+
+		
+	
 		
 		
 		system->Draw(deltaTime);
@@ -495,7 +521,37 @@
 		gBuffer_->Initialize();
 
 
-	
+		CD3D11_RASTERIZER_DESC rastDesc = {};
+
+		rastDesc.CullMode = D3D11_CULL_NONE;
+		rastDesc.FillMode = D3D11_FILL_SOLID;
+		rastDesc.FrontCounterClockwise = true;
+		rastDesc.DepthClipEnable = true;
+
+
+		res = device->CreateRasterizerState(&rastDesc, rastState_.GetAddressOf());
+
+		D3D11_DEPTH_STENCIL_DESC quadDepthDesc = {};
+
+		defaultDepthDesc.DepthEnable = true;
+		defaultDepthDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ZERO;
+		defaultDepthDesc.DepthFunc = D3D11_COMPARISON_LESS;
+
+		res = device->CreateDepthStencilState(&quadDepthDesc, quadDepthState_.GetAddressOf());
+
+		D3D11_BLEND_DESC blendDesc = {};
+
+		blendDesc.RenderTarget[0].BlendEnable = true;
+		blendDesc.RenderTarget[0].SrcBlend = D3D11_BLEND_ONE; //D3D11_BLEND_SRC_COLOR;
+		blendDesc.RenderTarget[0].DestBlend = D3D11_BLEND_ONE; //D3D11_BLEND_BLEND_FACTOR;
+		blendDesc.RenderTarget[0].BlendOp = D3D11_BLEND_OP_ADD;
+		blendDesc.RenderTarget[0].SrcBlendAlpha = D3D11_BLEND_ONE;
+		blendDesc.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_ZERO;;
+		blendDesc.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
+		blendDesc.RenderTarget[0].RenderTargetWriteMask = D3D10_COLOR_WRITE_ENABLE_ALL;
+		blendDesc.AlphaToCoverageEnable = false;
+
+		res = device->CreateBlendState(&blendDesc, blendState_.GetAddressOf());
 
 
 

@@ -28,7 +28,7 @@ void ModelComponent::Reload()
 
 bool ModelComponent::Initialize()
 {
-	res = D3DCompileFromFile(L"./Shaders/TexturedShaderCSM.hlsl",
+	res = D3DCompileFromFile(L"./Shaders/GBuffer.hlsl",
 		nullptr /*macros*/,
 		nullptr /*include*/,
 		"VSMain",
@@ -58,7 +58,7 @@ bool ModelComponent::Initialize()
 
 	D3D_SHADER_MACRO Shader_Macros[] = { "1", "TCOLOR", "float4(0.0f, 1.0f, 0.0f, 1.0f)", nullptr, nullptr };
 
-	res = D3DCompileFromFile(L"./Shaders/TexturedShaderCSM.hlsl", Shader_Macros /*macros*/, nullptr /*include*/,
+	res = D3DCompileFromFile(L"./Shaders/GBuffer.hlsl", Shader_Macros /*macros*/, nullptr /*include*/,
 		"PSMain", "ps_5_0", D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION, 0, &pixelBC,
 		&errorPixelCode);
 

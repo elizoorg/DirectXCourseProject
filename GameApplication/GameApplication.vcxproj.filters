@@ -79,5 +79,7 @@
     <FxCompile Include="Shaders\csm.hlsl" />
     <FxCompile Include="Shaders\TexturedShaderCSM.hlsl" />
     <FxCompile Include="Shaders\CommonShader.hlsl" />
+    <FxCompile Include="Shaders\GBuffer.hlsl" />
+    <FxCompile Include="Shaders\TextureShaderDerref.hlsl" />
   </ItemGroup>
 </Project>
