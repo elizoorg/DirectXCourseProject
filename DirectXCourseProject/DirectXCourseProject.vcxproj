@@ -19,6 +19,8 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\LightComponent.cpp" />
+    <ClCompile Include="src\ShaderManager.cpp" />
     <ClCompile Include="src\GBuffer.cpp" />
     <ClCompile Include="src\DirectionalLight.cpp" />
     <ClCompile Include="external\Delegates.cpp" />
@@ -47,6 +49,8 @@
     <ClCompile Include="src\TextureLoader.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\LightComponent.h" />
+    <ClInclude Include="src\ShaderManager.h" />
     <ClInclude Include="src\GBuffer.h" />
     <ClInclude Include="src\DirectionalLight.h" />
     <ClInclude Include="external\Delegates.h" />

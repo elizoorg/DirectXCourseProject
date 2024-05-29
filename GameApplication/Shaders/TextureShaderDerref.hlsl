@@ -30,45 +30,27 @@ cbuffer cbCascade : register(b2)
     float4 gDistances;
 };
 
-struct VS_IN
-{
-    float3 pos : POSITION0;
-    float2 tex : TEXCOORD0;
-    float3 normal : NORMAL0;
-};
 
 struct PS_IN
 {
     float4 pos : SV_POSITION;
     float2 tex : TEXCOORD;
-    float4 normal : NORMAL;
-    float4 viewPos : VIEWPOS;
-    float4 worldPos : WORLDPOS;
 };
 
-Texture2D DiffuseMap : register(t0);
-Texture2DArray CascadeShadowMap : register(t1);
-
-
+Texture2D<float4> DiffuseTex : register(t0);
+Texture2D<float3> WorldPositions : register(t1);
+Texture2D<float3> Normals : register(t2);
+Texture2DArray CascadeShadowMap : register(t3);
 SamplerComparisonState DepthSampler : register(s0);
-SamplerState Sampler : register(s1);
 
 
-PS_IN VSMain(VS_IN input)
+
+PS_IN VSMain(uint id : SV_VertexID)
 {
     PS_IN output = (PS_IN) 0;
-	
-	
-    output.pos = mul(float4(input.pos.xyz,1.0f), world);
-    output.pos = mul(float4(output.pos.xyz, 1.0f), cameraView);
-    output.pos = mul(float4(output.pos.xyz, 1.0f), cameraProj);
     
-    
-    output.normal = mul(float4(input.normal.xyz, 0.0f), InvWorldView);
-    output.worldPos = mul(float4(input.pos.xyz, 1.0f), world);
-    output.viewPos = mul(float4(output.worldPos.xyz, 1.0f), cameraView);
-	
-    output.tex = input.tex.xy;
+    output.tex = float2(id & 1, (id & 2) >> 1);
+    output.pos = float4(output.tex * float2(2, -2) + float2(-1, 1), 0, 1);
 	
     return output;
 
@@ -159,25 +141,39 @@ float ShadowCalculation(float4 posWorldSpace, float4 posViewSpace, float dotN)
 
 float4 PSMain(PS_IN input) : SV_Target
 {
-    float4 norm = normalize(input.normal);
-	
-	
-    float4 ambient = ambientSpecularPowType.x * float4(lightColor.xyz, 1.0f);
-    float4 objColor = DiffuseMap.SampleLevel(Sampler, input.tex.xy, 0);
+    float3 norm = normalize(Normals.Load(int3(input.pos.xy, 0)));
+    float4 worldPos = float4(WorldPositions.Load(int3(input.pos.xy, 0)).xyz, 1.0f);
+    float4 viewPos = mul(worldPos, gView);
+    float3 viewDir = normalize(-viewPos.xyz);
+    float4 objColor = float4(DiffuseTex.Load(int3(input.pos.xy, 0)).xyz, 1.0f);
 
-    float diff = max(dot(norm, lightPos), 0.0f);
+    float shadow = 0.0f;
+    float attenuation = 1.0f;
+    float3 lightDir = float3(0.0f, 0.0f, 0.0f);
+
+	[branch]
+    if (ambientSpecularPowType.w == 0)
+    {
+        lightDir = normalize(lightPos.xyz);
+        shadow = ShadowCalculation(worldPos, viewPos, dot(norm, lightPos));
+    }
+    else
+    {
+        lightDir = lightPos.xyz - viewPos.xyz;
+        attenuation = 1.0f / (1.0f + length(lightDir) * length(lightDir));
+        lightDir = normalize(lightDir);
+    }
+	
+    float4 ambient = ambientSpecularPowType.x * float4(lightColor.xyz, 1.0f) * attenuation;
+
+    float diff = max(dot(norm, lightDir), 0.0f) * attenuation;
     float4 diffuse = diff * float4(lightColor.xyz, 1.0f);
-
-    float4 reflectDir = reflect(-lightPos, norm);
-    float3 viewDir = normalize(-mul(input.worldPos, gView).xyz);
-    float spec = pow(max(dot(viewDir, reflectDir.xyz), 0.0f), ambientSpecularPowType.z);
-  
-    float4 specular = ambientSpecularPowType.y * spec * float4(lightColor.xyz, 1.0f);
-    
-    
-    float shadow = ShadowCalculation(input.worldPos, input.viewPos, dot(norm, lightPos));
-
-    float4 result = (ambient + (1.0f - shadow) * (diffuse + specular)) * objColor ;
+	
+    float3 reflectDir = reflect(-lightDir, norm);
+    float spec = pow(max(dot(viewDir, reflectDir), 0.0f), ambientSpecularPowType.z) * attenuation;
+    float4 specular = objColor.w * spec * float4(lightColor.xyz, 1.0f);
+	
+    float4 result = (ambient + (1.0f - shadow) * (diffuse + specular)) * objColor;
 	
     return float4(result.xyz, 1.0f);
 }

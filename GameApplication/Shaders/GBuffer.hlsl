@@ -2,15 +2,15 @@
 
 struct VS_IN
 {
-    float4 pos : POSITION0;
-    float4 tex : TEXCOORD0;
-    float4 normal : NORMAL0;
+    float3 pos : POSITION0;
+    float2 tex : TEXCOORD0;
+    float3 normal : NORMAL0;
 };
 
 struct PS_IN
 {
     float4 pos : SV_POSITION;
-    float4 tex : TEXCOORD;
+    float2 tex : TEXCOORD;
     float4 normal : NORMAL;
     float4 worldPos : WORLDPOS;
 };
@@ -31,7 +31,7 @@ cbuffer cbPerObject : register(b0)
 };
 
 Texture2D DiffuseMap : register(t0);
-SamplerState Sampler : register(s1);
+SamplerState Sampler : register(s0);
 
 PS_IN VSMain(VS_IN input)
 {

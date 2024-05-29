@@ -16,6 +16,9 @@
     <Filter Include="ImGui">
       <UniqueIdentifier>{05d821cb-c275-4e7a-88d9-1568435e56ff}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Shaders">
+      <UniqueIdentifier>{d2b644a1-e309-4d57-ae2c-29b09c3b35fc}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -73,13 +76,32 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <FxCompile Include="Shaders\MyVeryFirstShader.hlsl" />
-    <FxCompile Include="Shaders\Simple.hlsl" />
-    <FxCompile Include="Shaders\TexturedShader.hlsl" />
-    <FxCompile Include="Shaders\csm.hlsl" />
-    <FxCompile Include="Shaders\TexturedShaderCSM.hlsl" />
-    <FxCompile Include="Shaders\CommonShader.hlsl" />
-    <FxCompile Include="Shaders\GBuffer.hlsl" />
-    <FxCompile Include="Shaders\TextureShaderDerref.hlsl" />
+    <FxCompile Include="Shaders\CommonShader.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Shaders\csm.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Shaders\GBuffer.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Shaders\MyVeryFirstShader.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Shaders\Simple.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Shaders\TexturedShader.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Shaders\TexturedShaderCSM.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Shaders\TextureShaderDerref.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Shaders\LightVolume.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
   </ItemGroup>
 </Project>

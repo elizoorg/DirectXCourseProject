@@ -8,6 +8,7 @@
 #include "Camera.h"
 #include "MathTypes.h"
 #include "DirectionalLight.h"
+#include "ShaderManager.h"
 #include <cstdlib>
 #include <ctime>
 namespace Engine{
@@ -69,6 +70,10 @@ namespace Engine{
 		WinApi_Display* getDisplay() { return _display; };
 		DirectionalLight* getLight() { return light; }
 		InputDevice* getInput() { return Device; }
+
+
+		ShaderManager* manager;
+		ShaderManager* getShaderManager() { return manager; }
 
 		std::chrono::time_point<std::chrono::steady_clock> PrevTime = std::chrono::steady_clock::now();
 		float	deltaTime = 0;

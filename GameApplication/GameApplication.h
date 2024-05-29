@@ -11,6 +11,7 @@
 #include <src/DebugRenderSysImpl.h>
 #include <src/ModelLoader.h>
 #include <src/GBuffer.h>
+#include <src/ShaderManager.h>
 #include <cstdlib>
 #include <ctime>
 #include <math.h>
@@ -24,6 +25,7 @@
 #include <assimp/mesh.h>
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
+#include <src/LightComponent.h>
 
 
 
@@ -106,6 +108,9 @@ class GameApplication: public Engine::Application
 		Microsoft::WRL::ComPtr<ID3D11BlendState> blendState_;
 
 		GBuffer *gBuffer_;
+
+		Transform lightTransform;
+		LightComponent* volume;
 
 
 	};

@@ -3,14 +3,12 @@
 #include "GameComponent.h"
 #include "../external/SimpleMath.h"
 #include "MathTypes.h"
+#include "Mesh.h"
 
 class ENGINE_API SphereComponent :
     public GameComponent
 {
-private:
-    ID3D11InputLayout* layout;
-    ID3D11VertexShader* vertexShader;
-    ID3D11PixelShader* pixelShader;
+protected:
     ID3D11RasterizerState* rastState;
 
     ID3D11Buffer* g_pConstantBuffer11 = NULL;
@@ -23,27 +21,18 @@ private:
         Matrix world;
         Matrix cameraView;
         Matrix cameraProj;
+        Matrix InvWorldView;
     } buffer;
 
     // TODO: It doesnt work like that , points must declared somwhere else
-    std::vector<Vector4> points;
-    std::vector<Vector4> dpoints;
+    std::vector<VERTEX> points;
     std::vector<int> indeces;
-
-    ID3DBlob* pixelB = nullptr;
-    ID3DBlob* errorPixelCode = nullptr;
-
-    ID3DBlob* vertexBC = nullptr;
-    ID3DBlob* errorVertexCode = nullptr;
+    HRESULT res;
 
 
     ID3D11Buffer* ib;
-    ID3DBlob* pixelBC;
-
-
 
     ID3D11Buffer* vb;
-    HRESULT res;
 
 public:
     SphereComponent(Engine::Application* app) :GameComponent(app) {

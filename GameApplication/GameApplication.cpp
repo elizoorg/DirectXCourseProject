@@ -78,10 +78,10 @@
 		rtvs[0] = gBuffer_->albedoRtv_.Get();
 		rtvs[1] = gBuffer_->positionRtv_.Get();
 		rtvs[2] = gBuffer_->normalRtv_.Get();
-
+		context->OMSetRenderTargets(3, rtvs, depthStencilView.Get());
 
 		float color[] = { 0.0f, 0.0f, 0.0f, 1.0f };
-		context->OMSetRenderTargets(3, &rtvs, depthStencilView.Get());
+
 		context->ClearRenderTargetView(gBuffer_->albedoRtv_.Get(), color);
 		context->ClearRenderTargetView(gBuffer_->positionRtv_.Get(), color);
 		context->ClearRenderTargetView(gBuffer_->normalRtv_.Get(), color);
@@ -98,7 +98,8 @@
 		context->RSSetState(rastState_.Get());
 		context->OMSetDepthStencilState(quadDepthState_.Get(), 0);
 
-		//context->OMSetRenderTargets(1, &rtv, depthStencilView.Get());
+
+		context->OMSetRenderTargets(1, &rtv, depthStencilView.Get());
 		//context->ClearRenderTargetView(rtv, color);
 		
 
@@ -115,20 +116,83 @@
 
 		context->RSSetViewports(1, &viewport);
 
-		context->OMSetRenderTargets(1, &g_mainRenderTargetView, nullptr);
+		//context->OMSetRenderTargets(1, &rtv, nullptr);
+
 		context->OMSetBlendState(nullptr, nullptr, 0xffffffff);
 
 		context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
+		manager->SetShader(ShaderData("./Shaders/TextureShaderDerref.hlsl", Vertex | Pixel));
 
-		context->PSSetShaderResources(1, 1, depthShadowSrv.GetAddressOf());
+		context->PSSetShaderResources(0, 1, gBuffer_->albedoSrv_.GetAddressOf());
+		context->PSSetShaderResources(1, 1, gBuffer_->positionSrv_.GetAddressOf());
+		context->PSSetShaderResources(2, 1, gBuffer_->normalSrv_.GetAddressOf());
+		context->PSSetShaderResources(3, 1, depthShadowSrv.GetAddressOf());
+		context->PSSetConstantBuffers(1, 1, LightBuffer.GetAddressOf());
+		context->PSSetConstantBuffers(2, 1, cascadeCBuffer_.GetAddressOf());
 		context->PSSetSamplers(0, 1, depthSamplerState_.GetAddressOf());
 
 
 
+		context->Draw(4, 0);
 
-		
+		context->OMSetBlendState(blendState_.Get(), nullptr, 0xffffffff);
 	
-		
+		lightData.AmbientSpecularRowType = Vector4(0.4f, 0.5f, 32, 1);
+
+		lightData.LightPos = Vector4(3, 1, 3, 1);
+		lightData.LightPos = Vector4::Transform(lightData.LightPos, camera->View());
+		lightData.LightColor = Vector4(1, 0, 0, 1) * 2.0f;
+
+		context->UpdateSubresource(LightBuffer.Get(), 0, nullptr, &lightData, 0, 0);
+
+
+		lightTransform.SetScale(Vector3((50.0f)));
+		lightTransform.SetPosition(Vector3(3, 1, 3));
+
+
+		Vector3 scale, pos;
+		Quaternion rot;
+		Matrix world = lightTransform.GetWorldMatrix();
+		world.Decompose(scale, rot, pos);
+
+
+		volume->Update(camera->Proj(), camera->View(), lightTransform.GetWorldMatrix(),
+			(Matrix::CreateScale(scale) * Matrix::CreateFromQuaternion(rot)).Invert().Transpose());
+
+		volume->Draw();
+
+		/*sceneData_.LightPos = Vector4(-3, 1, 3, 1);
+		sceneData_.LightPos = Vector4::Transform(sceneData_.LightPos, GetCamera()->GetView());
+		sceneData_.LightColor = Vector4(0, 1, 0, 1) * 2.0f;
+
+		context->UpdateSubresource(perSceneCBuffer_.Get(), 0, nullptr, &sceneData_, 0, 0);
+
+		lightVolumeComponent_->SetSize(10.0f);
+		lightVolumeComponent_->SetPosition(Vector3(-3, 1, 3));
+		lightVolumeComponent_->Update();
+		lightVolumeComponent_->Draw();
+
+		sceneData_.LightPos = Vector4(3, 1, -3, 1);
+		sceneData_.LightPos = Vector4::Transform(sceneData_.LightPos, GetCamera()->GetView());
+		sceneData_.LightColor = Vector4(0, 0, 1, 1) * 2.0f;
+
+		GetContext()->UpdateSubresource(perSceneCBuffer_.Get(), 0, nullptr, &sceneData_, 0, 0);
+
+		lightVolumeComponent_->SetSize(10.0f);
+		lightVolumeComponent_->SetPosition(Vector3(3, 1, -3));
+		lightVolumeComponent_->Update();
+		lightVolumeComponent_->Draw();
+
+		sceneData_.LightPos = Vector4(-3, 1, -3, 1);
+		sceneData_.LightPos = Vector4::Transform(sceneData_.LightPos, GetCamera()->GetView());
+		sceneData_.LightColor = Vector4(1, 1, 1, 1) * 2.0f;
+
+		GetContext()->UpdateSubresource(perSceneCBuffer_.Get(), 0, nullptr, &sceneData_, 0, 0);
+
+		lightVolumeComponent_->SetSize(10.0f);
+		lightVolumeComponent_->SetPosition(Vector3(-3, 1, -3));
+		lightVolumeComponent_->Update();
+		lightVolumeComponent_->Draw();*/
 		
 		system->Draw(deltaTime);
 		
@@ -192,8 +256,6 @@
 		ImGui::End();
 		ImGui::Render();
 
-
-		context->OMSetRenderTargets(1, &rtv, nullptr);
 		ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
 
 	}
@@ -210,6 +272,12 @@
 
 	void GameApplication::Initialize()
 	{
+
+
+
+
+
+
 		Device = new InputDevice(this);
 		camera = new Camera(this);
 		camera->SetPosition(0,30, 0);
@@ -519,7 +587,7 @@
 
 
 		gBuffer_->Initialize();
-
+		manager = new ShaderManager(this);
 
 		CD3D11_RASTERIZER_DESC rastDesc = {};
 
@@ -555,6 +623,13 @@
 
 
 
+		manager->InitShader(ShaderData("./Shaders/csm.hlsl", Vertex | Geometry));
+		manager->InitShader(ShaderData("./Shaders/TextureShaderDerref.hlsl", Vertex | Pixel));
+		manager->InitShader(ShaderData("./Shaders/GBuffer.hlsl", Vertex | Pixel));
+		manager->InitShader(ShaderData("./Shaders/LightVolume.hlsl", Vertex | Pixel));
+
+		volume = new LightComponent(this);
+		volume->Initialize();
 	}
 
 	void GameApplication::MessageHandler()
