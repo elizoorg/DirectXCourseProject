@@ -3,6 +3,7 @@
 #include "GameComponent.h"
 #include "../external/SimpleMath.h"
 #include "MathTypes.h"
+#include "TextureLoader.h"
 #include "Mesh.h"
 
 class ENGINE_API SphereComponent :
@@ -28,7 +29,7 @@ protected:
     std::vector<VERTEX> points;
     std::vector<int> indeces;
     HRESULT res;
-
+    Texture defaultTexture;
 
     ID3D11Buffer* ib;
 
@@ -42,6 +43,7 @@ public:
     void DestroyResources();
     void Reload();
     bool Initialize();
+    void LoadTexture(std::wstring path);
     virtual void Update(Matrix cameraProjection, Matrix cameraView, Matrix world, Matrix InverseView);
     void Update();
     void Draw();

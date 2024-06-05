@@ -1,7 +1,7 @@
 #include "GameApplication.h"
 #include <src/PlaneComponent.h>
 #include <src/ModelComponent.h>
-
+#include "external/SimpleMath.h"
 
 	GameApplication::GameApplication()
 	{
@@ -92,6 +92,7 @@
 			Components[t]->Draw();
 		}
 
+		player->Draw();
 
 		context->ClearState();
 
@@ -139,21 +140,22 @@
 	
 		lightData.AmbientSpecularRowType = Vector4(0.4f, 0.5f, 32, 1);
 
-		lightData.LightPos = Vector4(3, 1, 3, 1);
+		lightData.LightPos = Vector4(3, 2, 3, 1);
 		lightData.LightPos = Vector4::Transform(lightData.LightPos, camera->View());
 		lightData.LightColor = Vector4(1, 0, 0, 1) * 2.0f;
 
 		context->UpdateSubresource(LightBuffer.Get(), 0, nullptr, &lightData, 0, 0);
 
 
-		lightTransform.SetScale(Vector3((50.0f)));
-		lightTransform.SetPosition(Vector3(3, 1, 3));
-
+		lightTransform.SetScale(Vector3((10.0f)));
+		lightTransform.SetPosition(Vector3(3, 2, 3));
+		lightTransform.SetEulerRotate(Vector3(0, 0, 0));
+		lightTransform.Update();
 
 		Vector3 scale, pos;
 		Quaternion rot;
-		Matrix world = lightTransform.GetWorldMatrix();
-		world.Decompose(scale, rot, pos);
+		lightTransform.GetWorldMatrix().Decompose(scale, rot, pos);
+
 
 
 		volume->Update(camera->Proj(), camera->View(), lightTransform.GetWorldMatrix(),
@@ -161,40 +163,62 @@
 
 		volume->Draw();
 
-		/*sceneData_.LightPos = Vector4(-3, 1, 3, 1);
-		sceneData_.LightPos = Vector4::Transform(sceneData_.LightPos, GetCamera()->GetView());
-		sceneData_.LightColor = Vector4(0, 1, 0, 1) * 2.0f;
+		
 
-		context->UpdateSubresource(perSceneCBuffer_.Get(), 0, nullptr, &sceneData_, 0, 0);
+		lightData.LightPos = Vector4(-3, 1, -3, 1);
+		lightData.LightPos = Vector4::Transform(lightData.LightPos, camera->View());
+		lightData.LightColor = Vector4(0, 1, 0, 1) * 2.0f;
 
-		lightVolumeComponent_->SetSize(10.0f);
-		lightVolumeComponent_->SetPosition(Vector3(-3, 1, 3));
-		lightVolumeComponent_->Update();
-		lightVolumeComponent_->Draw();
+		context->UpdateSubresource(LightBuffer.Get(), 0, nullptr, &lightData, 0, 0);
 
-		sceneData_.LightPos = Vector4(3, 1, -3, 1);
-		sceneData_.LightPos = Vector4::Transform(sceneData_.LightPos, GetCamera()->GetView());
-		sceneData_.LightColor = Vector4(0, 0, 1, 1) * 2.0f;
 
-		GetContext()->UpdateSubresource(perSceneCBuffer_.Get(), 0, nullptr, &sceneData_, 0, 0);
+		lightTransform.SetScale(Vector3((10.0f)));
+		lightTransform.SetPosition(Vector3(-3, 1, -3));
 
-		lightVolumeComponent_->SetSize(10.0f);
-		lightVolumeComponent_->SetPosition(Vector3(3, 1, -3));
-		lightVolumeComponent_->Update();
-		lightVolumeComponent_->Draw();
 
-		sceneData_.LightPos = Vector4(-3, 1, -3, 1);
-		sceneData_.LightPos = Vector4::Transform(sceneData_.LightPos, GetCamera()->GetView());
-		sceneData_.LightColor = Vector4(1, 1, 1, 1) * 2.0f;
+		lightTransform.GetWorldMatrix().Decompose(scale, rot, pos);
+		lightTransform.Update();
 
-		GetContext()->UpdateSubresource(perSceneCBuffer_.Get(), 0, nullptr, &sceneData_, 0, 0);
 
-		lightVolumeComponent_->SetSize(10.0f);
-		lightVolumeComponent_->SetPosition(Vector3(-3, 1, -3));
-		lightVolumeComponent_->Update();
-		lightVolumeComponent_->Draw();*/
+		volume->Update(camera->Proj(), camera->View(), lightTransform.GetWorldMatrix(),
+			(Matrix::CreateScale(scale) * Matrix::CreateFromQuaternion(rot)).Invert().Transpose());
+
+		volume->Draw();
+
+
+		lightData.LightPos = Vector4(3, 1, -3, 1);
+		lightData.LightPos = Vector4::Transform(lightData.LightPos, camera->View());
+		lightData.LightColor = Vector4(0, 0,1, 1) * 2.0f;
+
+		context->UpdateSubresource(LightBuffer.Get(), 0, nullptr, &lightData, 0, 0);
+
+
+		lightTransform.SetScale(Vector3((10.0f)));
+		lightTransform.SetPosition(Vector3(3, 1, -3));
+		lightTransform.Update();
+
+		lightTransform.GetWorldMatrix().Decompose(scale, rot, pos);
+
+
+
+		volume->Update(camera->Proj(), camera->View(), lightTransform.GetWorldMatrix(),
+			(Matrix::CreateScale(scale) * Matrix::CreateFromQuaternion(rot)).Invert().Transpose());
+
+		volume->Draw();
+
+		for (size_t t = 24; t < 30; t++)
+		{
+			system->DrawSphere(10, Color(255, 0, 0), transform[t].GetWorldMatrix(), 50);
+		}
+
+		system->DrawSphere(1, Color(255, 0, 0), playerTransform.GetWorldMatrix(), 50);
+		system->DrawLine(Vector3(0, 0, 0), Vector3(0, 200, 0), Color(0, 255, 0, 255));
+		system->DrawLine(Vector3(0, 0, 0), Vector3(200, 0, 0), Color(255, 0, 0, 255));
+		system->DrawLine(Vector3(0, 0, 0), Vector3(0, 0, 200), Color(0, 0, 255, 255));
 		
 		system->Draw(deltaTime);
+
+		system->Clear();
 		
 		bool qq = false;
 
@@ -245,6 +269,17 @@
 		ImGui::SliderFloat("Platen6", &planets[6].angle, 0.0f, 360.28f);
 
 
+		ImGui::SliderFloat("Scale sphere x", &playerTransform.localScale.x, 0.0f,30.0f );
+		ImGui::SliderFloat("Scale sphere y", &playerTransform.localScale.y, 0.0f,30.0f );
+		ImGui::SliderFloat("Scale sphere z", &playerTransform.localScale.z, 0.0f,30.0f );
+
+
+		ImGui::SliderFloat("Cat x", &transform[29].localScale.x, 0.0f, 30.0f);
+		ImGui::SliderFloat("Cat y", &transform[29].localScale.y, 0.0f, 30.0f);
+		ImGui::SliderFloat("Cat z", &transform[29].localScale.z, 0.0f, 30.0f);
+
+
+
 
 
 		ImGui::SliderFloat("Direction of light x", &tmp.x, 0.0f, 360.28f);
@@ -274,13 +309,13 @@
 	{
 
 
-
+		savedRot= { 0.f, 0.f, 0.f, 1.f };
 
 
 
 		Device = new InputDevice(this);
 		camera = new Camera(this);
-		camera->SetPosition(0,30, 0);
+		camera->SetPosition(0,1, -10);
 		camera->Bind();
 		light = new DirectionalLight(this);
 	
@@ -483,6 +518,8 @@
 		static_cast<ModelComponent*>(Components[28])->LoadModel("assets/cat2/12221_Cat_v1_l3.obj");
 		static_cast<ModelComponent*>(Components[29])->LoadModel("assets/cat2/12221_Cat_v1_l3.obj");
 		static_cast<ModelComponent*>(Components[30])->LoadModel("assets/cat2/12221_Cat_v1_l3.obj");
+	
+
 
 		D3D11_TEXTURE2D_DESC depthDescription = {};
 		depthDescription.Width = 2048;
@@ -630,6 +667,22 @@
 
 		volume = new LightComponent(this);
 		volume->Initialize();
+
+		player = new SphereComponent(this);
+		player->Initialize();
+
+		player->LoadTexture(L"assets/defaulttexture.png");
+
+
+
+		
+		auto rot = Matrix::CreateLookAt(playerTransform.GetWorldPosition() + offset, playerTransform.GetWorldPosition(), Vector3(0, 1, 0)).ToEuler();
+		rot.x *= -1;
+		rot.z = 0;
+		camera->getTransform()->SetEulerRotate(rot);
+
+
+
 	}
 
 	void GameApplication::MessageHandler()
@@ -648,6 +701,9 @@
 		for (auto comp : Components)
 			comp->PrepareFrame();
 		
+		player->PrepareFrame();
+
+
 	}
 
 	void GameApplication::PrepareRecources()
@@ -672,25 +728,48 @@
 			isClosed = true;
 			return true;
 		}
+
+
+		Vector3 direction = Vector3(0, 0, 0);
+
+
+		Vector3 right = tr->GetRightVector();
+		right.y = 0;
+		Vector3 forward = tr->GetForwardVector();
+		forward.y = 0;
+		auto rot = playerTransform.GetQuaternionRotate();
+
 		if (Device->IsKeyDown(Keys::D))
 		{
-			tr->AdjustPosition(tr->GetRightVector());
+			//tr->AdjustPosition(tr->GetRightVector());
+			playerTransform.AdjustPosition(right);
+			rot *= Quaternion::CreateFromAxisAngle(forward, 4.0f * deltaTime);
+			direction += tr->GetRightVector();
 		}
 		if (Device->IsKeyDown(Keys::A))
 		{
-			tr->AdjustPosition(tr->GetRightVector()*-1);
+			//tr->AdjustPosition(tr->GetRightVector()*-1);
+			playerTransform.AdjustPosition(right * -1);
+			rot *= Quaternion::CreateFromAxisAngle(-forward, 4.0f * deltaTime);
+			direction += tr->GetRightVector() * -1;
 		}
 		if (Device->IsKeyDown(Keys::S))
 		{
-			tr->AdjustPosition(tr->GetForwardVector()*-1);
+			//tr->AdjustPosition(tr->GetForwardVector()*-1);
+			playerTransform.AdjustPosition(forward * -1);
+			rot *= Quaternion::CreateFromAxisAngle(right, 4.0f * deltaTime);
+			direction += tr->GetForwardVector() * -1;
 		}
 		if (Device->IsKeyDown(Keys::W))
 		{
-			tr->AdjustPosition(tr->GetForwardVector());
+			//tr->AdjustPosition(tr->GetForwardVector());
+			playerTransform.AdjustPosition(forward);
+			rot *= Quaternion::CreateFromAxisAngle(-right, 4.0f * deltaTime);
+			direction += tr->GetForwardVector();
 		}
 		if (Device->IsKeyDown(Keys::Space))
 		{
-			tr->AdjustPosition(tr->GetUpVector());
+			//tr->AdjustPosition(tr->GetUpVector());
 		}
 		if (Device->IsKeyDown(Keys::J))
 		{
@@ -698,7 +777,7 @@
 		}
 		if (Device->IsKeyDown(Keys::LeftShift))
 		{
-			tr->AdjustPosition(tr->GetUpVector()*-1);
+			//tr->AdjustPosition(tr->GetUpVector()*-1);
 		}
 		if (Device->IsKeyDown(Keys::LeftButton)) {
 			ImGuiIO& io = ImGui::GetIO();
@@ -711,8 +790,8 @@
 		if (isMouseUsed) {
 			SetCursorPos(_display->getWidth() / 2, _display->getHeight() / 2);
 		}
-	
-		
+
+
 
 
 		if (Device->IsKeyDown(Keys::LeftControl) || Device->IsKeyDown(Keys::RightAlt)) {
@@ -721,6 +800,7 @@
 
 		auto test = tmp;
 		test.Normalize();
+		direction.Normalize();
 		light->SetDirection(test);
 		lightData.LightPos = Vector4::Transform(light->GetDirection(), camera->View());
 		lightData.LightPos.Normalize();
@@ -745,11 +825,62 @@
 		context->UpdateSubresource(cascadeCBuffer_.Get(), 0, nullptr, &cascadeData, 0, 0);
 		context->UpdateSubresource(LightBuffer.Get(), 0, nullptr, &lightData, 0, 0);
 
+		const auto offset_ = Vector3::Transform(offset, Matrix::CreateFromQuaternion(camera->getTransform()->GetQuaternionRotate()));
+
+		camera->getTransform()->SetPosition(playerTransform.GetWorldPosition() + offset_);
+
+		PlayerCollision.Center = playerTransform.GetWorldPosition();
 
 
+		playerTransform.SetQuaternionRotate(rot);
 		camera->Update();
+		for (size_t t = 0; t < foodSpheres.size(); t++) {
+			if (PlayerCollision.Intersects(foodSpheres[t])) {
+				transform[t + 24].SetParent(&playerTransform);
 
-		for (size_t t = 0; t < 30; t++)
+
+
+				Matrix worldPos = playerTransform.GetWorldMatrix().Invert();
+				Vector3 localPos = transform[t + 24].GetWorldPosition();
+				localPos = Vector3::Transform(localPos, worldPos);
+
+				//localPos *= 3. * localPos / 4;
+				foodSpheres[t].Center = Vector3(1000, 1000, 1000);
+				collected.push_back(std::make_pair(t + 24, localPos));
+
+
+			}
+
+
+			
+
+		}
+		for (auto&& pair : collected) 
+		{
+			int a = pair.first;
+			transform[a].SetPosition(playerTransform.GetWorldPosition() + pair.second);
+
+
+
+			/*
+			Matrix lol = transform[a].GetWorldMatrix();
+			DirectX::SimpleMath::Matrix thisToWorld = playerTransform.GetWorldMatrix();
+
+			transform[a].SetPosition(DirectX::SimpleMath::Vector3::Transform(pair.second, thisToWorld));
+
+
+			Quaternion l = transform[a].GetQuaternionRotate();
+			if (direction.Length() > 0)
+			{
+				l *= Quaternion::CreateFromAxisAngle(-direction, 4.0f * deltaTime);
+			}
+
+			transform[a].SetQuaternionRotate(l);*/
+		}
+
+
+
+		for (size_t t = 29; t >= 24; t--)
 			transform[t].Update();
 		
 		for (size_t t = 0; t < 30; t++) {
@@ -761,6 +892,14 @@
 			Components[t]->Update(camera->Proj(), camera->View(), transform[t].GetWorldMatrix(),
 				(Matrix::CreateScale(scale)*Matrix::CreateFromQuaternion(rot)).Invert().Transpose());
 		}
+
+		
+		Vector3 Pscale, Ppos;
+		Quaternion Prot;
+		Matrix world = playerTransform.GetWorldMatrix();
+		world.Decompose(Pscale, Prot, Ppos);
+		player->Update(camera->Proj(), camera->View(), playerTransform.GetWorldMatrix(),
+			(Matrix::CreateScale(Pscale)* Matrix::CreateFromQuaternion(Prot)).Invert().Transpose());
 
 		return true;
 
@@ -847,9 +986,6 @@
 		planets[6].radius = 0;
 
 
-		system->DrawLine(Vector3(0, 0, 0), Vector3(0, 200, 0), Color(0, 255, 0, 255));
-		system->DrawLine(Vector3(0, 0, 0), Vector3(200, 0, 0), Color(255, 0, 0, 255));
-		system->DrawLine(Vector3(0,0, 0), Vector3(0, 0, 200), Color(0, 0, 255, 255));
 
 		transform[23].SetPosition(Vector3(50, 0, -50));
 		transform[23].SetEulerRotate(Vector3(0, 0, 0));
@@ -862,13 +998,43 @@
 
 
 
-		transform[24].SetPosition(Vector3(0, 0, 0));
-		transform[25].SetPosition(Vector3(-10, 0, 0));
-		transform[26].SetPosition(Vector3(-15, 0, 0));
-		transform[27].SetPosition(Vector3(20, 0, 0));
-		transform[28].SetPosition(Vector3(15, 0, 10));
+		transform[24].SetPosition(Vector3(-100, 0, 0));
+		transform[25].SetPosition(Vector3(-100, 0, 0));
+		transform[26].SetPosition(Vector3 ( - 100, 0, 0));
+		transform[27].SetPosition(Vector3(-100, 0, 0));
+		transform[28].SetPosition(Vector3(-100, 0, 10));
 		transform[29].SetPosition(Vector3(30, 0, -15));
+		BoundingSphere center;
+		center.Center = transform[24].GetWorldPosition();
+		center.Radius = gameSize;
+		foodSpheres.push_back(center);
+		center.Center = transform[25].GetWorldPosition();
+		center.Radius = gameSize;
+		foodSpheres.push_back(center);
+		center.Center = transform[26].GetWorldPosition();
+		center.Radius = gameSize;
+		foodSpheres.push_back(center);
+		center.Center = transform[27].GetWorldPosition();
+		center.Radius = gameSize;
+		foodSpheres.push_back(center);
+		center.Center = transform[28].GetWorldPosition();
+		center.Radius = gameSize;
+		foodSpheres.push_back(center);
+		center.Center = transform[29].GetWorldPosition();
+		center.Radius = gameSize;
+		foodSpheres.push_back(center);
+
  
+
+		playerTransform.SetPosition(Vector3(0, gameSize, 0));
+		playerTransform.SetScale(Vector3(gameSize));
+		playerTransform.SetEulerRotate(Vector3(0, 0, 0));
+
+
+		PlayerCollision.Center = playerTransform.GetWorldPosition();
+		PlayerCollision.Radius = playerTransform.GetScale().x;
+
+		
 
 
 	}

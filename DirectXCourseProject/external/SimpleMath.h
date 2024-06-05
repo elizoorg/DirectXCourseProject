@@ -27,6 +27,8 @@
 #include <DirectXPackedVector.h>
 #include <DirectXCollision.h>
 
+#include "../src/Exports.h"
+
 #ifdef __clang__
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wfloat-equal"
@@ -39,15 +41,15 @@ namespace DirectX
 {
     namespace SimpleMath
     {
-        struct Vector2;
-        struct Vector4;
-        struct Matrix;
-        struct Quaternion;
-        struct Plane;
+        struct ENGINE_API Vector2;
+        struct ENGINE_API Vector4;
+        struct ENGINE_API Matrix;
+        struct ENGINE_API Quaternion;
+        struct ENGINE_API Plane;
 
         //------------------------------------------------------------------------------
         // 2D rectangle
-        struct Rectangle
+        struct ENGINE_API Rectangle
         {
             long x;
             long y;
@@ -112,7 +114,7 @@ namespace DirectX
 
         //------------------------------------------------------------------------------
         // 2D vector
-        struct Vector2 : public XMFLOAT2
+        struct ENGINE_API Vector2 : public XMFLOAT2
         {
             Vector2() noexcept : XMFLOAT2(0.f, 0.f) {}
             constexpr explicit Vector2(float ix) noexcept : XMFLOAT2(ix, ix) {}
@@ -225,7 +227,7 @@ namespace DirectX
 
         //------------------------------------------------------------------------------
         // 3D vector
-        struct Vector3 : public XMFLOAT3
+        struct ENGINE_API Vector3 : public XMFLOAT3
         {
             Vector3() noexcept : XMFLOAT3(0.f, 0.f, 0.f) {}
             constexpr explicit Vector3(float ix) noexcept : XMFLOAT3(ix, ix, ix) {}
@@ -345,7 +347,7 @@ namespace DirectX
 
         //------------------------------------------------------------------------------
         // 4D vector
-        struct Vector4 : public XMFLOAT4
+        struct ENGINE_API Vector4 : public XMFLOAT4
         {
             Vector4() noexcept : XMFLOAT4(0.f, 0.f, 0.f, 0.f) {}
             constexpr explicit Vector4(float ix) noexcept : XMFLOAT4(ix, ix, ix, ix) {}
@@ -459,7 +461,7 @@ namespace DirectX
 
         //------------------------------------------------------------------------------
         // 4x4 Matrix (assumes right-handed cooordinates)
-        struct Matrix : public XMFLOAT4X4
+        struct ENGINE_API Matrix : public XMFLOAT4X4
         {
             Matrix() noexcept
                 : XMFLOAT4X4(1.f, 0, 0, 0,
@@ -628,7 +630,7 @@ namespace DirectX
 
         //-----------------------------------------------------------------------------
         // Plane
-        struct Plane : public XMFLOAT4
+        struct ENGINE_API Plane : public XMFLOAT4
         {
             Plane() noexcept : XMFLOAT4(0.f, 1.f, 0.f, 0.f) {}
             constexpr Plane(float ix, float iy, float iz, float iw) noexcept : XMFLOAT4(ix, iy, iz, iw) {}
@@ -682,7 +684,7 @@ namespace DirectX
 
         //------------------------------------------------------------------------------
         // Quaternion
-        struct Quaternion : public XMFLOAT4
+        struct ENGINE_API Quaternion : public XMFLOAT4
         {
             Quaternion() noexcept : XMFLOAT4(0, 0, 0, 1.f) {}
             constexpr Quaternion(float ix, float iy, float iz, float iw) noexcept : XMFLOAT4(ix, iy, iz, iw) {}
@@ -779,7 +781,7 @@ namespace DirectX
 
         //------------------------------------------------------------------------------
         // Color
-        struct Color : public XMFLOAT4
+        struct ENGINE_API Color : public XMFLOAT4
         {
             Color() noexcept : XMFLOAT4(0, 0, 0, 1.f) {}
             constexpr Color(float _r, float _g, float _b) noexcept : XMFLOAT4(_r, _g, _b, 1.f) {}
@@ -877,7 +879,7 @@ namespace DirectX
 
         //------------------------------------------------------------------------------
         // Ray
-        class Ray
+        class ENGINE_API Ray
         {
         public:
             Vector3 position;
@@ -905,7 +907,7 @@ namespace DirectX
 
         //------------------------------------------------------------------------------
         // Viewport
-        class Viewport
+        class ENGINE_API Viewport
         {
         public:
             float x;

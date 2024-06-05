@@ -136,14 +136,16 @@ void ModelComponent::Draw()
 
 	//_app->getContext()->PSSetShaderResources(1, 1, &csm);
 
+	//_app->getContext()->PSSetConstantBuffers(1, 1, _app->getLightBuffer().GetAddressOf());
+	//_app->getContext()->PSSetConstantBuffers(2, 1, _app->getCascadeBuffer().GetAddressOf());
+
 	_app->getContext()->UpdateSubresource(g_pConstantBuffer11, 0, nullptr, &buffer, 0, 0);
 
 
 	_app->getContext()->VSSetConstantBuffers(0, 1, &g_pConstantBuffer11);
 
 
-	//_app->getContext()->PSSetConstantBuffers(1, 1, _app->getLightBuffer().GetAddressOf());
-	//_app->getContext()->PSSetConstantBuffers(2, 1, _app->getCascadeBuffer().GetAddressOf());
+
 
 
 

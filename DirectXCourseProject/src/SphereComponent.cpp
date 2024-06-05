@@ -21,9 +21,9 @@ void SphereComponent::Reload()
 
 bool SphereComponent::Initialize()
 {
-	float radius = 0.5f;
-	int sliceCount = 20;
-	int stackCount = 20;
+	float radius = 1.0f;
+	int sliceCount = 16;
+	int stackCount = 16;
 	float phiStep = DirectX::XM_PI / stackCount;
 	float thetaStep = 2.0f * DirectX::XM_PI / sliceCount;
 
@@ -36,7 +36,6 @@ bool SphereComponent::Initialize()
 	});
 
 	points.push_back(topPoint);
-
 	for (int i = 1; i <= stackCount - 1; i++)
 	{
 		float phi = i * phiStep;
@@ -57,6 +56,7 @@ bool SphereComponent::Initialize()
 			points.push_back(p);
 		}
 	}
+
 	points.push_back(bottomPoint);
 
 	for (int i = 1; i <= sliceCount; i++)
@@ -80,8 +80,11 @@ bool SphereComponent::Initialize()
 			indeces.push_back(baseIndex + (i + 1) * ringVertexCount + j + 1);
 		}
 	}
-	int southPoleIndex = points.size() / 2 - 1;
+	int southPoleIndex = points.size() - 1;
+
+
 	baseIndex = southPoleIndex - ringVertexCount;
+
 	for (int i = 0; i < sliceCount; i++)
 	{
 		indeces.push_back(southPoleIndex);
@@ -145,7 +148,20 @@ bool SphereComponent::Initialize()
 	_app->getDevice()->CreateBuffer(&cbDesc, NULL,
 		&g_pConstantBuffer11);
 
+
+
+
+
+
 	return true;
+
+
+}
+
+void SphereComponent::LoadTexture(std::wstring path)
+{
+	const HRESULT result = CreateWICTextureFromFile(_app->getDevice().Get(), 
+		_app->getContext(),path.c_str(), nullptr, &defaultTexture.texture);
 }
 
 void SphereComponent::Update(Matrix cameraProjection, Matrix cameraView, Matrix world, Matrix InverseView)
@@ -173,7 +189,9 @@ void SphereComponent::Draw()
 	_app->getContext()->RSSetState(rastState);
 	_app->getContext()->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
-
+	if (defaultTexture.texture) {
+		_app->getContext()->PSSetShaderResources(0, 1, &defaultTexture.texture);
+	}
 	_app->getContext()->IASetIndexBuffer(ib, DXGI_FORMAT_R32_UINT, 0);
 	_app->getContext()->IASetVertexBuffers(0, 1, &vb, &stride, &offset);
 
@@ -184,4 +202,41 @@ void SphereComponent::Draw()
 
 void SphereComponent::PrepareFrame()
 {
+	UINT stride = sizeof(VERTEX);
+	UINT offset = 0;
+	_app->getContext()->RSSetState(rastState);
+
+	D3D11_VIEWPORT viewport = {};
+	viewport.Width = 2048.0f;
+	viewport.Height = 2048.0f;
+	viewport.TopLeftX = 0;
+	viewport.TopLeftY = 0;
+	viewport.MinDepth = 0;
+	viewport.MaxDepth = 1.0f;
+
+	_app->getContext()->RSSetViewports(1, &viewport);
+
+
+	_app->getShaderManager()->SetShader(ShaderData("./Shaders/csm.hlsl", Vertex | Geometry));
+	_app->getContext()->PSSetShader(nullptr, nullptr, 0);
+
+
+	_app->getContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
+	_app->getContext()->IASetIndexBuffer(ib, DXGI_FORMAT_R32_UINT, 0);
+	_app->getContext()->IASetVertexBuffers(0, 1, &vb, &stride, &offset);
+
+	_app->getContext()->UpdateSubresource(g_pConstantBuffer11, 0, nullptr, &buffer, 0, 0);
+	_app->getContext()->VSSetConstantBuffers(0, 1, &g_pConstantBuffer11);
+
+	_app->getContext()->GSSetConstantBuffers(0, 1, _app->getCascadeBuffer().GetAddressOf());
+
+	_app->getContext()->DrawIndexed(indeces.size(), 0, 0);
+
 }
+
+
+
+
+
+

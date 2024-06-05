@@ -214,9 +214,13 @@ void Camera::Rotate(Vector2 offset)
 	if (_app->isMouseUsed) {
 
 
-	transform.AdjustEulerRotation(
-		 -1 * static_cast<float>(offset.x) *_app->deltaTime * xMouseSpeed,
-		static_cast<float>(offset.y) * _app->deltaTime * yMouseSpeed, 0);
+	//transform.AdjustEulerRotation(
+	//	 -1 * static_cast<float>(offset.x) *_app->deltaTime * xMouseSpeed,
+	//	static_cast<float>(offset.y) * _app->deltaTime * yMouseSpeed, 0);
+		transform.AdjustEulerRotation(
+			-1 * static_cast<float>(offset.x) *_app->deltaTime * xMouseSpeed,
+			0, 0);
+
 	}
 }
 

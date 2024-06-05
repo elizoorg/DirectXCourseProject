@@ -21,11 +21,14 @@
 #include "ImGui/imgui_impl_dx11.h"
 
 
+
+
 #include <assimp/Importer.hpp>
 #include <assimp/mesh.h>
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
 #include <src/LightComponent.h>
+
 
 
 
@@ -113,4 +116,19 @@ class GameApplication: public Engine::Application
 		LightComponent* volume;
 
 
+		Transform playerTransform;
+		SphereComponent* player;
+		BoundingSphere PlayerCollision{};
+
+		std::vector<std::pair<int, Vector3>> collected;
+
+
+		std::vector<BoundingSphere> foodSpheres;
+
+		const Vector3 offset = { 0,0,-25 };
+
+		float gameSize = 10.0f;
+
+
+		Quaternion savedRot;
 	};

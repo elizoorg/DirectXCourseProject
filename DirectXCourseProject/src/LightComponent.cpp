@@ -17,6 +17,9 @@ void LightComponent::Draw()
 
 
 	_app->getContext()->IASetIndexBuffer(ib, DXGI_FORMAT_R32_UINT, 0);
+
+
+
 	_app->getContext()->IASetVertexBuffers(0, 1, &vb, &stride, &offset);
 
 	_app->getContext()->UpdateSubresource(g_pConstantBuffer11, 0, nullptr, &buffer, 0, 0);

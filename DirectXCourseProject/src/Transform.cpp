@@ -41,6 +41,7 @@ Vector3 Transform::GetForwardVector()
 	return v;
 }
 
+
 Matrix Transform::GetWorldMatrix()
 {
 	return world;
@@ -52,11 +53,21 @@ bool Transform::IsDirty()
 }
 
 Matrix Transform::CalculateWorldMatrix()
-{
-	Matrix result = Matrix::CreateScale(localScale) * Matrix::CreateFromQuaternion(localRotate) * Matrix::CreateTranslation(localPosition);
+{	
+	Matrix result = Matrix::CreateScale(localScale) * Matrix::CreateFromQuaternion(localRotate) * 
+		Matrix::CreateTranslation(localPosition);
+
 	if (parent != nullptr) {
-		result = result * parent->CalculateWorldMatrix();
+		result  = result * parent->GetWorldMatrix();
+
+		/*Vector3 new_pos = Vector3::Transform(Vector3(localPosition.x,localPosition.y,localPosition.z), result);
+		Vector3 new_rot = Vector3::TransformNormal(Vector3(localRotate.x, localRotate.y, localRotate.z), result);
+		result = Matrix::CreateScale(localScale) * Matrix::CreateFromYawPitchRoll(new_rot) * Matrix::CreateTranslation(new_pos);*/
+
 	}
+
+
+
 	return result;
 }
 
