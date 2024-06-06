@@ -58,6 +58,16 @@ Matrix Transform::CalculateWorldMatrix()
 		Matrix::CreateTranslation(localPosition);
 
 	if (parent != nullptr) {
+
+		/*Vector3 scale, pos;
+		Quaternion rot;
+		Matrix trans =  parent->GetWorldMatrix();
+		trans.Decompose(scale, rot, pos);
+		scale = Vector3(1, 1, 1);
+		Matrix res = Matrix::CreateScale(scale) * Matrix::CreateFromQuaternion(rot) *
+			Matrix::CreateTranslation(pos);*/
+
+
 		result  = result * parent->GetWorldMatrix();
 
 		/*Vector3 new_pos = Vector3::Transform(Vector3(localPosition.x,localPosition.y,localPosition.z), result);

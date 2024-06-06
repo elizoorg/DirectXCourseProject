@@ -28,21 +28,35 @@ cbuffer cbPerObject : register(b0)
     float4x4 cameraView;
     float4x4 cameraProj;
     float4x4 InvWorldView;
+    float4 dt;
 };
 
 Texture2D DiffuseMap : register(t0);
 SamplerState Sampler : register(s0);
 
-PS_IN VSMain(VS_IN input)
+PS_IN VSMain(VS_IN input, uint vertexID : SV_VertexID)
 {
     PS_IN output = (PS_IN) 0;
+    
+    
+    
+    
+    //input.pos.xyz += sin(dt.x* 0.1) * input.normal.xyz;
 	
     output.pos = mul(float4(input.pos.xyz, 1.0f), world);
     output.pos = mul(float4(output.pos.xyz, 1.0f), cameraView);
     output.pos = mul(float4(output.pos.xyz, 1.0f), cameraProj);
     
+    
+    
+    
+    
     output.tex = input.tex;
     output.normal = mul(float4(input.normal.xyz, 0.0f), InvWorldView);
+   
+    
+    
+    
     output.worldPos = mul(float4(input.pos.xyz, 1.0f), world);
 	
     return output;

@@ -206,9 +206,9 @@
 
 		volume->Draw();
 
-		for (size_t t = 24; t < 30; t++)
+		/*for (size_t t = 24; t < 30; t++)
 		{
-			system->DrawSphere(10, Color(255, 0, 0), transform[t].GetWorldMatrix(), 50);
+			system->DrawSphere(10, Color(255, 0, 0), transform[t].GetWorldMatrix() , 50);
 		}
 
 		system->DrawSphere(1, Color(255, 0, 0), playerTransform.GetWorldMatrix(), 50);
@@ -216,7 +216,7 @@
 		system->DrawLine(Vector3(0, 0, 0), Vector3(200, 0, 0), Color(255, 0, 0, 255));
 		system->DrawLine(Vector3(0, 0, 0), Vector3(0, 0, 200), Color(0, 0, 255, 255));
 		
-		system->Draw(deltaTime);
+		system->Draw(deltaTime);*/
 
 		system->Clear();
 		
@@ -840,11 +840,36 @@
 
 
 
-				Matrix worldPos = playerTransform.GetWorldMatrix().Invert();
-				Vector3 localPos = transform[t + 24].GetWorldPosition();
-				localPos = Vector3::Transform(localPos, worldPos);
+				//Matrix worldPos = playerTransform.GetWorldMatrix().Transpose().Invert();
+				Vector3 playerPos = playerTransform.GetWorldPosition();
+				Quaternion quat = playerTransform.GetQuaternionRotate();
+				Quaternion conj = quat;
+				conj.Conjugate();
+				//Vector3 catPos = transform[t].GetWorldPosition();
+				//Vector3 localPos = DirectX::SimpleMath::Vector3::Transform(catPos, worldPos);
 
-				//localPos *= 3. * localPos / 4;
+
+				Vector3 localPos = transform[t + 24].GetWorldPosition();
+				localPos = localPos - playerPos;
+				//Quaternion result = quat * Quaternion(localPos.x, localPos.y, localPos.z, 0) * conj;
+				//localPos = Vector3(result.x, result.y, result.z);
+				localPos = XMVector3Rotate(localPos, conj);
+
+				Matrix trans = playerTransform.GetWorldMatrix().Invert();
+				Matrix trans2 =  transform[t + 24].GetWorldMatrix() * trans;
+
+				Vector3 Pscale, Ppos;
+				Quaternion Prot;
+				trans2.Decompose(Pscale, Prot, Ppos);
+
+				transform[t + 24].SetPosition(Ppos);
+				transform[t + 24].SetScale(Pscale);
+				transform[t + 24].SetQuaternionRotate(Prot);
+				transform[t + 24].Update();
+
+
+
+				//localPos = 3. * localPos / 4.;
 				foodSpheres[t].Center = Vector3(1000, 1000, 1000);
 				collected.push_back(std::make_pair(t + 24, localPos));
 
@@ -857,25 +882,27 @@
 		}
 		for (auto&& pair : collected) 
 		{
-			int a = pair.first;
-			transform[a].SetPosition(playerTransform.GetWorldPosition() + pair.second);
+			//int a = pair.first;
+			//transform[a].SetPosition(Vector3::Transform(pair.second,playerTransform.GetWorldMatrix()));
+			//transform[a].SetPosition(pair.second);
 
-
-
+			//Vector3 direction = pair.second.Cross(Vector3::UnitY);
+			//transform[a].SetQuaternionRotate(Quaternion::CreateFromAxisAngle(direction, XM_PIDIV2));
 			/*
 			Matrix lol = transform[a].GetWorldMatrix();
 			DirectX::SimpleMath::Matrix thisToWorld = playerTransform.GetWorldMatrix();
 
-			transform[a].SetPosition(DirectX::SimpleMath::Vector3::Transform(pair.second, thisToWorld));
-
-
+			transform[a].SetPosition(DirectX::SimpleMath::Vector3::Transform(pair.second, thisToWorld)); 
+			*/
+			/*
 			Quaternion l = transform[a].GetQuaternionRotate();
 			if (direction.Length() > 0)
 			{
 				l *= Quaternion::CreateFromAxisAngle(-direction, 4.0f * deltaTime);
 			}
 
-			transform[a].SetQuaternionRotate(l);*/
+			transform[a].SetQuaternionRotate(l);
+			*/
 		}
 
 
@@ -998,30 +1025,30 @@
 
 
 
-		transform[24].SetPosition(Vector3(-100, 0, 0));
-		transform[25].SetPosition(Vector3(-100, 0, 0));
-		transform[26].SetPosition(Vector3 ( - 100, 0, 0));
-		transform[27].SetPosition(Vector3(-100, 0, 0));
-		transform[28].SetPosition(Vector3(-100, 0, 10));
+		transform[24].SetPosition(Vector3(50, 0, 0));
+		transform[25].SetPosition(Vector3(25, 0, 25));
+		transform[26].SetPosition(Vector3 ( -30, 0, -30));
+		transform[27].SetPosition(Vector3(25, 0, -40));
+		transform[28].SetPosition(Vector3(-50, 0, 10));
 		transform[29].SetPosition(Vector3(30, 0, -15));
 		BoundingSphere center;
-		center.Center = transform[24].GetWorldPosition();
-		center.Radius = gameSize;
+		center.Center = transform[24].GetWorldPosition() +Vector3(0,10,0);
+		center.Radius = gameSize/2;
 		foodSpheres.push_back(center);
-		center.Center = transform[25].GetWorldPosition();
-		center.Radius = gameSize;
+		center.Center = transform[25].GetWorldPosition() + Vector3(0, 10, 0);
+		center.Radius = gameSize / 2;
 		foodSpheres.push_back(center);
-		center.Center = transform[26].GetWorldPosition();
-		center.Radius = gameSize;
+		center.Center = transform[26].GetWorldPosition() + Vector3(0, 10, 0);
+		center.Radius = gameSize / 2;
 		foodSpheres.push_back(center);
-		center.Center = transform[27].GetWorldPosition();
-		center.Radius = gameSize;
+		center.Center = transform[27].GetWorldPosition() + Vector3(0, 10, 0);
+		center.Radius = gameSize / 2;
 		foodSpheres.push_back(center);
-		center.Center = transform[28].GetWorldPosition();
-		center.Radius = gameSize;
+		center.Center = transform[28].GetWorldPosition() + Vector3(0, 10, 0);
+		center.Radius = gameSize / 2;
 		foodSpheres.push_back(center);
-		center.Center = transform[29].GetWorldPosition();
-		center.Radius = gameSize;
+		center.Center = transform[29].GetWorldPosition() + Vector3(0, 10, 0);
+		center.Radius = gameSize / 2;
 		foodSpheres.push_back(center);
 
  

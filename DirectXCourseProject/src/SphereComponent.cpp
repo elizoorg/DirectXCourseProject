@@ -170,6 +170,8 @@ void SphereComponent::Update(Matrix cameraProjection, Matrix cameraView, Matrix 
 	buffer.cameraView = cameraView;
 	buffer.world = world;
 	buffer.InvWorldView = InverseView;
+	time.x += _app->deltaTime;
+	buffer.dt = time;
 }
 
 

@@ -23,6 +23,7 @@ protected:
         Matrix cameraView;
         Matrix cameraProj;
         Matrix InvWorldView;
+        Vector4 dt;
     } buffer;
 
     // TODO: It doesnt work like that , points must declared somwhere else
@@ -32,6 +33,8 @@ protected:
     Texture defaultTexture;
 
     ID3D11Buffer* ib;
+
+    Vector4 time = Vector4(0, 0, 0, 0);
 
     ID3D11Buffer* vb;
 
