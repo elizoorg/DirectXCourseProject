@@ -7,16 +7,11 @@
 	{
 		instance = this;
 		Device = new InputDevice(this);
-		gBuffer_ = new GBuffer(this);
 		
 	}
 	GameApplication* GameApplication::instance = nullptr;
 	GameApplication::~GameApplication()
 	{
-
-		ImGui_ImplDX11_Shutdown();
-		ImGui_ImplWin32_Shutdown();
-		ImGui::DestroyContext();
 
 		for (auto comp : Components) {
 			delete comp;
@@ -28,23 +23,8 @@
 
 		_display = new WinApi_Display(this);
 		_display->CreateDisplay();
-		//_display.OnMouseMove += [](InputDevice::RawMouseEventArgs args) {InputDevice::Instance().OnMouseMove(args); };
-		//_display.OnKeyDown += [](InputDevice::KeyboardInputEventArgs args) {InputDevice::Instance().OnKeyDown(args); };
-
-
-
-
 
 		Initialize();
-
-		IMGUI_CHECKVERSION();
-		ImGui::CreateContext();
-		ImGuiIO& io = ImGui::GetIO();
-		ImGui_ImplWin32_Init(_display->getHWND());
-		ImGui_ImplDX11_Init(device.Get(), context);
-		ImGui::StyleColorsDark();
-		io.WantCaptureMouse = true;
-
 
 		while (!isClosed) {
 			UpdateInternal();
@@ -69,25 +49,49 @@
 
 	void GameApplication::Draw()
 	{
-
 		context->ClearState();
-		context->OMSetDepthStencilState(defaultDepthState_.Get(), 0);
 
-
-		const auto rtvs = new ID3D11RenderTargetView * [3];
-		rtvs[0] = gBuffer_->albedoRtv_.Get();
-		rtvs[1] = gBuffer_->positionRtv_.Get();
-		rtvs[2] = gBuffer_->normalRtv_.Get();
-		context->OMSetRenderTargets(3, rtvs, depthStencilView.Get());
-
-		float color[] = { 0.0f, 0.0f, 0.0f, 1.0f };
-
-		context->ClearRenderTargetView(gBuffer_->albedoRtv_.Get(), color);
-		context->ClearRenderTargetView(gBuffer_->positionRtv_.Get(), color);
-		context->ClearRenderTargetView(gBuffer_->normalRtv_.Get(), color);
+		context->OMSetRenderTargets(1, &rtv, depthStencilView.Get());
+		float color[] = { 0.6f, 0.6f, 0.6f, 1.0f };
+		context->ClearRenderTargetView(rtv, color);
 		context->ClearDepthStencilView(depthStencilView.Get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 
-		for (size_t t = 23; t < 30; t++)
+
+		context->PSSetShaderResources(1, 1, &resource_view_depth_directional_light_);
+
+		context->UpdateSubresource(LightDataBuffer.Get(), 0, nullptr, &LightData, 0, 0);
+
+		context->UpdateSubresource(LightTransformBuffer.Get(), 0, nullptr, &LightTransform, 0, 0);
+
+		context->VSSetConstantBuffers(1, 1, LightTransformBuffer.GetAddressOf());
+
+
+		context->PSSetConstantBuffers(3, 1, LightDataBuffer.GetAddressOf());
+
+		context->PSSetSamplers(1, 1, &sample_state_clamp_);
+
+
+
+		for (size_t t = 0; t < 8; t++) {
+			Vector3 scale, pos;
+			Quaternion rot;
+			Matrix world = transform[t].GetWorldMatrix();
+			world.Decompose(scale, rot, pos);
+
+			Components[t]->Update(camera->Proj(), camera->View(), transform[t].GetWorldMatrix(),
+				(Matrix::CreateScale(scale) * Matrix::CreateFromQuaternion(rot)).Invert().Transpose());
+		}
+
+
+		Vector3 Pscale, Ppos;
+		Quaternion Prot;
+		Matrix world = playerTransform.GetWorldMatrix();
+		world.Decompose(Pscale, Prot, Ppos);
+		player->Update(camera->Proj(), camera->View(), playerTransform.GetWorldMatrix(),
+			(Matrix::CreateScale(Pscale) * Matrix::CreateFromQuaternion(Prot)).Invert().Transpose());
+
+
+		for (size_t t = 0; t < Components.size(); t++)
 		{
 			Components[t]->Draw();
 		}
@@ -95,204 +99,21 @@
 		player->Draw();
 
 		context->ClearState();
-
-		context->RSSetState(rastState_.Get());
-		context->OMSetDepthStencilState(quadDepthState_.Get(), 0);
-
-
-		context->OMSetRenderTargets(1, &rtv, depthStencilView.Get());
-		//context->ClearRenderTargetView(rtv, color);
-		
-
-
-
-
 		D3D11_VIEWPORT viewport = {};
-		viewport.Width = static_cast<float>(_display->getWidth());
-		viewport.Height = static_cast<float>(_display->getHeight());
+		viewport.Width = 600;
+		viewport.Height = 600;
 		viewport.TopLeftX = 0;
 		viewport.TopLeftY = 0;
 		viewport.MinDepth = 0;
 		viewport.MaxDepth = 1.0f;
-
 		context->RSSetViewports(1, &viewport);
-
-		//context->OMSetRenderTargets(1, &rtv, nullptr);
-
-		context->OMSetBlendState(nullptr, nullptr, 0xffffffff);
-
-		context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
-		manager->SetShader(ShaderData("./Shaders/TextureShaderDerref.hlsl", Vertex | Pixel));
-
-		context->PSSetShaderResources(0, 1, gBuffer_->albedoSrv_.GetAddressOf());
-		context->PSSetShaderResources(1, 1, gBuffer_->positionSrv_.GetAddressOf());
-		context->PSSetShaderResources(2, 1, gBuffer_->normalSrv_.GetAddressOf());
-		context->PSSetShaderResources(3, 1, depthShadowSrv.GetAddressOf());
-		context->PSSetConstantBuffers(1, 1, LightBuffer.GetAddressOf());
-		context->PSSetConstantBuffers(2, 1, cascadeCBuffer_.GetAddressOf());
-		context->PSSetSamplers(0, 1, depthSamplerState_.GetAddressOf());
-
-
-
-		context->Draw(4, 0);
-
-		context->OMSetBlendState(blendState_.Get(), nullptr, 0xffffffff);
-	
-		lightData.AmbientSpecularRowType = Vector4(0.4f, 0.5f, 32, 1);
-
-		lightData.LightPos = Vector4(3, 2, 3, 1);
-		lightData.LightPos = Vector4::Transform(lightData.LightPos, camera->View());
-		lightData.LightColor = Vector4(1, 0, 0, 1) * 2.0f;
-
-		context->UpdateSubresource(LightBuffer.Get(), 0, nullptr, &lightData, 0, 0);
-
-
-		lightTransform.SetScale(Vector3((10.0f)));
-		lightTransform.SetPosition(Vector3(3, 2, 3));
-		lightTransform.SetEulerRotate(Vector3(0, 0, 0));
-		lightTransform.Update();
-
-		Vector3 scale, pos;
-		Quaternion rot;
-		lightTransform.GetWorldMatrix().Decompose(scale, rot, pos);
-
-
-
-		volume->Update(camera->Proj(), camera->View(), lightTransform.GetWorldMatrix(),
-			(Matrix::CreateScale(scale) * Matrix::CreateFromQuaternion(rot)).Invert().Transpose());
-
-		volume->Draw();
-
-		
-
-		lightData.LightPos = Vector4(-3, 1, -3, 1);
-		lightData.LightPos = Vector4::Transform(lightData.LightPos, camera->View());
-		lightData.LightColor = Vector4(0, 1, 0, 1) * 2.0f;
-
-		context->UpdateSubresource(LightBuffer.Get(), 0, nullptr, &lightData, 0, 0);
-
-
-		lightTransform.SetScale(Vector3((10.0f)));
-		lightTransform.SetPosition(Vector3(-3, 1, -3));
-
-
-		lightTransform.GetWorldMatrix().Decompose(scale, rot, pos);
-		lightTransform.Update();
-
-
-		volume->Update(camera->Proj(), camera->View(), lightTransform.GetWorldMatrix(),
-			(Matrix::CreateScale(scale) * Matrix::CreateFromQuaternion(rot)).Invert().Transpose());
-
-		volume->Draw();
-
-
-		lightData.LightPos = Vector4(3, 1, -3, 1);
-		lightData.LightPos = Vector4::Transform(lightData.LightPos, camera->View());
-		lightData.LightColor = Vector4(0, 0,1, 1) * 2.0f;
-
-		context->UpdateSubresource(LightBuffer.Get(), 0, nullptr, &lightData, 0, 0);
-
-
-		lightTransform.SetScale(Vector3((10.0f)));
-		lightTransform.SetPosition(Vector3(3, 1, -3));
-		lightTransform.Update();
-
-		lightTransform.GetWorldMatrix().Decompose(scale, rot, pos);
-
-
-
-		volume->Update(camera->Proj(), camera->View(), lightTransform.GetWorldMatrix(),
-			(Matrix::CreateScale(scale) * Matrix::CreateFromQuaternion(rot)).Invert().Transpose());
-
-		volume->Draw();
-
-		for (size_t t = 24; t < 30; t++)
-		{
-			system->DrawSphere(10, Color(255, 0, 0), transform[t].GetWorldMatrix(), 50);
-		}
-
-		system->DrawSphere(1, Color(255, 0, 0), playerTransform.GetWorldMatrix(), 50);
-		system->DrawLine(Vector3(0, 0, 0), Vector3(0, 200, 0), Color(0, 255, 0, 255));
-		system->DrawLine(Vector3(0, 0, 0), Vector3(200, 0, 0), Color(255, 0, 0, 255));
-		system->DrawLine(Vector3(0, 0, 0), Vector3(0, 0, 200), Color(0, 0, 255, 255));
-		
-		system->Draw(deltaTime);
-
-		system->Clear();
-		
-		bool qq = false;
-
-
-		
-
-
-
-
-		ImGui_ImplDX11_NewFrame();
-		ImGui_ImplWin32_NewFrame();
-
-		ImGui::NewFrame();
-
-	
-
-		ImGui::Begin("Testestestestestestest");
-		bool isHovered = ImGui::IsItemHovered();
-		bool isFocused = ImGui::IsItemFocused();
-		ImVec2 mousePositionAbsolute = ImGui::GetMousePos();
-		ImVec2 screenPositionAbsolute = ImGui::GetItemRectMin();
-		ImVec2 mousePositionRelative = ImVec2(mousePositionAbsolute.x - screenPositionAbsolute.x, mousePositionAbsolute.y - screenPositionAbsolute.y);
-		ImGui::Text("Is mouse over screen? %s", isHovered ? "Yes" : "No");
-		ImGui::Text("Is screen focused? %s", isFocused ? "Yes" : "No");
-		ImGui::Text("Position: %f, %f", mousePositionRelative.x, mousePositionRelative.y);
-		ImGui::Text("Mouse clicked: %s", ImGui::IsMouseDown(ImGuiMouseButton_Left) ? "Yes" : "No");
-
-
-		ImGui::Text("%f %f %f %f", camera->getTransform()->GetWorldPosition().x, camera->getTransform()->GetWorldPosition().y,camera->getTransform()->GetWorldPosition().z, 1.0f);
-
-		ImGui::Text("%f %f %f %f", transform[0].GetWorldPosition().x, transform[0].GetWorldPosition().y, transform[0].GetWorldPosition().z, planets[0].radius);
-		ImGui::Text("%f %f %f %f", transform[1].GetWorldPosition().x, transform[1].GetWorldPosition().y, transform[1].GetWorldPosition().z, planets[1].radius);
-		ImGui::Text("%f %f %f %f", transform[2].GetWorldPosition().x, transform[2].GetWorldPosition().y, transform[2].GetWorldPosition().z, planets[2].radius);
-		ImGui::Text("%f %f %f %f", transform[3].GetWorldPosition().x, transform[3].GetWorldPosition().y, transform[3].GetWorldPosition().z, planets[3].radius);
-		ImGui::Text("%f %f %f %f", transform[4].GetWorldPosition().x, transform[4].GetWorldPosition().y, transform[4].GetWorldPosition().z, planets[4].radius);
-		ImGui::Text("%f %f %f %f", transform[5].GetWorldPosition().x, transform[5].GetWorldPosition().y, transform[5].GetWorldPosition().z, planets[5].radius);
-		ImGui::Text("%f %f %f %f", transform[6].GetWorldPosition().x, transform[6].GetWorldPosition().y, transform[6].GetWorldPosition().z, planets[6].radius);
-
-
-
-		ImGui::SliderFloat("Test", &angle, 0.0f, 6.28f);
-		ImGui::SliderFloat("Platen0", &planets[0].angle, 0.0f, 360.28f);
-		ImGui::SliderFloat("Platen1", &planets[1].angle, 0.0f, 360.28f);
-		ImGui::SliderFloat("Platen2", &planets[2].angle, 0.0f, 360.28f);
-		ImGui::SliderFloat("Platen3", &planets[3].angle, 0.0f, 360.28f);
-		ImGui::SliderFloat("Platen4", &planets[4].angle, 0.0f, 360.28f);
-		ImGui::SliderFloat("Platen5", &planets[5].angle, 0.0f, 360.28f);
-		ImGui::SliderFloat("Platen6", &planets[6].angle, 0.0f, 360.28f);
-
-
-		ImGui::SliderFloat("Scale sphere x", &playerTransform.localScale.x, 0.0f,30.0f );
-		ImGui::SliderFloat("Scale sphere y", &playerTransform.localScale.y, 0.0f,30.0f );
-		ImGui::SliderFloat("Scale sphere z", &playerTransform.localScale.z, 0.0f,30.0f );
-
-
-		ImGui::SliderFloat("Cat x", &transform[29].localScale.x, 0.0f, 30.0f);
-		ImGui::SliderFloat("Cat y", &transform[29].localScale.y, 0.0f, 30.0f);
-		ImGui::SliderFloat("Cat z", &transform[29].localScale.z, 0.0f, 30.0f);
-
-
-
-
-
-		ImGui::SliderFloat("Direction of light x", &tmp.x, 0.0f, 360.28f);
-		ImGui::SliderFloat("Direction of light y", &tmp.y, 0.0f, 360.28f);
-		ImGui::SliderFloat("Direction of light z ", &tmp.z, 0.0f, 360.28f);
-		ImGui::SliderFloat("Direction of light w", &tmp.w, 0.0f, 360.28f);
-
-
-		ImGui::End();
-		ImGui::Render();
-
-		ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
-
+		manager->SetShader(ShaderData("./Shaders/ShaderShadow.hlsl", Vertex | Pixel));
+		context->RSSetState(rastState_.Get());
+		context->OMSetRenderTargets(1, &rtv, depthStencilView.Get());
+		context->PSSetSamplers(0, 1, &TexSamplerState);
+		//context->ClearRenderTargetView(rtv, color);
+		context->PSSetShaderResources(0, 1, &resource_view_depth_directional_light_);
+		context->Draw(3, 0);
 	}
 
 	void GameApplication::EndFrame()
@@ -307,17 +128,10 @@
 
 	void GameApplication::Initialize()
 	{
-
-
-		savedRot= { 0.f, 0.f, 0.f, 1.f };
-
-
-
 		Device = new InputDevice(this);
 		camera = new Camera(this);
 		camera->SetPosition(0,1, -10);
 		camera->Bind();
-		light = new DirectionalLight(this);
 	
 		swapDesc.BufferCount = 2;
 		swapDesc.BufferDesc.Width = _display->getWidth();
@@ -364,33 +178,7 @@
 			std::cout << "So,unexpected shit happens2\n";
 		}
 
-		SphereComponent* sphere = new SphereComponent(this);
-		SphereComponent* sphere2 = new SphereComponent(this);
-		SphereComponent* sphere3 = new SphereComponent(this);
-		SphereComponent* sphere4 = new SphereComponent(this);
-		SphereComponent* sphere5 = new SphereComponent(this);
-		SphereComponent* sphere6 = new SphereComponent(this);
-		SphereComponent* sphere7 = new SphereComponent(this);
-
-
-		TriangleComponent* cube = new TriangleComponent(this);
-		TriangleComponent* cube2 = new TriangleComponent(this);
-		TriangleComponent* cube3 = new TriangleComponent(this);
-		TriangleComponent* cube4 = new TriangleComponent(this);
-		TriangleComponent* cube5 = new TriangleComponent(this);
-		TriangleComponent* cube6 = new TriangleComponent(this);
-		TriangleComponent* cube7 = new TriangleComponent(this);
-		TriangleComponent* cube8 = new TriangleComponent(this);
-		TriangleComponent* cube9 = new TriangleComponent(this);
-		TriangleComponent* cube10 = new TriangleComponent(this);
-		TriangleComponent* cube11 = new TriangleComponent(this);
-		TriangleComponent* cube12 = new TriangleComponent(this);
-		TriangleComponent* cube13 = new TriangleComponent(this);
-		TriangleComponent* cube14 = new TriangleComponent(this);
-		TriangleComponent* cube15 = new TriangleComponent(this);
-		PlaneComponent* plane = new PlaneComponent(this);
-
-
+		
 		ModelComponent* model = new ModelComponent(this);
 		ModelComponent* model2 = new ModelComponent(this);
 		ModelComponent* model3 = new ModelComponent(this);
@@ -399,32 +187,7 @@
 		ModelComponent* model6 = new ModelComponent(this);
 		ModelComponent* model7 = new ModelComponent(this);
 		ModelComponent* model8 = new ModelComponent(this);
-
-		Components.push_back(sphere);
-		Components.push_back(sphere2);
-		Components.push_back(sphere3);
-		Components.push_back(sphere4);
-		Components.push_back(sphere5);
-		Components.push_back(sphere6);
-		Components.push_back(sphere7);
-
-		Components.push_back( cube );
-		Components.push_back( cube2 );
-		Components.push_back( cube3 );
-		Components.push_back( cube4 );
-		Components.push_back( cube5 );
-		Components.push_back( cube6 );
-		Components.push_back( cube7 );
-		Components.push_back( cube8 );
-		Components.push_back( cube9 );
-		Components.push_back( cube10);
-		Components.push_back( cube11);
-		Components.push_back( cube12);
-		Components.push_back( cube13);
-		Components.push_back( cube14);
-		Components.push_back( cube15);
-
-		Components.push_back(plane);
+		ModelComponent* model9 = new ModelComponent(this);
 
 		Components.push_back(model);
 		Components.push_back(model2);
@@ -434,6 +197,7 @@
 		Components.push_back(model6);
 		Components.push_back(model7);
 		Components.push_back(model8);
+		Components.push_back(model9);
 
 
 		for (auto comp : Components) {
@@ -510,14 +274,14 @@
 		}
 
 
-		static_cast<ModelComponent*>(Components[23])->LoadModel("assets/Plane/untitled.obj");
-		static_cast<ModelComponent*>(Components[24])->LoadModel("assets/cat2/12221_Cat_v1_l3.obj");
-		static_cast<ModelComponent*>(Components[25])->LoadModel("assets/cat2/12221_Cat_v1_l3.obj");
-		static_cast<ModelComponent*>(Components[26])->LoadModel("assets/cat2/12221_Cat_v1_l3.obj");
-		static_cast<ModelComponent*>(Components[27])->LoadModel("assets/cat2/12221_Cat_v1_l3.obj");
-		static_cast<ModelComponent*>(Components[28])->LoadModel("assets/cat2/12221_Cat_v1_l3.obj");
-		static_cast<ModelComponent*>(Components[29])->LoadModel("assets/cat2/12221_Cat_v1_l3.obj");
-		static_cast<ModelComponent*>(Components[30])->LoadModel("assets/cat2/12221_Cat_v1_l3.obj");
+		static_cast<ModelComponent*>(Components[0])->LoadModel("assets/Plane/untitled.obj");
+		static_cast<ModelComponent*>(Components[1])->LoadModel("assets/hawk/10025_Hawk_v1_iterations-2.obj");
+		static_cast<ModelComponent*>(Components[2])->LoadModel("assets/hawk/10025_Hawk_v1_iterations-2.obj");
+		static_cast<ModelComponent*>(Components[3])->LoadModel("assets/hawk/10025_Hawk_v1_iterations-2.obj");
+		static_cast<ModelComponent*>(Components[4])->LoadModel("assets/hawk/10025_Hawk_v1_iterations-2.obj");
+		static_cast<ModelComponent*>(Components[5])->LoadModel("assets/hawk/10025_Hawk_v1_iterations-2.obj");
+		static_cast<ModelComponent*>(Components[6])->LoadModel("assets/hawk/10025_Hawk_v1_iterations-2.obj");
+		static_cast<ModelComponent*>(Components[7])->LoadModel("assets/hawk/10025_Hawk_v1_iterations-2.obj");
 	
 
 
@@ -556,43 +320,8 @@
 			OutputDebugString(TEXT("Fatal error: Failed to create CSM depth stencil view!\n"));
 		}
 
-		D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
-		srvDesc.Format = DXGI_FORMAT_R32_FLOAT;
-		srvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2DARRAY;
-		srvDesc.Texture2DArray = {};
-		srvDesc.Texture2DArray.MostDetailedMip = 0;
-		srvDesc.Texture2DArray.MipLevels = 1;
-		srvDesc.Texture2DArray.FirstArraySlice = 0;
-		srvDesc.Texture2DArray.ArraySize = 5;
 
-		res = device->CreateShaderResourceView(shadowTextureArray.Get(), &srvDesc, depthShadowSrv.GetAddressOf());
 
-		if (FAILED(res))
-		{
-			OutputDebugString(TEXT("Fatal error: Failed to create CSM depth SRV!\n"));
-		}
-
-		D3D11_BUFFER_DESC constBufPerSceneDesc;
-		constBufPerSceneDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-		constBufPerSceneDesc.Usage = D3D11_USAGE_DEFAULT;
-		constBufPerSceneDesc.CPUAccessFlags = 0;
-		constBufPerSceneDesc.MiscFlags = 0;
-		constBufPerSceneDesc.StructureByteStride = 0;
-		constBufPerSceneDesc.ByteWidth = sizeof(LightData);
-		res = device->CreateBuffer(&constBufPerSceneDesc, nullptr, LightBuffer.GetAddressOf());
-		if (FAILED(res))
-		{
-			OutputDebugString(TEXT("Fatal error: Failed to create CSM depth SRV!\n"));
-		}
-		D3D11_BUFFER_DESC constBufCascadeDesc;
-		constBufCascadeDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-		constBufCascadeDesc.Usage = D3D11_USAGE_DEFAULT;
-		constBufCascadeDesc.CPUAccessFlags = 0;
-		constBufCascadeDesc.MiscFlags = 0;
-		constBufCascadeDesc.StructureByteStride = 0;
-		constBufCascadeDesc.ByteWidth = sizeof(Matrix) * 5 + sizeof(Vector4);
-
-		device->CreateBuffer(&constBufCascadeDesc, nullptr, cascadeCBuffer_.GetAddressOf());
 
 		D3D11_SAMPLER_DESC depthSamplerStateDesc = {};
 		depthSamplerStateDesc.Filter = D3D11_FILTER_COMPARISON_MIN_MAG_MIP_LINEAR;
@@ -621,9 +350,6 @@
 
 		res = device->CreateDepthStencilState(&defaultDepthDesc, defaultDepthState_.GetAddressOf());
 
-
-
-		gBuffer_->Initialize();
 		manager = new ShaderManager(this);
 
 		CD3D11_RASTERIZER_DESC rastDesc = {};
@@ -635,6 +361,7 @@
 
 
 		res = device->CreateRasterizerState(&rastDesc, rastState_.GetAddressOf());
+
 
 		D3D11_DEPTH_STENCIL_DESC quadDepthDesc = {};
 
@@ -658,31 +385,181 @@
 
 		res = device->CreateBlendState(&blendDesc, blendState_.GetAddressOf());
 
+		D3D11_RENDER_TARGET_BLEND_DESC rtbd;
+		ZeroMemory(&rtbd, sizeof(rtbd));
+
+		rtbd.BlendEnable = true;
+		rtbd.SrcBlend = D3D11_BLEND::D3D11_BLEND_SRC_ALPHA;
+		rtbd.DestBlend = D3D11_BLEND::D3D11_BLEND_INV_SRC_ALPHA;
+		rtbd.BlendOp = D3D11_BLEND_OP::D3D11_BLEND_OP_ADD;
+		rtbd.SrcBlendAlpha = D3D11_BLEND::D3D11_BLEND_ONE;
+		rtbd.DestBlendAlpha = D3D11_BLEND::D3D11_BLEND_ZERO;
+		rtbd.BlendOpAlpha = D3D11_BLEND_OP::D3D11_BLEND_OP_ADD;
+		rtbd.RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE::D3D11_COLOR_WRITE_ENABLE_ALL;
+
+		blendDesc.RenderTarget[0] = rtbd;
+
+		res = this->device->CreateBlendState(&blendDesc, this->blendState_.GetAddressOf());
+		if (FAILED(res))
+		{
+			OutputDebugString(TEXT("Fatal error: Failed to create CSM depth texture array!\n"));
+		}
 
 
-		manager->InitShader(ShaderData("./Shaders/csm.hlsl", Vertex | Geometry));
-		manager->InitShader(ShaderData("./Shaders/TextureShaderDerref.hlsl", Vertex | Pixel));
+		manager->InitShader(ShaderData("./Shaders/DepthShader.hlsl", Vertex | Pixel));
+		manager->InitShader(ShaderData("./Shaders/Shader.hlsl", Vertex | Pixel));
 		manager->InitShader(ShaderData("./Shaders/GBuffer.hlsl", Vertex | Pixel));
 		manager->InitShader(ShaderData("./Shaders/LightVolume.hlsl", Vertex | Pixel));
+		manager->InitShader(ShaderData("./Shaders/ShaderShadow.hlsl", Vertex | Pixel));
 
-		volume = new LightComponent(this);
-		volume->Initialize();
 
 		player = new SphereComponent(this);
 		player->Initialize();
-
 		player->LoadTexture(L"assets/defaulttexture.png");
 
 
-
-		
 		auto rot = Matrix::CreateLookAt(playerTransform.GetWorldPosition() + offset, playerTransform.GetWorldPosition(), Vector3(0, 1, 0)).ToEuler();
 		rot.x *= -1;
 		rot.z = 0;
 		camera->getTransform()->SetEulerRotate(rot);
 
 
+		lightPos =
+			Vector3::Transform(Vector3(-60, 40, 0), Quaternion::CreateFromAxisAngle(Vector3::Left, 0)); 
 
+		std::cout << lightPos.x << " " << lightPos.y << " " << lightPos.z << std::endl;
+
+		auto directional_light_direction = Vector4(
+			-lightPos.x, -lightPos.y, -lightPos.z, 0);
+		directional_light_direction.Normalize();
+		std::cout << directional_light_direction.x << " " << directional_light_direction.y << " " << directional_light_direction.z << std::endl;
+		directional_light_view = Matrix::CreateLookAt(
+			lightPos, lightPos + Vector3::Right + Vector3::Down, Vector3::Up);
+
+		LightData.color = Vector4(1, 1, 1, 0);
+		LightData.diffK_specA_specK = Vector4(1.0, 100.0f, 1.0f, 0);
+		LightData.direction = directional_light_direction;
+
+		directional_light_projection_ = Matrix::CreatePerspectiveFieldOfView(3.14f / 2,camera->ASPECT_RATIO, 0.01f, 1000);
+
+
+		LightTransform.directional_light_view_projection = directional_light_view * directional_light_projection_;
+
+		D3D11_BUFFER_DESC constBufPerSceneDesc;
+		constBufPerSceneDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+		constBufPerSceneDesc.Usage = D3D11_USAGE_DEFAULT;
+		constBufPerSceneDesc.CPUAccessFlags = 0;
+		constBufPerSceneDesc.MiscFlags = 0;
+		constBufPerSceneDesc.StructureByteStride = 0;
+		constBufPerSceneDesc.ByteWidth = sizeof(DirectionalLightBufferElement);
+		res = device->CreateBuffer(&constBufPerSceneDesc, nullptr, LightDataBuffer.GetAddressOf());
+		if (FAILED(res))
+		{
+			OutputDebugString(TEXT("Fatal error: Failed to create LightDataBuffer!\n"));
+		}
+
+
+		D3D11_BUFFER_DESC constBufPerLightDecs;
+		constBufPerLightDecs.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+		constBufPerLightDecs.Usage = D3D11_USAGE_DEFAULT;
+		constBufPerLightDecs.CPUAccessFlags = 0;
+		constBufPerLightDecs.MiscFlags = 0;
+		constBufPerLightDecs.StructureByteStride = 0;
+		constBufPerLightDecs.ByteWidth = sizeof(LightTransform);
+		res = device->CreateBuffer(&constBufPerLightDecs, nullptr, LightTransformBuffer.GetAddressOf());
+		if (FAILED(res))
+		{
+			OutputDebugString(TEXT("Fatal error: Failed to create LightTransformBuffer!\n"));
+		}
+
+		D3D11_TEXTURE2D_DESC depth_stencil_descriptor;
+		depth_stencil_descriptor.Width = _display->getWidth() * 3;
+		depth_stencil_descriptor.Height = _display->getHeight() * 3;
+		depth_stencil_descriptor.MipLevels = 1;
+		depth_stencil_descriptor.ArraySize = 1;
+		depth_stencil_descriptor.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
+		depth_stencil_descriptor.SampleDesc.Count = 1;
+		depth_stencil_descriptor.SampleDesc.Quality = 0;
+		depth_stencil_descriptor.Usage = D3D11_USAGE_DEFAULT;
+		depth_stencil_descriptor.BindFlags = D3D11_BIND_DEPTH_STENCIL;
+		depth_stencil_descriptor.CPUAccessFlags = 0;
+		depth_stencil_descriptor.MiscFlags = 0;
+
+
+		ID3D11Texture2D* depth_stencil_buffer;
+		device->CreateTexture2D(&depth_stencil_descriptor, nullptr, &depth_stencil_buffer);
+		device->CreateDepthStencilView(depth_stencil_buffer, nullptr, &depth_stencil_view_);
+
+		D3D11_TEXTURE2D_DESC depth_texture_descriptor{};
+		depth_texture_descriptor.Width = _display->getWidth() * 3;
+		depth_texture_descriptor.Height = _display->getHeight() * 3;
+		depth_texture_descriptor.MipLevels = 1;
+		depth_texture_descriptor.ArraySize = 1;
+		depth_texture_descriptor.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
+		depth_texture_descriptor.SampleDesc.Count = 1;
+		depth_texture_descriptor.Usage = D3D11_USAGE_DEFAULT;
+		depth_texture_descriptor.BindFlags = D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE;
+
+		ID3D11Texture2D* background_texture_depth;
+		device->CreateTexture2D(&depth_texture_descriptor, nullptr, &background_texture_depth);
+		device->CreateRenderTargetView(background_texture_depth, nullptr, &render_target_view_depth_directional_light_);
+		device->CreateShaderResourceView(background_texture_depth, nullptr, &resource_view_depth_directional_light_);
+
+		D3D11_SAMPLER_DESC sampler_descriptor;
+		sampler_descriptor.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
+		sampler_descriptor.AddressU = D3D11_TEXTURE_ADDRESS_CLAMP;
+		sampler_descriptor.AddressV = D3D11_TEXTURE_ADDRESS_CLAMP;
+		sampler_descriptor.AddressW = D3D11_TEXTURE_ADDRESS_CLAMP;
+		sampler_descriptor.MipLODBias = 0.0f;
+		sampler_descriptor.MaxAnisotropy = 1;
+		sampler_descriptor.ComparisonFunc = D3D11_COMPARISON_ALWAYS;
+		sampler_descriptor.BorderColor[0] = 0;
+		sampler_descriptor.BorderColor[1] = 0;
+		sampler_descriptor.BorderColor[2] = 0;
+		sampler_descriptor.BorderColor[3] = 0;
+		sampler_descriptor.MinLOD = 0;
+		sampler_descriptor.MaxLOD = D3D11_FLOAT32_MAX;
+		device->CreateSamplerState(&sampler_descriptor, &sample_state_clamp_);
+
+		sampler_descriptor.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
+		sampler_descriptor.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
+		sampler_descriptor.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
+		sampler_descriptor.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
+		sampler_descriptor.MipLODBias = 0.0f;
+		sampler_descriptor.MaxAnisotropy = 1;
+		sampler_descriptor.ComparisonFunc = D3D11_COMPARISON_ALWAYS;
+		sampler_descriptor.BorderColor[0] = 0;
+		sampler_descriptor.BorderColor[1] = 0;
+		sampler_descriptor.BorderColor[2] = 0;
+		sampler_descriptor.BorderColor[3] = 0;
+		sampler_descriptor.MinLOD = 0;
+		sampler_descriptor.MaxLOD = D3D11_FLOAT32_MAX;
+
+		device->CreateSamplerState(&sampler_descriptor, &sample_state_wrap_);
+
+		D3D11_SAMPLER_DESC sampDesc{};
+		sampDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
+		sampDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
+		sampDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
+		sampDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
+		//sampDesc.ComparisonFunc = D3D11_COMPARISON_ALWAYS;
+		sampDesc.BorderColor[0] = 1.0f;
+		sampDesc.BorderColor[1] = 0.0f;
+		sampDesc.BorderColor[2] = 0.0f;
+		sampDesc.BorderColor[3] = 1.0f;
+		sampDesc.MaxLOD = static_cast<float>(INT_MAX);
+		sampDesc.MipLODBias = 0.f;
+		sampDesc.MaxAnisotropy = 1;
+
+
+
+		//sampDesc.ComparisonFunc = D3D11_COMPARISON_NEVER;
+		sampDesc.MinLOD = 0;
+
+		res = device->CreateSamplerState(&sampDesc, &TexSamplerState);
+		if (FAILED(res)) {
+			std::cout << "Something is going wrong with texture sampler";
+		}
 	}
 
 	void GameApplication::MessageHandler()
@@ -693,10 +570,10 @@
 	{
 
 		context->ClearState();
-
-		context->OMSetRenderTargets(0, nullptr, depthShadowDsv.Get());
-
-		context->ClearDepthStencilView(depthShadowDsv.Get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
+		constexpr float color[] = { 0.0f, 0.0f, 0.0f, 1.0f };
+		context->ClearRenderTargetView(render_target_view_depth_directional_light_, color);
+		context->ClearDepthStencilView(depth_stencil_view_, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1, 0);
+		context->OMSetRenderTargets(1, &render_target_view_depth_directional_light_, depth_stencil_view_);
 		
 		for (auto comp : Components)
 			comp->PrepareFrame();
@@ -741,89 +618,36 @@
 
 		if (Device->IsKeyDown(Keys::D))
 		{
-			//tr->AdjustPosition(tr->GetRightVector());
 			playerTransform.AdjustPosition(right);
 			rot *= Quaternion::CreateFromAxisAngle(forward, 4.0f * deltaTime);
 			direction += tr->GetRightVector();
 		}
 		if (Device->IsKeyDown(Keys::A))
 		{
-			//tr->AdjustPosition(tr->GetRightVector()*-1);
 			playerTransform.AdjustPosition(right * -1);
 			rot *= Quaternion::CreateFromAxisAngle(-forward, 4.0f * deltaTime);
 			direction += tr->GetRightVector() * -1;
 		}
 		if (Device->IsKeyDown(Keys::S))
 		{
-			//tr->AdjustPosition(tr->GetForwardVector()*-1);
 			playerTransform.AdjustPosition(forward * -1);
 			rot *= Quaternion::CreateFromAxisAngle(right, 4.0f * deltaTime);
 			direction += tr->GetForwardVector() * -1;
 		}
 		if (Device->IsKeyDown(Keys::W))
 		{
-			//tr->AdjustPosition(tr->GetForwardVector());
 			playerTransform.AdjustPosition(forward);
 			rot *= Quaternion::CreateFromAxisAngle(-right, 4.0f * deltaTime);
 			direction += tr->GetForwardVector();
-		}
-		if (Device->IsKeyDown(Keys::Space))
-		{
-			//tr->AdjustPosition(tr->GetUpVector());
 		}
 		if (Device->IsKeyDown(Keys::J))
 		{
 			isMouseUsed = !isMouseUsed;
 		}
-		if (Device->IsKeyDown(Keys::LeftShift))
-		{
-			//tr->AdjustPosition(tr->GetUpVector()*-1);
-		}
-		if (Device->IsKeyDown(Keys::LeftButton)) {
-			ImGuiIO& io = ImGui::GetIO();
-			io.AddMouseButtonEvent(0, true);
-		}
-		else {
-			ImGuiIO& io = ImGui::GetIO();
-			io.AddMouseButtonEvent(0, false);
-		}
 		if (isMouseUsed) {
 			SetCursorPos(_display->getWidth() / 2, _display->getHeight() / 2);
 		}
 
-
-
-
-		if (Device->IsKeyDown(Keys::LeftControl) || Device->IsKeyDown(Keys::RightAlt)) {
-			std::cout << "It's working!\n";
-		}
-
-		auto test = tmp;
-		test.Normalize();
-		direction.Normalize();
-		light->SetDirection(test);
-		lightData.LightPos = Vector4::Transform(light->GetDirection(), camera->View());
-		lightData.LightPos.Normalize();
-		lightData.LightColor = light->GetColor();
-		lightData.AmbientSpecularRowType = Vector4(0.4f, 0.5f, 32, 0);
-		lightData.T = Matrix(
-			0.5f, 0.0f, 0.0f, 0.0f,
-			0.0f, -0.5f, 0.0f, 0.0f,
-			0.0f, 0.0f, 1.0f, 0.0f,
-			0.5f, 0.5f, 0.0f, 1.0f);
-		lightData.ViewMatrix = camera->View();
-
-		auto tmp2 = getLight()->GetLightSpaceMatrices();
-
-
-		for (int i = 0; i < 5; ++i)
-		{
-			cascadeData.ViewProj[i] = tmp2[i];
-		}
-		cascadeData.Distance = getLight()->GetShadowCascadeDistances();
-
-		context->UpdateSubresource(cascadeCBuffer_.Get(), 0, nullptr, &cascadeData, 0, 0);
-		context->UpdateSubresource(LightBuffer.Get(), 0, nullptr, &lightData, 0, 0);
 
 		const auto offset_ = Vector3::Transform(offset, Matrix::CreateFromQuaternion(camera->getTransform()->GetQuaternionRotate()));
 
@@ -834,62 +658,40 @@
 
 		playerTransform.SetQuaternionRotate(rot);
 		camera->Update();
-		for (size_t t = 0; t < foodSpheres.size(); t++) {
-			if (PlayerCollision.Intersects(foodSpheres[t])) {
-				transform[t + 24].SetParent(&playerTransform);
 
 
-
-				Matrix worldPos = playerTransform.GetWorldMatrix().Invert();
-				Vector3 localPos = transform[t + 24].GetWorldPosition();
-				localPos = Vector3::Transform(localPos, worldPos);
-
-				//localPos *= 3. * localPos / 4;
-				foodSpheres[t].Center = Vector3(1000, 1000, 1000);
-				collected.push_back(std::make_pair(t + 24, localPos));
-
-
-			}
-
-
-			
-
-		}
-		for (auto&& pair : collected) 
+		for (size_t t = 0; t < foodSpheres.size(); t++) 
 		{
-			int a = pair.first;
-			transform[a].SetPosition(playerTransform.GetWorldPosition() + pair.second);
-
-
-
-			/*
-			Matrix lol = transform[a].GetWorldMatrix();
-			DirectX::SimpleMath::Matrix thisToWorld = playerTransform.GetWorldMatrix();
-
-			transform[a].SetPosition(DirectX::SimpleMath::Vector3::Transform(pair.second, thisToWorld));
-
-
-			Quaternion l = transform[a].GetQuaternionRotate();
-			if (direction.Length() > 0)
+			if (PlayerCollision.Intersects(foodSpheres[t])) 
 			{
-				l *= Quaternion::CreateFromAxisAngle(-direction, 4.0f * deltaTime);
-			}
+				transform[t + 1].SetParent(&playerTransform);
 
-			transform[a].SetQuaternionRotate(l);*/
+				Matrix trans = playerTransform.GetWorldMatrix().Invert();
+				Matrix trans2 = transform[t + 1].GetWorldMatrix() * trans;
+
+				Vector3 Pscale, Ppos;
+				Quaternion Prot;
+				trans2.Decompose(Pscale, Prot, Ppos);
+
+				transform[t + 1].SetPosition(Ppos);
+				transform[t + 1].SetScale(Pscale);
+				transform[t + 1].SetQuaternionRotate(Prot);
+				transform[t + 1].Update();
+
+				foodSpheres[t].Center = Vector3(1000, 1000, 1000);
+			}
 		}
 
-
-
-		for (size_t t = 29; t >= 24; t--)
+		for (size_t t = 7; t >= 1; t--)
 			transform[t].Update();
 		
-		for (size_t t = 0; t < 30; t++) {
+		for (size_t t = 0; t < 8; t++) {
 			Vector3 scale, pos;
 			Quaternion rot;
 			Matrix world = transform[t].GetWorldMatrix();
 			world.Decompose(scale, rot, pos);
 
-			Components[t]->Update(camera->Proj(), camera->View(), transform[t].GetWorldMatrix(),
+			Components[t]->Update(directional_light_projection_ ,directional_light_view, transform[t].GetWorldMatrix(),
 				(Matrix::CreateScale(scale)*Matrix::CreateFromQuaternion(rot)).Invert().Transpose());
 		}
 
@@ -898,8 +700,17 @@
 		Quaternion Prot;
 		Matrix world = playerTransform.GetWorldMatrix();
 		world.Decompose(Pscale, Prot, Ppos);
-		player->Update(camera->Proj(), camera->View(), playerTransform.GetWorldMatrix(),
+		player->Update(directional_light_projection_, directional_light_view, playerTransform.GetWorldMatrix(),
 			(Matrix::CreateScale(Pscale)* Matrix::CreateFromQuaternion(Prot)).Invert().Transpose());
+
+
+
+		Vector3 campos = camera->getTransform()->GetWorldPosition();
+		LightTransform.camera_position = Vector4(campos.x,campos.y,campos.z,1.0f) ;
+
+		
+
+
 
 		return true;
 
@@ -928,109 +739,57 @@
 	}
 	void GameApplication::ResetGame()
 	{
-		for (size_t t = 0; t < 22; t++) {
-			transform[t].SetPosition(Vector3(0, 0, 0));
-		}
-		
 
+		//Plane transform
+		transform[0].SetPosition(Vector3(50, 0, -50));
+		transform[0].SetEulerRotate(Vector3(0, 0, 0));
+		transform[0].SetScale(Vector3(20, 1, 20));
 
-
-		transform[0].SetScale(Vector3(15.0f,15.0f,15.0f));
-		transform[1].SetScale(Vector3(15.0f,15.0f,15.0f));
-		transform[2].SetScale(Vector3(15.0f,15.0f,15.0f));
-		transform[3].SetScale(Vector3(15.0f,15.0f,15.0f));
-		transform[4].SetScale(Vector3(15.0f,15.0f,15.0f));	
-		transform[5].SetScale(Vector3(15.0f,15.0f,15.0f));
-		transform[6].SetScale(Vector3(30.0f,30.0f,30.0f));
-
-		transform[22].SetPosition(Vector3(0, 0, 0));
-		transform[22].SetScale(Vector3(2.0f, 2.0f, 2.0f));
-		transform[22].SetEulerRotate(Vector3(0, 0, 0));
-
-
-		for (size_t t = 7; t < 22; t++) {
-			transform[t].SetPosition(Vector3(2.0f, 2.0f, 2.0f));
-		}
-
-		for (size_t t = 7; t < 22; t++) {
-			planets[t].angleSpeed = rand_FloatRange(-0.5, 0.5);
-			planets[t].angleSpeed2 = rand_FloatRange(-0.5, 0.5);
-			planets[t].radius = rand_FloatRange(10, 20);
-		}
-
-	
-
-
-
-		planets[0].angleSpeed = rand_FloatRange(-0.5, 0.5);
-		planets[1].angleSpeed = rand_FloatRange(-0.5, 0.5);
-		planets[2].angleSpeed = rand_FloatRange(-0.5, 0.5);
-		planets[3].angleSpeed = rand_FloatRange(-0.5, 0.5);
-		planets[4].angleSpeed = rand_FloatRange(-0.5, 0.5);
-		planets[5].angleSpeed = rand_FloatRange(-0.5, 0.5);
-		planets[6].angleSpeed = rand_FloatRange(-1, 1);
-		planets[0].angleSpeed2 = rand_FloatRange(-0.5, 0.5);
-		planets[1].angleSpeed2 = rand_FloatRange(-0.5, 0.5);
-		planets[2].angleSpeed2 = rand_FloatRange(-0.5, 0.5);
-		planets[3].angleSpeed2 = rand_FloatRange(-0.5, 0.5);
-		planets[4].angleSpeed2 = rand_FloatRange(-0.5, 0.5);
-		planets[5].angleSpeed2 = rand_FloatRange(-0.5, 0.5);
-		planets[6].angleSpeed2 = rand_FloatRange(-1, 1);
-
-		planets[0].radius = rand_FloatRange(30, 90);
-		planets[1].radius = rand_FloatRange(30, 90);
-		planets[2].radius = rand_FloatRange(30, 90);
-		planets[3].radius = rand_FloatRange(30, 90);
-		planets[4].radius = rand_FloatRange(30, 90);
-		planets[5].radius = rand_FloatRange(30, 90);
-		planets[6].radius = 0;
-
-
-
-		transform[23].SetPosition(Vector3(50, 0, -50));
-		transform[23].SetEulerRotate(Vector3(0, 0, 0));
-		transform[23].SetScale(Vector3(20, 1, 20));
-
-		for (size_t t = 24; t < 30; t++) {
+		//Models transforms
+		for (size_t t = 1; t < 8; t++) {
 			transform[t].SetEulerRotate(Vector3(0, 90, 0));
 			transform[t].SetScale(Vector3(0.5f, 0.5f, 0.5f));
 		}
 
 
+		transform[1].SetPosition(Vector3(50, 0, 0));
+		transform[2].SetPosition(Vector3(25, 0, 25));
+		transform[3].SetPosition(Vector3 ( -30, 0, -30));
+		transform[4].SetPosition(Vector3(25, 0, -40));
+		transform[5].SetPosition(Vector3(-50, 0, 10));
+		transform[6].SetPosition(Vector3(30, 0, -15));
+		transform[7].SetPosition(Vector3(-45, 0, 35));
 
-		transform[24].SetPosition(Vector3(-100, 0, 0));
-		transform[25].SetPosition(Vector3(-100, 0, 0));
-		transform[26].SetPosition(Vector3 ( - 100, 0, 0));
-		transform[27].SetPosition(Vector3(-100, 0, 0));
-		transform[28].SetPosition(Vector3(-100, 0, 10));
-		transform[29].SetPosition(Vector3(30, 0, -15));
+		//Models Bounding Spheres
 		BoundingSphere center;
-		center.Center = transform[24].GetWorldPosition();
-		center.Radius = gameSize;
+		center.Center = transform[1].GetWorldPosition() +Vector3(0,10,0);
+		center.Radius = gameSize/2;
 		foodSpheres.push_back(center);
-		center.Center = transform[25].GetWorldPosition();
-		center.Radius = gameSize;
+		center.Center = transform[2].GetWorldPosition() + Vector3(0, 10, 0);
+		center.Radius = gameSize / 2;
 		foodSpheres.push_back(center);
-		center.Center = transform[26].GetWorldPosition();
-		center.Radius = gameSize;
+		center.Center = transform[3].GetWorldPosition() + Vector3(0, 10, 0);
+		center.Radius = gameSize / 2;
 		foodSpheres.push_back(center);
-		center.Center = transform[27].GetWorldPosition();
-		center.Radius = gameSize;
+		center.Center = transform[4].GetWorldPosition() + Vector3(0, 10, 0);
+		center.Radius = gameSize / 2;
 		foodSpheres.push_back(center);
-		center.Center = transform[28].GetWorldPosition();
-		center.Radius = gameSize;
+		center.Center = transform[5].GetWorldPosition() + Vector3(0, 10, 0);
+		center.Radius = gameSize / 2;
 		foodSpheres.push_back(center);
-		center.Center = transform[29].GetWorldPosition();
-		center.Radius = gameSize;
+		center.Center = transform[6].GetWorldPosition() + Vector3(0, 10, 0);
+		center.Radius = gameSize / 2;
 		foodSpheres.push_back(center);
-
+		center.Center = transform[7].GetWorldPosition() + Vector3(0, 10, 0);
+		center.Radius = gameSize / 2;
+		foodSpheres.push_back(center);
  
-
+		//Player Transform
 		playerTransform.SetPosition(Vector3(0, gameSize, 0));
 		playerTransform.SetScale(Vector3(gameSize));
 		playerTransform.SetEulerRotate(Vector3(0, 0, 0));
 
-
+		//Player Bounding
 		PlayerCollision.Center = playerTransform.GetWorldPosition();
 		PlayerCollision.Radius = playerTransform.GetScale().x;
 

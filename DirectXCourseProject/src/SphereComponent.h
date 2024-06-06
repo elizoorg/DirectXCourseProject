@@ -29,13 +29,13 @@ protected:
     std::vector<VERTEX> points;
     std::vector<int> indeces;
     HRESULT res;
-    Texture defaultTexture;
 
     ID3D11Buffer* ib;
 
     ID3D11Buffer* vb;
 
 public:
+    Texture defaultTexture;
     SphereComponent(Engine::Application* app) :GameComponent(app) {
 
     };

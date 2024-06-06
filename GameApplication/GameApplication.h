@@ -16,13 +16,6 @@
 #include <ctime>
 #include <math.h>
 
-#include "ImGui/imgui.h"
-#include "ImGui/imgui_impl_win32.h"
-#include "ImGui/imgui_impl_dx11.h"
-
-
-
-
 #include <assimp/Importer.hpp>
 #include <assimp/mesh.h>
 #include <assimp/scene.h>
@@ -58,22 +51,11 @@ class GameApplication: public Engine::Application
 		void RestoreTargets() override;
 		bool Update() override;
 		void UpdateInternal() override;
+		void ResetGame();
 
 
-
-
-		bool intersect(Vector2 min_a, Vector2 max_a, Vector2 min_b, Vector2 max_b)
-		{
-			return (min_a.x <= max_b.x) &&
-				(max_a.x >= min_b.x) &&
-				(min_a.y <= max_b.y) &&
-				(max_a.y >= min_b.y);
-		}
 		bool isClosed = false;
 
-		int player1_score = 0;
-		int player2_score = 0;
-		void ResetGame();
 
 		float angle = 0;
 
@@ -86,35 +68,21 @@ class GameApplication: public Engine::Application
 		Microsoft::WRL::ComPtr<ID3D11SamplerState> depthSamplerState_ = nullptr;
 		Microsoft::WRL::ComPtr<ID3D11DepthStencilState> defaultDepthState_;
 
-		Transform transform[30];
+		Transform transform[8];
 
 		float rand_FloatRange(float a, float b)
 		{
 			return ((b - a) * ((float)rand() / RAND_MAX)) + a;
 		}
 
-		struct PlanetTransform {
-			Vector3 joint = Vector3(0,0,0);
-			float radius;
-			float angle=5.0f;
-			float angle2=5.0f;
-			float angleSpeed;
-			float angleSpeed2;
-		} planets[30];
 
-
-		Vector4 tmp = Vector4(20.0f, 50.0f, 20.0f, 0.0f);
-		CSM_CONSTANT_BUFFER cascadeData = {};
 
 		Microsoft::WRL::ComPtr<ID3D11DepthStencilState> quadDepthState_;
 		Microsoft::WRL::ComPtr<ID3D11RasterizerState> rastState_;
 		Microsoft::WRL::ComPtr<ID3D11BlendState> blendState_;
 
-		GBuffer *gBuffer_;
 
 		Transform lightTransform;
-		LightComponent* volume;
-
 
 		Transform playerTransform;
 		SphereComponent* player;
@@ -123,12 +91,23 @@ class GameApplication: public Engine::Application
 		std::vector<std::pair<int, Vector3>> collected;
 
 
+		Vector3 lightPos;
+		Matrix directional_light_projection_;
+		Matrix directional_light_view;
+
+		ID3D11SamplerState* sample_state_clamp_ = nullptr;
+		ID3D11SamplerState* sample_state_wrap_ = nullptr; 
+
+		ID3D11DepthStencilView* depth_stencil_view_ = nullptr;
+		ID3D11RenderTargetView* render_target_view_depth_directional_light_ = nullptr;
+		ID3D11ShaderResourceView* resource_view_depth_directional_light_ = nullptr;
+
 		std::vector<BoundingSphere> foodSpheres;
+
+		ID3D11SamplerState* TexSamplerState = nullptr;
 
 		const Vector3 offset = { 0,0,-25 };
 
 		float gameSize = 10.0f;
 
-
-		Quaternion savedRot;
 	};

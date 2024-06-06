@@ -3,7 +3,6 @@
 #include "Display.h"
 
 #include "Application.h"
-#include "../external/ImGui/imgui.h"
 
 
 
@@ -92,16 +91,10 @@ LRESULT WinApi_Display::WndProcStatic(HWND hWnd, UINT message, WPARAM wParam, LP
 	return DefWindowProc(hWnd, message, wParam, lParam);
 
 }
-	
-extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
 
 LRESULT WinApi_Display::WndProc(HWND hwnd, UINT umessage, WPARAM wparam, LPARAM lparam)
 {
-	if (ImGui_ImplWin32_WndProcHandler(hWnd, umessage, wparam, lparam))
-		return true;
-
-
 	switch (umessage)
 	{
 	case WM_DESTROY:

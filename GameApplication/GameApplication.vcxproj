@@ -136,12 +136,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\DirectXCourseProject\external\ImGui\imgui.cpp" />
-    <ClCompile Include="..\DirectXCourseProject\external\ImGui\imgui_draw.cpp" />
-    <ClCompile Include="..\DirectXCourseProject\external\ImGui\imgui_impl_dx11.cpp" />
-    <ClCompile Include="..\DirectXCourseProject\external\ImGui\imgui_impl_win32.cpp" />
-    <ClCompile Include="..\DirectXCourseProject\external\ImGui\imgui_tables.cpp" />
-    <ClCompile Include="..\DirectXCourseProject\external\ImGui\imgui_widgets.cpp" />
     <ClCompile Include="GameApplication.cpp" />
     <ClCompile Include="main.cpp" />
   </ItemGroup>
@@ -151,14 +145,6 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\DirectXCourseProject\external\ImGui\imconfig.h" />
-    <ClInclude Include="..\DirectXCourseProject\external\ImGui\imgui.h" />
-    <ClInclude Include="..\DirectXCourseProject\external\ImGui\imgui_impl_dx11.h" />
-    <ClInclude Include="..\DirectXCourseProject\external\ImGui\imgui_impl_win32.h" />
-    <ClInclude Include="..\DirectXCourseProject\external\ImGui\imgui_internal.h" />
-    <ClInclude Include="..\DirectXCourseProject\external\ImGui\imstb_rectpack.h" />
-    <ClInclude Include="..\DirectXCourseProject\external\ImGui\imstb_textedit.h" />
-    <ClInclude Include="..\DirectXCourseProject\external\ImGui\imstb_truetype.h" />
     <ClInclude Include="GameApplication.h" />
   </ItemGroup>
   <ItemGroup>
@@ -166,6 +152,9 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
     </FxCompile>
     <FxCompile Include="Shaders\csm.hlsl">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+    </FxCompile>
+    <FxCompile Include="Shaders\DepthShader.hlsl">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
     </FxCompile>
     <FxCompile Include="Shaders\GBuffer.hlsl">
@@ -176,6 +165,13 @@
     </FxCompile>
     <FxCompile Include="Shaders\MyVeryFirstShader.hlsl">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+    </FxCompile>
+    <FxCompile Include="Shaders\Shader.hlsl">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+    </FxCompile>
+    <FxCompile Include="Shaders\ShaderShadow.hlsl">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </FxCompile>
     <FxCompile Include="Shaders\Simple.hlsl">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>

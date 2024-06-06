@@ -24,12 +24,6 @@
     <ClCompile Include="src\GBuffer.cpp" />
     <ClCompile Include="src\DirectionalLight.cpp" />
     <ClCompile Include="external\Delegates.cpp" />
-    <ClCompile Include="external\ImGui\imgui.cpp" />
-    <ClCompile Include="external\ImGui\imgui_draw.cpp" />
-    <ClCompile Include="external\ImGui\imgui_impl_dx11.cpp" />
-    <ClCompile Include="external\ImGui\imgui_impl_win32.cpp" />
-    <ClCompile Include="external\ImGui\imgui_tables.cpp" />
-    <ClCompile Include="external\ImGui\imgui_widgets.cpp" />
     <ClCompile Include="external\SimpleMath.cpp" />
     <ClCompile Include="src\ModelLoader.cpp" />
     <ClCompile Include="src\ModelComponent.cpp" />
@@ -54,14 +48,6 @@
     <ClInclude Include="src\GBuffer.h" />
     <ClInclude Include="src\DirectionalLight.h" />
     <ClInclude Include="external\Delegates.h" />
-    <ClInclude Include="external\ImGui\imconfig.h" />
-    <ClInclude Include="external\ImGui\imgui.h" />
-    <ClInclude Include="external\ImGui\imgui_impl_dx11.h" />
-    <ClInclude Include="external\ImGui\imgui_impl_win32.h" />
-    <ClInclude Include="external\ImGui\imgui_internal.h" />
-    <ClInclude Include="external\ImGui\imstb_rectpack.h" />
-    <ClInclude Include="external\ImGui\imstb_textedit.h" />
-    <ClInclude Include="external\ImGui\imstb_truetype.h" />
     <ClInclude Include="external\SimpleMath.h" />
     <ClInclude Include="src\LightData.h" />
     <ClInclude Include="src\Mesh.h" />

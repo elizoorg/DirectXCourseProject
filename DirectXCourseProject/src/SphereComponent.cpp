@@ -92,10 +92,6 @@ bool SphereComponent::Initialize()
 		indeces.push_back(baseIndex + i + 1);
 	}
 
-
-
-
-
 	D3D11_BUFFER_DESC vertexBufDesc = {};
 	vertexBufDesc.Usage = D3D11_USAGE_DEFAULT;
 	vertexBufDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
@@ -184,7 +180,7 @@ void SphereComponent::Draw()
 	UINT stride = sizeof(VERTEX);
 	UINT offset = 0;
 
-	_app->getShaderManager()->SetShader(ShaderData("./Shaders/GBuffer.hlsl", Vertex | Pixel));
+	_app->getShaderManager()->SetShader(ShaderData("./Shaders/Shader.hlsl", Vertex | Pixel));
 
 	_app->getContext()->RSSetState(rastState);
 	_app->getContext()->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
@@ -207,8 +203,8 @@ void SphereComponent::PrepareFrame()
 	_app->getContext()->RSSetState(rastState);
 
 	D3D11_VIEWPORT viewport = {};
-	viewport.Width = 2048.0f;
-	viewport.Height = 2048.0f;
+	viewport.Width = _app->getDisplay()->getWidth() * 3;
+	viewport.Height = _app->getDisplay()->getHeight() * 3;
 	viewport.TopLeftX = 0;
 	viewport.TopLeftY = 0;
 	viewport.MinDepth = 0;
@@ -217,8 +213,7 @@ void SphereComponent::PrepareFrame()
 	_app->getContext()->RSSetViewports(1, &viewport);
 
 
-	_app->getShaderManager()->SetShader(ShaderData("./Shaders/csm.hlsl", Vertex | Geometry));
-	_app->getContext()->PSSetShader(nullptr, nullptr, 0);
+	_app->getShaderManager()->SetShader(ShaderData("./Shaders/DepthShader.hlsl", Vertex | Pixel));
 
 
 	_app->getContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
@@ -228,9 +223,6 @@ void SphereComponent::PrepareFrame()
 
 	_app->getContext()->UpdateSubresource(g_pConstantBuffer11, 0, nullptr, &buffer, 0, 0);
 	_app->getContext()->VSSetConstantBuffers(0, 1, &g_pConstantBuffer11);
-
-	_app->getContext()->GSSetConstantBuffers(0, 1, _app->getCascadeBuffer().GetAddressOf());
-
 	_app->getContext()->DrawIndexed(indeces.size(), 0, 0);
 
 }

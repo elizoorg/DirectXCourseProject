@@ -16,9 +16,6 @@
     <Filter Include="Shaders">
       <UniqueIdentifier>{d2b644a1-e309-4d57-ae2c-29b09c3b35fc}</UniqueIdentifier>
     </Filter>
-    <Filter Include="ImGui">
-      <UniqueIdentifier>{08e65614-b11e-4547-b305-e666cf28de13}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -27,52 +24,10 @@
     <ClCompile Include="GameApplication.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\DirectXCourseProject\external\ImGui\imgui.cpp">
-      <Filter>ImGui</Filter>
-    </ClCompile>
-    <ClCompile Include="..\DirectXCourseProject\external\ImGui\imgui_draw.cpp">
-      <Filter>ImGui</Filter>
-    </ClCompile>
-    <ClCompile Include="..\DirectXCourseProject\external\ImGui\imgui_impl_dx11.cpp">
-      <Filter>ImGui</Filter>
-    </ClCompile>
-    <ClCompile Include="..\DirectXCourseProject\external\ImGui\imgui_impl_win32.cpp">
-      <Filter>ImGui</Filter>
-    </ClCompile>
-    <ClCompile Include="..\DirectXCourseProject\external\ImGui\imgui_tables.cpp">
-      <Filter>ImGui</Filter>
-    </ClCompile>
-    <ClCompile Include="..\DirectXCourseProject\external\ImGui\imgui_widgets.cpp">
-      <Filter>ImGui</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="GameApplication.h">
       <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\DirectXCourseProject\external\ImGui\imconfig.h">
-      <Filter>ImGui</Filter>
-    </ClInclude>
-    <ClInclude Include="..\DirectXCourseProject\external\ImGui\imgui.h">
-      <Filter>ImGui</Filter>
-    </ClInclude>
-    <ClInclude Include="..\DirectXCourseProject\external\ImGui\imgui_impl_dx11.h">
-      <Filter>ImGui</Filter>
-    </ClInclude>
-    <ClInclude Include="..\DirectXCourseProject\external\ImGui\imgui_impl_win32.h">
-      <Filter>ImGui</Filter>
-    </ClInclude>
-    <ClInclude Include="..\DirectXCourseProject\external\ImGui\imgui_internal.h">
-      <Filter>ImGui</Filter>
-    </ClInclude>
-    <ClInclude Include="..\DirectXCourseProject\external\ImGui\imstb_rectpack.h">
-      <Filter>ImGui</Filter>
-    </ClInclude>
-    <ClInclude Include="..\DirectXCourseProject\external\ImGui\imstb_textedit.h">
-      <Filter>ImGui</Filter>
-    </ClInclude>
-    <ClInclude Include="..\DirectXCourseProject\external\ImGui\imstb_truetype.h">
-      <Filter>ImGui</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -101,6 +56,15 @@
       <Filter>Shaders</Filter>
     </FxCompile>
     <FxCompile Include="Shaders\LightVolume.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Shaders\DepthShader.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Shaders\Shader.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Shaders\ShaderShadow.hlsl">
       <Filter>Shaders</Filter>
     </FxCompile>
   </ItemGroup>

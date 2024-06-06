@@ -58,17 +58,11 @@ namespace Engine{
 		}
 
 
-
-
-		Microsoft::WRL::ComPtr<ID3D11Buffer> getLightBuffer() { return LightBuffer; }
-		Microsoft::WRL::ComPtr<ID3D11Buffer> getCascadeBuffer() { return cascadeCBuffer_; }
-
 		ID3D11DeviceContext* getContext() { return context; };
 		Camera* getCamera(){return camera;}
 
 
 		WinApi_Display* getDisplay() { return _display; };
-		DirectionalLight* getLight() { return light; }
 		InputDevice* getInput() { return Device; }
 
 
@@ -102,19 +96,27 @@ namespace Engine{
 		Microsoft::WRL::ComPtr<ID3D11DepthStencilView> depthShadowDsv;
 		Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> depthShadowSrv;
 
-		struct CSM_CONSTANT_BUFFER
-		{
-			Matrix ViewProj[5];
-			Vector4 Distance;
-		};
-		
-		Microsoft::WRL::ComPtr<ID3D11Buffer> cascadeCBuffer_;
-		Microsoft::WRL::ComPtr<ID3D11Buffer> LightBuffer;
-		LightData lightData{};
-
 		Camera *camera;
 		InputDevice *Device;
-		DirectionalLight *light;
+
+
+		struct LightTransformBufferElement
+		{
+			Matrix directional_light_view_projection;
+			Vector4 camera_position;
+		} LightTransform;
+
+		struct DirectionalLightBufferElement
+		{
+			Vector4 direction;
+			Vector4 color;
+			Vector4 diffK_specA_specK;
+		} LightData;
+
+		Microsoft::WRL::ComPtr<ID3D11Buffer> LightDataBuffer;
+		Microsoft::WRL::ComPtr<ID3D11Buffer> LightTransformBuffer;
+
+
 
 
 		
