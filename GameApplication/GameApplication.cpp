@@ -100,7 +100,14 @@
 		context->OMSetDepthStencilState(quadDepthState_.Get(), 0);
 
 
-		context->OMSetRenderTargets(1, &rtv, depthStencilView.Get());
+		
+
+
+
+		context->ClearRenderTargetView(postProcessRtv_.Get(), color);
+		context->ClearDepthStencilView(depthStencilView.Get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1, 0);
+		context->OMSetRenderTargets(1, postProcessRtv_.GetAddressOf(), depthStencilView.Get());
+
 		//context->ClearRenderTargetView(rtv, color);
 		
 
@@ -223,10 +230,21 @@
 		bool qq = false;
 
 
-		
+		manager->SetShader(ShaderData("./Shaders/post.hlsl", Vertex | Pixel));
 
 
 
+		context->OMSetRenderTargets(1, &rtv, depthStencilView.Get());
+
+
+		context->PSSetSamplers(0, 1, &TexSamplerState);
+
+		context->ClearRenderTargetView(rtv, color);
+
+		context->PSSetShaderResources(0, 1, postProcessSrv_.GetAddressOf());
+
+
+		context->Draw(3, 0);
 
 		ImGui_ImplDX11_NewFrame();
 		ImGui_ImplWin32_NewFrame();
@@ -664,6 +682,7 @@
 		manager->InitShader(ShaderData("./Shaders/TextureShaderDerref.hlsl", Vertex | Pixel));
 		manager->InitShader(ShaderData("./Shaders/GBuffer.hlsl", Vertex | Pixel));
 		manager->InitShader(ShaderData("./Shaders/LightVolume.hlsl", Vertex | Pixel));
+		manager->InitShader(ShaderData("./Shaders/post.hlsl", Vertex | Pixel));
 
 		volume = new LightComponent(this);
 		volume->Initialize();
@@ -681,6 +700,51 @@
 		rot.z = 0;
 		camera->getTransform()->SetEulerRotate(rot);
 
+
+
+		depthDescription.Width = _display->getWidth();
+		depthDescription.Height = _display->getHeight();
+		depthDescription.ArraySize = 1;
+		depthDescription.BindFlags = D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET;
+		depthDescription.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
+		depthDescription.MipLevels = 1;
+		depthDescription.SampleDesc.Count = 1;
+		depthDescription.SampleDesc.Quality = 0;
+		depthDescription.Usage = D3D11_USAGE_DEFAULT;
+		depthDescription.CPUAccessFlags = 0;
+		depthDescription.MiscFlags = 0;
+
+		res = device->CreateTexture2D(&depthDescription, nullptr, postProcessBuffer_.GetAddressOf());
+
+
+		device->CreateRenderTargetView(postProcessBuffer_.Get(), nullptr, postProcessRtv_.GetAddressOf());
+		device->CreateShaderResourceView(postProcessBuffer_.Get(), nullptr, postProcessSrv_.GetAddressOf());
+
+
+
+		D3D11_SAMPLER_DESC sampDesc{};
+		sampDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
+		sampDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
+		sampDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
+		sampDesc.Filter = D3D11_FILTER_COMPARISON_MIN_MAG_MIP_POINT;
+		//sampDesc.ComparisonFunc = D3D11_COMPARISON_ALWAYS;
+		sampDesc.BorderColor[0] = 1.0f;
+		sampDesc.BorderColor[1] = 0.0f;
+		sampDesc.BorderColor[2] = 0.0f;
+		sampDesc.BorderColor[3] = 1.0f;
+		sampDesc.MaxLOD = static_cast<float>(INT_MAX);
+		sampDesc.MipLODBias = 0.f;
+		sampDesc.MaxAnisotropy = 1;
+
+
+
+		sampDesc.ComparisonFunc = D3D11_COMPARISON_NEVER;
+		sampDesc.MinLOD = 0;
+
+		res = device->CreateSamplerState(&sampDesc, &TexSamplerState);
+		if (FAILED(res)) {
+			std::cout << "Something is going wrong with texture sampler";
+		}
 
 
 	}

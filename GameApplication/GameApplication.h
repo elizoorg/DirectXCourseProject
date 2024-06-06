@@ -130,5 +130,13 @@ class GameApplication: public Engine::Application
 		float gameSize = 10.0f;
 
 
+
+		Microsoft::WRL::ComPtr<ID3D11Texture2D> postProcessBuffer_;
+		Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> postProcessSrv_;
+		Microsoft::WRL::ComPtr<ID3D11RenderTargetView> postProcessRtv_;
+
+		ID3D11SamplerState* TexSamplerState = nullptr;
+
+
 		Quaternion savedRot;
 	};
