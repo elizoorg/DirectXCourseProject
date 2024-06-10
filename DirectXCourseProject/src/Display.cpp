@@ -8,7 +8,6 @@
 
 
 
-
 WinApi_Display::WinApi_Display()
 {
 }

@@ -15,7 +15,10 @@ void LightComponent::Draw()
 	_app->getContext()->RSSetState(rastState);
 	_app->getContext()->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
+
 	_app->getContext()->IASetIndexBuffer(ib, DXGI_FORMAT_R32_UINT, 0);
+
+
 
 	_app->getContext()->IASetVertexBuffers(0, 1, &vb, &stride, &offset);
 

@@ -49,19 +49,20 @@
 
 	void GameApplication::Draw()
 	{
+
 		context->ClearState();
 
 		context->OMSetRenderTargets(1, &rtv, depthStencilView.Get());
 		float color[] = { 0.6f, 0.6f, 0.6f, 1.0f };
 		context->ClearRenderTargetView(rtv, color);
 		context->ClearDepthStencilView(depthStencilView.Get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
-
+		
 
 		context->PSSetShaderResources(1, 1, &resource_view_depth_directional_light_);
 
-		context->UpdateSubresource(LightDataBuffer.Get(), 0, nullptr, &LightData, 0, 0);
+		context->UpdateSubresource(LightDataBuffer.Get(), 0, nullptr, &LightData,0,0);
 
-		context->UpdateSubresource(LightTransformBuffer.Get(), 0, nullptr, &LightTransform, 0, 0);
+		context->UpdateSubresource(LightTransformBuffer.Get(), 0, nullptr, &LightTransform,0,0);
 
 		context->VSSetConstantBuffers(1, 1, LightTransformBuffer.GetAddressOf());
 
@@ -81,7 +82,7 @@
 			Components[t]->Update(camera->Proj(), camera->View(), transform[t].GetWorldMatrix(),
 				(Matrix::CreateScale(scale) * Matrix::CreateFromQuaternion(rot)).Invert().Transpose());
 		}
-
+	
 
 		Vector3 Pscale, Ppos;
 		Quaternion Prot;
@@ -96,9 +97,11 @@
 			Components[t]->Draw();
 		}
 
+		context->OMSetBlendState(blendState_.Get(), NULL, 0xFFFFFFFF);
 		player->Draw();
 
 		context->ClearState();
+		context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 		D3D11_VIEWPORT viewport = {};
 		viewport.Width = 600;
 		viewport.Height = 600;
@@ -107,11 +110,12 @@
 		viewport.MinDepth = 0;
 		viewport.MaxDepth = 1.0f;
 		context->RSSetViewports(1, &viewport);
-		manager->SetShader(ShaderData("./Shaders/ShaderShadow.hlsl", Vertex | Pixel));
+
+		manager->SetShader(ShaderData("./Shaders/test.hlsl", Vertex | Pixel));
+
 		context->RSSetState(rastState_.Get());
 		context->OMSetRenderTargets(1, &rtv, depthStencilView.Get());
 		context->PSSetSamplers(0, 1, &TexSamplerState);
-		//context->ClearRenderTargetView(rtv, color);
 		context->PSSetShaderResources(0, 1, &resource_view_depth_directional_light_);
 		context->Draw(3, 0);
 	}
@@ -275,13 +279,13 @@
 
 
 		static_cast<ModelComponent*>(Components[0])->LoadModel("assets/Plane/untitled.obj");
-		static_cast<ModelComponent*>(Components[1])->LoadModel("assets/hawk/10025_Hawk_v1_iterations-2.obj");
-		static_cast<ModelComponent*>(Components[2])->LoadModel("assets/hawk/10025_Hawk_v1_iterations-2.obj");
-		static_cast<ModelComponent*>(Components[3])->LoadModel("assets/hawk/10025_Hawk_v1_iterations-2.obj");
-		static_cast<ModelComponent*>(Components[4])->LoadModel("assets/hawk/10025_Hawk_v1_iterations-2.obj");
-		static_cast<ModelComponent*>(Components[5])->LoadModel("assets/hawk/10025_Hawk_v1_iterations-2.obj");
-		static_cast<ModelComponent*>(Components[6])->LoadModel("assets/hawk/10025_Hawk_v1_iterations-2.obj");
-		static_cast<ModelComponent*>(Components[7])->LoadModel("assets/hawk/10025_Hawk_v1_iterations-2.obj");
+		static_cast<ModelComponent*>(Components[1])->LoadModel("assets/Hawk/10025_Hawk_v1_iterations-2.obj");
+		static_cast<ModelComponent*>(Components[2])->LoadModel("assets/Hawk/10025_Hawk_v1_iterations-2.obj");
+		static_cast<ModelComponent*>(Components[3])->LoadModel("assets/Hawk/10025_Hawk_v1_iterations-2.obj");
+		static_cast<ModelComponent*>(Components[4])->LoadModel("assets/Hawk/10025_Hawk_v1_iterations-2.obj");
+		static_cast<ModelComponent*>(Components[5])->LoadModel("assets/Hawk/10025_Hawk_v1_iterations-2.obj");
+		static_cast<ModelComponent*>(Components[6])->LoadModel("assets/Hawk/10025_Hawk_v1_iterations-2.obj");
+		static_cast<ModelComponent*>(Components[7])->LoadModel("assets/Hawk/10025_Hawk_v1_iterations-2.obj");
 	
 
 
@@ -362,7 +366,6 @@
 
 		res = device->CreateRasterizerState(&rastDesc, rastState_.GetAddressOf());
 
-
 		D3D11_DEPTH_STENCIL_DESC quadDepthDesc = {};
 
 		defaultDepthDesc.DepthEnable = true;
@@ -374,8 +377,8 @@
 		D3D11_BLEND_DESC blendDesc = {};
 
 		blendDesc.RenderTarget[0].BlendEnable = true;
-		blendDesc.RenderTarget[0].SrcBlend = D3D11_BLEND_ONE; //D3D11_BLEND_SRC_COLOR;
-		blendDesc.RenderTarget[0].DestBlend = D3D11_BLEND_ONE; //D3D11_BLEND_BLEND_FACTOR;
+		blendDesc.RenderTarget[0].SrcBlend = D3D11_BLEND_SRC_ALPHA; //D3D11_BLEND_SRC_COLOR;
+		blendDesc.RenderTarget[0].DestBlend = D3D11_BLEND_INV_SRC_ALPHA; //D3D11_BLEND_BLEND_FACTOR;
 		blendDesc.RenderTarget[0].BlendOp = D3D11_BLEND_OP_ADD;
 		blendDesc.RenderTarget[0].SrcBlendAlpha = D3D11_BLEND_ONE;
 		blendDesc.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_ZERO;;
@@ -385,32 +388,13 @@
 
 		res = device->CreateBlendState(&blendDesc, blendState_.GetAddressOf());
 
-		D3D11_RENDER_TARGET_BLEND_DESC rtbd;
-		ZeroMemory(&rtbd, sizeof(rtbd));
-
-		rtbd.BlendEnable = true;
-		rtbd.SrcBlend = D3D11_BLEND::D3D11_BLEND_SRC_ALPHA;
-		rtbd.DestBlend = D3D11_BLEND::D3D11_BLEND_INV_SRC_ALPHA;
-		rtbd.BlendOp = D3D11_BLEND_OP::D3D11_BLEND_OP_ADD;
-		rtbd.SrcBlendAlpha = D3D11_BLEND::D3D11_BLEND_ONE;
-		rtbd.DestBlendAlpha = D3D11_BLEND::D3D11_BLEND_ZERO;
-		rtbd.BlendOpAlpha = D3D11_BLEND_OP::D3D11_BLEND_OP_ADD;
-		rtbd.RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE::D3D11_COLOR_WRITE_ENABLE_ALL;
-
-		blendDesc.RenderTarget[0] = rtbd;
-
-		res = this->device->CreateBlendState(&blendDesc, this->blendState_.GetAddressOf());
-		if (FAILED(res))
-		{
-			OutputDebugString(TEXT("Fatal error: Failed to create CSM depth texture array!\n"));
-		}
 
 
 		manager->InitShader(ShaderData("./Shaders/DepthShader.hlsl", Vertex | Pixel));
 		manager->InitShader(ShaderData("./Shaders/Shader.hlsl", Vertex | Pixel));
 		manager->InitShader(ShaderData("./Shaders/GBuffer.hlsl", Vertex | Pixel));
 		manager->InitShader(ShaderData("./Shaders/LightVolume.hlsl", Vertex | Pixel));
-		manager->InitShader(ShaderData("./Shaders/ShaderShadow.hlsl", Vertex | Pixel));
+		manager->InitShader(ShaderData("./Shaders/test.hlsl", Vertex | Pixel));
 
 
 		player = new SphereComponent(this);
@@ -440,7 +424,7 @@
 		LightData.diffK_specA_specK = Vector4(1.0, 100.0f, 1.0f, 0);
 		LightData.direction = directional_light_direction;
 
-		directional_light_projection_ = Matrix::CreatePerspectiveFieldOfView(3.14f / 2,camera->ASPECT_RATIO, 0.01f, 1000);
+		directional_light_projection_ = Matrix::CreatePerspectiveFieldOfView(3.14f / 2,camera->ASPECT_RATIO, 0.01f, 100);
 
 
 		LightTransform.directional_light_view_projection = directional_light_view * directional_light_projection_;
@@ -490,6 +474,8 @@
 		device->CreateTexture2D(&depth_stencil_descriptor, nullptr, &depth_stencil_buffer);
 		device->CreateDepthStencilView(depth_stencil_buffer, nullptr, &depth_stencil_view_);
 
+
+
 		D3D11_TEXTURE2D_DESC depth_texture_descriptor{};
 		depth_texture_descriptor.Width = _display->getWidth() * 3;
 		depth_texture_descriptor.Height = _display->getHeight() * 3;
@@ -537,6 +523,8 @@
 
 		device->CreateSamplerState(&sampler_descriptor, &sample_state_wrap_);
 
+
+
 		D3D11_SAMPLER_DESC sampDesc{};
 		sampDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
 		sampDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
@@ -560,6 +548,7 @@
 		if (FAILED(res)) {
 			std::cout << "Something is going wrong with texture sampler";
 		}
+
 	}
 
 	void GameApplication::MessageHandler()
@@ -660,27 +649,31 @@
 		camera->Update();
 
 
-		for (size_t t = 0; t < foodSpheres.size(); t++) 
-		{
-			if (PlayerCollision.Intersects(foodSpheres[t])) 
-			{
-				transform[t + 1].SetParent(&playerTransform);
-
-				Matrix trans = playerTransform.GetWorldMatrix().Invert();
-				Matrix trans2 = transform[t + 1].GetWorldMatrix() * trans;
-
-				Vector3 Pscale, Ppos;
-				Quaternion Prot;
-				trans2.Decompose(Pscale, Prot, Ppos);
-
-				transform[t + 1].SetPosition(Ppos);
-				transform[t + 1].SetScale(Pscale);
-				transform[t + 1].SetQuaternionRotate(Prot);
-				transform[t + 1].Update();
-
+		for (size_t t = 0; t < foodSpheres.size(); t++) {
+			if (PlayerCollision.Intersects(foodSpheres[t])) {
+				transform[t+1].SetParent(&playerTransform);
+				Vector3 playerPos = playerTransform.GetWorldPosition();
+				Quaternion quat = playerTransform.GetQuaternionRotate();
+				Quaternion conj = quat;
+				conj.Conjugate();
+				Vector3 localPos = transform[t+1].GetWorldPosition();
+				localPos = localPos - playerPos;
+				localPos = XMVector3Rotate(localPos, conj);
 				foodSpheres[t].Center = Vector3(1000, 1000, 1000);
+				collected.push_back(std::make_pair(t+1, localPos));
+
+
 			}
 		}
+		for (auto&& pair : collected) 
+		{
+			int a = pair.first;
+			transform[a].SetPosition(pair.second);
+			Vector3 direction = pair.second.Cross(Vector3::UnitY);
+			transform[a].SetQuaternionRotate(Quaternion::CreateFromAxisAngle(direction, XM_PIDIV2));
+		}
+
+
 
 		for (size_t t = 7; t >= 1; t--)
 			transform[t].Update();

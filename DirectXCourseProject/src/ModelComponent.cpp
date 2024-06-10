@@ -129,6 +129,16 @@ void ModelComponent::Draw()
 
 	_app->getContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	_app->getContext()->PSSetSamplers(0, 1, &TexSamplerState);
+
+
+	//auto csm = _app->getCSM();
+
+
+	//_app->getContext()->PSSetShaderResources(1, 1, &csm);
+
+	//_app->getContext()->PSSetConstantBuffers(1, 1, _app->getLightBuffer().GetAddressOf());
+	//_app->getContext()->PSSetConstantBuffers(2, 1, _app->getCascadeBuffer().GetAddressOf());
+
 	_app->getContext()->UpdateSubresource(g_pConstantBuffer11, 0, nullptr, &buffer, 0, 0);
 
 

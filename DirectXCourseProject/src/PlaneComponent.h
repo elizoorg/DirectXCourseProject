@@ -76,7 +76,6 @@ public:
     void DestroyResources();
     void Reload();
     bool Initialize();
-    void LoadTexture(std::wstring path, ID3D11ShaderResourceView* text);
     virtual void Update(Matrix cameraProjection, Matrix cameraView, Matrix world, Matrix InverseView);
     void Update();
     void Draw();

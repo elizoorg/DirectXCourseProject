@@ -101,6 +101,7 @@ class GameApplication: public Engine::Application
 		ID3D11DepthStencilView* depth_stencil_view_ = nullptr;
 		ID3D11RenderTargetView* render_target_view_depth_directional_light_ = nullptr;
 		ID3D11ShaderResourceView* resource_view_depth_directional_light_ = nullptr;
+		ID3D11ShaderResourceView* depth_shader_resource_view = nullptr;
 
 		std::vector<BoundingSphere> foodSpheres;
 

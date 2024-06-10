@@ -15,8 +15,6 @@ protected:
 	Engine::Application* _app;
 	Transform transform;
 
-	Microsoft::WRL::ComPtr<ID3D11BlendState> blendState_;
-
 public:
 	GameComponent(Engine::Application* app) : _app(app){
 

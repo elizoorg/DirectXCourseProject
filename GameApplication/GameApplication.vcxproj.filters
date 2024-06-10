@@ -64,7 +64,7 @@
     <FxCompile Include="Shaders\Shader.hlsl">
       <Filter>Shaders</Filter>
     </FxCompile>
-    <FxCompile Include="Shaders\ShaderShadow.hlsl">
+    <FxCompile Include="test.hlsl">
       <Filter>Shaders</Filter>
     </FxCompile>
   </ItemGroup>

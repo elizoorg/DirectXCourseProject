@@ -92,6 +92,10 @@ bool SphereComponent::Initialize()
 		indeces.push_back(baseIndex + i + 1);
 	}
 
+
+
+
+
 	D3D11_BUFFER_DESC vertexBufDesc = {};
 	vertexBufDesc.Usage = D3D11_USAGE_DEFAULT;
 	vertexBufDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;

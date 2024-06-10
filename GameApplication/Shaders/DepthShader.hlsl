@@ -39,7 +39,6 @@ PixelShader_Input VSMain(VertexShader_Input input)
 
 float4 PSMain(PixelShader_Input input) : SV_TARGET
 {
-    // float depthValue = 0.0001 / (1.0001 - input.depth_pos.z / input.depth_pos.w);
-    float depthValue = input.depth_pos.z / input.depth_pos.w;
+    float depthValue = input.depth_pos.z;
     return float4(depthValue, depthValue, depthValue, 1.0f);
 }

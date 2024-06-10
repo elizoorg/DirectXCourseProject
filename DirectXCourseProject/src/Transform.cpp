@@ -54,14 +54,29 @@ bool Transform::IsDirty()
 
 Matrix Transform::CalculateWorldMatrix()
 {	
-	Matrix result = Matrix::CreateScale(localScale) 
-		* Matrix::CreateFromQuaternion(localRotate) 
-		* Matrix::CreateTranslation(localPosition);
+	Matrix result = Matrix::CreateScale(localScale) * Matrix::CreateFromQuaternion(localRotate) * 
+		Matrix::CreateTranslation(localPosition);
 
 	if (parent != nullptr) {
 
-		result  = result * parent->GetWorldMatrix();
+		Vector3 scale, pos;
+		Quaternion rot;
+		Matrix trans =  parent->GetWorldMatrix();
+		trans.Decompose(scale, rot, pos);
+		scale = Vector3(1, 1, 1);
+		Matrix res = Matrix::CreateScale(scale) * Matrix::CreateFromQuaternion(rot) *
+			Matrix::CreateTranslation(pos);
+
+
+		result  = result * res;
+
+		/*Vector3 new_pos = Vector3::Transform(Vector3(localPosition.x,localPosition.y,localPosition.z), result);
+		Vector3 new_rot = Vector3::TransformNormal(Vector3(localRotate.x, localRotate.y, localRotate.z), result);
+		result = Matrix::CreateScale(localScale) * Matrix::CreateFromYawPitchRoll(new_rot) * Matrix::CreateTranslation(new_pos);*/
+
 	}
+
+
 
 	return result;
 }

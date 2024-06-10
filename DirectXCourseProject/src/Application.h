@@ -96,6 +96,8 @@ namespace Engine{
 		Microsoft::WRL::ComPtr<ID3D11DepthStencilView> depthShadowDsv;
 		Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> depthShadowSrv;
 
+		
+
 		Camera *camera;
 		InputDevice *Device;
 
