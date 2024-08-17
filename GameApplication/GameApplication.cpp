@@ -137,6 +137,7 @@
 		context->PSSetShaderResources(1, 1, gBuffer_->positionSrv_.GetAddressOf());
 		context->PSSetShaderResources(2, 1, gBuffer_->normalSrv_.GetAddressOf());
 		context->PSSetShaderResources(3, 1, depthShadowSrv.GetAddressOf());
+		context->PSSetShaderResources(4, 1, &defaultTexture.texture);
 
 		context->PSSetConstantBuffers(1, 1, LightBuffer.GetAddressOf());
 		context->PSSetConstantBuffers(2, 1, cascadeCBuffer_.GetAddressOf());
