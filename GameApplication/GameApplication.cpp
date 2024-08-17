@@ -1,3 +1,5 @@
+// This is a personal academic project. Dear PVS-Studio, please check it.
+// PVS-Studio Static Code Analyzer for C, C++, C#, and Java: https://pvs-studio.com
 #include "GameApplication.h"
 #include <src/PlaneComponent.h>
 #include <src/ModelComponent.h>
@@ -135,9 +137,11 @@
 		context->PSSetShaderResources(1, 1, gBuffer_->positionSrv_.GetAddressOf());
 		context->PSSetShaderResources(2, 1, gBuffer_->normalSrv_.GetAddressOf());
 		context->PSSetShaderResources(3, 1, depthShadowSrv.GetAddressOf());
+
 		context->PSSetConstantBuffers(1, 1, LightBuffer.GetAddressOf());
 		context->PSSetConstantBuffers(2, 1, cascadeCBuffer_.GetAddressOf());
 		context->PSSetSamplers(0, 1, depthSamplerState_.GetAddressOf());
+		context->PSSetSamplers(1, 1, &TexSamplerState);
 
 
 
@@ -228,6 +232,17 @@
 		system->Clear();
 		
 		bool qq = false;
+
+		viewport = {};
+		viewport.Width = 1920;
+		viewport.Height = 1080;
+		viewport.TopLeftX = 0;
+		viewport.TopLeftY = 0;
+		viewport.MinDepth = 0;
+		viewport.MaxDepth = 1.0f;
+
+
+		context->RSSetViewports(1, &viewport);
 
 
 		manager->SetShader(ShaderData("./Shaders/post.hlsl", Vertex | Pixel));
@@ -745,6 +760,38 @@
 		if (FAILED(res)) {
 			std::cout << "Something is going wrong with texture sampler";
 		}
+
+
+		const HRESULT result = CreateWICTextureFromFile(device.Get(),
+			context,L"assets/shape.png", nullptr, &defaultTexture.texture);
+
+
+	
+		sampDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
+		sampDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
+		sampDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
+		sampDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
+		//sampDesc.ComparisonFunc = D3D11_COMPARISON_ALWAYS;
+		sampDesc.BorderColor[0] = 1.0f;
+		sampDesc.BorderColor[1] = 0.0f;
+		sampDesc.BorderColor[2] = 0.0f;
+		sampDesc.BorderColor[3] = 1.0f;
+		sampDesc.MaxLOD = static_cast<float>(INT_MAX);
+		sampDesc.MipLODBias = 0.f;
+		sampDesc.MaxAnisotropy = 1;
+
+
+
+		//sampDesc.ComparisonFunc = D3D11_COMPARISON_NEVER;
+		sampDesc.MinLOD = 0;
+
+		res = device->CreateSamplerState(&sampDesc, &TexSamplerState);
+		if (FAILED(res)) {
+			std::cout << "Something is going wrong with texture sampler";
+		}
+
+
+
 
 
 	}

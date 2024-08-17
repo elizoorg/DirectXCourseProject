@@ -1,3 +1,5 @@
+// This is a personal academic project. Dear PVS-Studio, please check it.
+// PVS-Studio Static Code Analyzer for C, C++, C#, and Java: https://pvs-studio.com
 #include "Camera.h"
 #include <iostream>
 #include "Application.h"
@@ -212,15 +214,9 @@ inline XMFLOAT3 GMathVF(XMVECTOR& vec)
 void Camera::Rotate(Vector2 offset)
 {
 	if (_app->isMouseUsed) {
-
-
-	//transform.AdjustEulerRotation(
-	//	 -1 * static_cast<float>(offset.x) *_app->deltaTime * xMouseSpeed,
-	//	static_cast<float>(offset.y) * _app->deltaTime * yMouseSpeed, 0);
 		transform.AdjustEulerRotation(
 			-1 * static_cast<float>(offset.x) *_app->deltaTime * xMouseSpeed,
 			0, 0);
-
 	}
 }
 

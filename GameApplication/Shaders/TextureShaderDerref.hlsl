@@ -41,7 +41,10 @@ Texture2D<float4> DiffuseTex : register(t0);
 Texture2D<float3> WorldPositions : register(t1);
 Texture2D<float3> Normals : register(t2);
 Texture2DArray CascadeShadowMap : register(t3);
+Texture2D Pattern : register(t4);
 SamplerComparisonState DepthSampler : register(s0);
+SamplerState Sampler : register(s1);
+
 
 
 
@@ -117,7 +120,10 @@ float ShadowCalculation(float4 posWorldSpace, float4 posViewSpace, float dotN)
 
 	// PCF
     float shadow = 0.0f;
+    
     float2 texelSize = 1.0f / 2048.0f;
+    
+    
     for (int x = -1; x <= 1; ++x)
     {
         for (int y = -1; y <= 1; ++y)
@@ -125,7 +131,9 @@ float ShadowCalculation(float4 posWorldSpace, float4 posViewSpace, float dotN)
             shadow += CascadeShadowMap.SampleCmp(DepthSampler, float3(projCoords.xy + float2(x, y) * texelSize, layer), currentDepth - bias);
         }
     }
+    float test = Pattern.Sample(Sampler, float2(projCoords.xy));
     shadow /= 9.0f;
+    shadow *= test;
     
     if (projCoords.z > 1.0)
     {

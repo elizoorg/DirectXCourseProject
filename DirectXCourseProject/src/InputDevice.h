@@ -1,9 +1,11 @@
 #pragma once
+ 
 #include "Exports.h"
 #include "../external/SimpleMath.h"
 #include "Keys.h"
 #include "../external/Delegates.h"
 #include "MathTypes.h"
+#include <unordered_set>
 
 namespace Engine
 {

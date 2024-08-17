@@ -1,4 +1,5 @@
 #pragma once
+ 
 #include "../external/SimpleMath.h"
 #include "MathTypes.h"
 #include "Exports.h"

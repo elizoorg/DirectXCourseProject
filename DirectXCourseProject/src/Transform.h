@@ -1,7 +1,8 @@
 #pragma once
+ 
 #include "MathTypes.h"
 #include "Exports.h"
-#include "pch.h"
+ 
 
 class ENGINE_API Transform
 {

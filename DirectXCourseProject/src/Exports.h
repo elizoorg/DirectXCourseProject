@@ -1,5 +1,5 @@
 #pragma once
-#include "pch.h"
+ 
 #include <WinUser.h>
 #include <wrl.h>
 #include <d3d.h>

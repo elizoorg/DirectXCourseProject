@@ -1,4 +1,5 @@
 #pragma once
+#include <windows.h>
 #include <src/Exports.h>
 #include <src/Application.h>
 #include <src/Display.h>
@@ -111,6 +112,8 @@ class GameApplication: public Engine::Application
 		Microsoft::WRL::ComPtr<ID3D11BlendState> blendState_;
 
 		GBuffer *gBuffer_;
+
+		Texture defaultTexture;
 
 		Transform lightTransform;
 		LightComponent* volume;

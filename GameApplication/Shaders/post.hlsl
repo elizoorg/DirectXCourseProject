@@ -19,7 +19,7 @@ float4 PSMain(VertexShaderOutput input) : SV_TARGET
 {
     float4 color = AccumTexture.Sample(sampl, input.uv);
     
-    color = float4((color.x + color.y + color.z) / 3, (color.x + color.g + color.b) / 3, (color.x + color.g + color.b) / 3, 0.0f);
+    //color = float4((color.x + color.y + color.z) / 3, (color.x + color.g + color.b) / 3, (color.x + color.g + color.b) / 3, 0.0f);
 
     return color; // must return an RGBA colour
 }

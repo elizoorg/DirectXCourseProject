@@ -28,7 +28,7 @@
 #ifdef _MSC_VER
 #pragma once
 #endif
-
+ 
 #include <d3d11.h>
 
 #ifdef _MSC_VER
@@ -37,12 +37,13 @@
 #endif // _MSC_VER
 
 #include <stdint.h>
+#include "Exports.h"
 
 #ifdef _MSC_VER
 #pragma warning(pop)
 #endif // _MSC_VER
 
-HRESULT CreateWICTextureFromMemory(_In_ ID3D11Device* d3dDevice,
+HRESULT ENGINE_API CreateWICTextureFromMemory(_In_ ID3D11Device* d3dDevice,
 	_In_opt_ ID3D11DeviceContext* d3dContext,
 	_In_bytecount_(wicDataSize) const uint8_t* wicData,
 	_In_ size_t wicDataSize,
@@ -51,7 +52,7 @@ HRESULT CreateWICTextureFromMemory(_In_ ID3D11Device* d3dDevice,
 	_In_ size_t maxsize = 0
 );
 
-HRESULT CreateWICTextureFromFile(_In_ ID3D11Device* d3dDevice,
+HRESULT ENGINE_API CreateWICTextureFromFile(_In_ ID3D11Device* d3dDevice,
 	_In_opt_ ID3D11DeviceContext* d3dContext,
 	_In_z_ const wchar_t* szFileName,
 	_Out_opt_ ID3D11Resource** texture,

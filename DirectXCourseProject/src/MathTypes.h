@@ -1,4 +1,5 @@
 #pragma once
+ 
 #include "../external/SimpleMath.h"
 using BoundingBox = DirectX::BoundingBox;
 using OrientedBoundingBox = DirectX::BoundingOrientedBox;
