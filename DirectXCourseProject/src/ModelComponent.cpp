@@ -148,7 +148,8 @@ void ModelComponent::Draw()
 
 
 
-
+	XMMATRIX world = XMMatrixIdentity();
+	buffer.world = XMMatrixTranspose(world);
 
 
 	loader.Draw(_app->getContext());

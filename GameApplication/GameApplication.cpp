@@ -5,8 +5,10 @@
 #include <src/ModelComponent.h>
 #include "external/SimpleMath.h"
 
+
 	GameApplication::GameApplication()
 	{
+		Engine::GameplayInterop::Init();
 		instance = this;
 		Device = new InputDevice(this);
 		gBuffer_ = new GBuffer(this);
@@ -545,7 +547,7 @@
 
 
 		static_cast<ModelComponent*>(Components[23])->LoadModel("assets/Plane/untitled.obj");
-		static_cast<ModelComponent*>(Components[24])->LoadModel("assets/cat2/12221_Cat_v1_l3.obj");
+		static_cast<ModelComponent*>(Components[24])->LoadModel("assets/Sponza/models/sponza.obj");
 		static_cast<ModelComponent*>(Components[25])->LoadModel("assets/cat2/12221_Cat_v1_l3.obj");
 		static_cast<ModelComponent*>(Components[26])->LoadModel("assets/cat2/12221_Cat_v1_l3.obj");
 		static_cast<ModelComponent*>(Components[27])->LoadModel("assets/cat2/12221_Cat_v1_l3.obj");

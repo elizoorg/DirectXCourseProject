@@ -7,6 +7,5 @@
 int main()
 {
 	GameApplication app;
-
 	app.Run();
 }

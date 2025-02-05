@@ -71,7 +71,7 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>C:\Programming\C++\Framework\DirectXCourseProject\DirectXCourseProject\external;$(IncludePath)</IncludePath>
+    <IncludePath>C:\Programming\DirectXCourseProject\DirectXCourseProject\ClassLibrary1;C:\Programming\C++\Framework\DirectXCourseProject\DirectXCourseProject\external;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -107,13 +107,14 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)DirectXCourseProject;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)Dll1;$(SolutionDir)DirectXCourseProject;$(SolutionDir)DirectXCourseProject\external;$(SolutionDir)ClassLibrary1;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>$(OutDir)ClassLibrary1.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <FxCompile>
       <ShaderModel>5.0</ShaderModel>
@@ -144,11 +145,6 @@
     <ClCompile Include="..\DirectXCourseProject\external\ImGui\imgui_widgets.cpp" />
     <ClCompile Include="GameApplication.cpp" />
     <ClCompile Include="main.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\DirectXCourseProject\DirectXCourseProject.vcxproj">
-      <Project>{f6db9764-a12c-4177-9177-8b583e4f777a}</Project>
-    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\DirectXCourseProject\external\ImGui\imconfig.h" />
@@ -193,6 +189,14 @@
     <FxCompile Include="Shaders\TextureShaderDerref.hlsl">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
     </FxCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\ClassLibrary1\ClassLibrary1.vcxproj">
+      <Project>{c7ee54b8-2712-4749-aa3b-c107afd5c742}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\DirectXCourseProject\DirectXCourseProject.vcxproj">
+      <Project>{f6db9764-a12c-4177-9177-8b583e4f777a}</Project>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

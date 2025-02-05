@@ -23,7 +23,6 @@
 
 
 
-
 #include <assimp/Importer.hpp>
 #include <assimp/mesh.h>
 #include <assimp/scene.h>
@@ -31,9 +30,11 @@
 #include <src/LightComponent.h>
 
 
+#include <GameplayInterop.h>
 
 
 class ENGINE_API Engine::Application;
+
 
 class GameApplication: public Engine::Application
 	{
@@ -41,7 +42,6 @@ class GameApplication: public Engine::Application
 
 		GameApplication();
 		~GameApplication();
-
 
 	
 		DebugRenderSysImpl* system;

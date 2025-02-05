@@ -108,6 +108,11 @@
   <ItemGroup>
     <None Include="external\SimpleMath.inl" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Dll1\Dll1.vcxproj">
+      <Project>{453abf01-644a-436d-98a5-58309e5ab5c0}</Project>
+    </ProjectReference>
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
@@ -199,7 +204,7 @@
       <PreprocessorDefinitions>_DEBUG;_WINDOWS;ENGINE_DLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
-      <AdditionalIncludeDirectories>C:\Programming\DirectXCourseProject\DirectXCourseProject\Dll1;C:\Programming\DirectXCourseProject\DirectXCourseProject\DirectXCourseProject\external;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Programming\DirectXCourseProject\DirectXCourseProject\DirectXCourseProject\external;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <InlineFunctionExpansion>Disabled</InlineFunctionExpansion>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>

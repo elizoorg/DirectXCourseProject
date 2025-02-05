@@ -11,6 +11,7 @@ namespace Engine
 	class Application;
 }
 
+
 class ENGINE_API Camera
 {
 public:
