@@ -132,7 +132,7 @@ class GameApplication: public Engine::Application
 
 		float gameSize = 10.0f;
 
-
+		std::vector<Vector3> triangles;
 
 		Microsoft::WRL::ComPtr<ID3D11Texture2D> postProcessBuffer_;
 		Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> postProcessSrv_;

@@ -13,116 +13,119 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="ImGui">
+      <UniqueIdentifier>{921918ad-6ca2-4ffc-bd1e-0bf922544bfb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Math">
+      <UniqueIdentifier>{d7ddb19c-ebe0-4355-9eab-15e03caae743}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Components">
+      <UniqueIdentifier>{e7d08200-ec7d-4e00-9ff5-ada84cca750e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Assets">
+      <UniqueIdentifier>{df64d929-9473-4487-a22b-2dcaba542b78}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Device">
+      <UniqueIdentifier>{90956409-7ff8-4a5d-a13d-5684140f670f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Rendering">
+      <UniqueIdentifier>{e449f175-1fdc-4903-8307-60f1a3b95860}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Misc">
+      <UniqueIdentifier>{1182c0b5-a1b7-4e39-8db0-7497f770ba39}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Application.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
-    <ClCompile Include="src\Display.cpp">
-      <Filter>Исходные файлы</Filter>
-    </ClCompile>
-    <ClCompile Include="src\GameComponent.cpp">
-      <Filter>Исходные файлы</Filter>
-    </ClCompile>
-    <ClCompile Include="src\InputDevice.cpp">
-      <Filter>Исходные файлы</Filter>
-    </ClCompile>
-    <ClCompile Include="src\TriangleComponent.cpp">
-      <Filter>Исходные файлы</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Camera.cpp">
-      <Filter>Исходные файлы</Filter>
-    </ClCompile>
-    <ClCompile Include="src\SphereComponent.cpp">
-      <Filter>Исходные файлы</Filter>
-    </ClCompile>
-    <ClCompile Include="src\PlaneComponent.cpp">
-      <Filter>Исходные файлы</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Transform.cpp">
-      <Filter>Исходные файлы</Filter>
-    </ClCompile>
-    <ClCompile Include="external\Delegates.cpp">
-      <Filter>Исходные файлы</Filter>
-    </ClCompile>
-    <ClCompile Include="external\SimpleMath.cpp">
+    <ClCompile Include="src\pch.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
     <ClCompile Include="external\ImGui\imgui.cpp">
-      <Filter>Исходные файлы</Filter>
+      <Filter>ImGui</Filter>
     </ClCompile>
     <ClCompile Include="external\ImGui\imgui_draw.cpp">
-      <Filter>Исходные файлы</Filter>
+      <Filter>ImGui</Filter>
     </ClCompile>
     <ClCompile Include="external\ImGui\imgui_impl_dx11.cpp">
-      <Filter>Исходные файлы</Filter>
+      <Filter>ImGui</Filter>
     </ClCompile>
     <ClCompile Include="external\ImGui\imgui_impl_win32.cpp">
-      <Filter>Исходные файлы</Filter>
+      <Filter>ImGui</Filter>
     </ClCompile>
     <ClCompile Include="external\ImGui\imgui_tables.cpp">
-      <Filter>Исходные файлы</Filter>
+      <Filter>ImGui</Filter>
     </ClCompile>
     <ClCompile Include="external\ImGui\imgui_widgets.cpp">
-      <Filter>Исходные файлы</Filter>
+      <Filter>ImGui</Filter>
     </ClCompile>
-    <ClCompile Include="src\DebugRenderSysImpl.cpp">
-      <Filter>Исходные файлы</Filter>
-    </ClCompile>
-    <ClCompile Include="src\VertexPositionColor.cpp">
-      <Filter>Исходные файлы</Filter>
-    </ClCompile>
-    <ClCompile Include="src\VertexPositionNormalBinormalTangentColorTex.cpp">
-      <Filter>Исходные файлы</Filter>
-    </ClCompile>
-    <ClCompile Include="src\VertexPositionTex.cpp">
-      <Filter>Исходные файлы</Filter>
-    </ClCompile>
-    <ClCompile Include="src\ModelComponent.cpp">
-      <Filter>Исходные файлы</Filter>
-    </ClCompile>
-    <ClCompile Include="src\ModelLoader.cpp">
-      <Filter>Исходные файлы</Filter>
-    </ClCompile>
-    <ClCompile Include="src\TextureLoader.cpp">
-      <Filter>Исходные файлы</Filter>
+    <ClCompile Include="external\SimpleMath.cpp">
+      <Filter>Math</Filter>
     </ClCompile>
     <ClCompile Include="src\DirectionalLight.cpp">
-      <Filter>Исходные файлы</Filter>
+      <Filter>Rendering</Filter>
     </ClCompile>
     <ClCompile Include="src\GBuffer.cpp">
-      <Filter>Исходные файлы</Filter>
+      <Filter>Rendering</Filter>
+    </ClCompile>
+    <ClCompile Include="src\VertexPositionColor.cpp">
+      <Filter>Rendering</Filter>
+    </ClCompile>
+    <ClCompile Include="src\VertexPositionNormalBinormalTangentColorTex.cpp">
+      <Filter>Rendering</Filter>
+    </ClCompile>
+    <ClCompile Include="src\VertexPositionTex.cpp">
+      <Filter>Rendering</Filter>
     </ClCompile>
     <ClCompile Include="src\ShaderManager.cpp">
-      <Filter>Исходные файлы</Filter>
+      <Filter>Rendering</Filter>
+    </ClCompile>
+    <ClCompile Include="src\DebugRenderSysImpl.cpp">
+      <Filter>Rendering</Filter>
+    </ClCompile>
+    <ClCompile Include="src\GameComponent.cpp">
+      <Filter>Components</Filter>
     </ClCompile>
     <ClCompile Include="src\LightComponent.cpp">
-      <Filter>Исходные файлы</Filter>
+      <Filter>Components</Filter>
     </ClCompile>
-    <ClCompile Include="src\pch.cpp">
-      <Filter>Исходные файлы</Filter>
+    <ClCompile Include="src\ModelComponent.cpp">
+      <Filter>Components</Filter>
+    </ClCompile>
+    <ClCompile Include="src\PlaneComponent.cpp">
+      <Filter>Components</Filter>
+    </ClCompile>
+    <ClCompile Include="src\SphereComponent.cpp">
+      <Filter>Components</Filter>
+    </ClCompile>
+    <ClCompile Include="src\TriangleComponent.cpp">
+      <Filter>Components</Filter>
+    </ClCompile>
+    <ClCompile Include="src\TextureLoader.cpp">
+      <Filter>Assets</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ModelLoader.cpp">
+      <Filter>Assets</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Display.cpp">
+      <Filter>Device</Filter>
+    </ClCompile>
+    <ClCompile Include="src\InputDevice.cpp">
+      <Filter>Device</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Transform.cpp">
+      <Filter>Components</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Camera.cpp">
+      <Filter>Components</Filter>
+    </ClCompile>
+    <ClCompile Include="external\Delegates.cpp">
+      <Filter>Misc</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Application.h">
-      <Filter>Файлы заголовков</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Display.h">
-      <Filter>Файлы заголовков</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Exports.h">
-      <Filter>Файлы заголовков</Filter>
-    </ClInclude>
-    <ClInclude Include="src\GameComponent.h">
-      <Filter>Файлы заголовков</Filter>
-    </ClInclude>
-    <ClInclude Include="src\InputDevice.h">
-      <Filter>Файлы заголовков</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Keys.h">
-      <Filter>Файлы заголовков</Filter>
-    </ClInclude>
-    <ClInclude Include="src\TriangleComponent.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
     <ClInclude Include="DirectXCourseProject.h">
@@ -137,95 +140,113 @@
     <ClInclude Include="targetver.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
-    <ClInclude Include="src\Camera.h">
-      <Filter>Файлы заголовков</Filter>
-    </ClInclude>
-    <ClInclude Include="src\MathTypes.h">
-      <Filter>Файлы заголовков</Filter>
-    </ClInclude>
-    <ClInclude Include="src\SphereComponent.h">
-      <Filter>Файлы заголовков</Filter>
-    </ClInclude>
-    <ClInclude Include="src\PlaneComponent.h">
-      <Filter>Файлы заголовков</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Transform.h">
-      <Filter>Файлы заголовков</Filter>
-    </ClInclude>
-    <ClInclude Include="external\Delegates.h">
-      <Filter>Файлы заголовков</Filter>
-    </ClInclude>
-    <ClInclude Include="external\SimpleMath.h">
-      <Filter>Файлы заголовков</Filter>
-    </ClInclude>
     <ClInclude Include="external\ImGui\imconfig.h">
-      <Filter>Файлы заголовков</Filter>
+      <Filter>ImGui</Filter>
     </ClInclude>
     <ClInclude Include="external\ImGui\imgui.h">
-      <Filter>Файлы заголовков</Filter>
+      <Filter>ImGui</Filter>
     </ClInclude>
     <ClInclude Include="external\ImGui\imgui_impl_dx11.h">
-      <Filter>Файлы заголовков</Filter>
+      <Filter>ImGui</Filter>
     </ClInclude>
     <ClInclude Include="external\ImGui\imgui_impl_win32.h">
-      <Filter>Файлы заголовков</Filter>
+      <Filter>ImGui</Filter>
     </ClInclude>
     <ClInclude Include="external\ImGui\imgui_internal.h">
-      <Filter>Файлы заголовков</Filter>
+      <Filter>ImGui</Filter>
     </ClInclude>
     <ClInclude Include="external\ImGui\imstb_rectpack.h">
-      <Filter>Файлы заголовков</Filter>
+      <Filter>ImGui</Filter>
     </ClInclude>
     <ClInclude Include="external\ImGui\imstb_textedit.h">
-      <Filter>Файлы заголовков</Filter>
+      <Filter>ImGui</Filter>
     </ClInclude>
     <ClInclude Include="external\ImGui\imstb_truetype.h">
-      <Filter>Файлы заголовков</Filter>
+      <Filter>ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="external\SimpleMath.h">
+      <Filter>Math</Filter>
+    </ClInclude>
+    <ClInclude Include="src\MathTypes.h">
+      <Filter>Math</Filter>
     </ClInclude>
     <ClInclude Include="src\DebugRenderSysImpl.h">
-      <Filter>Файлы заголовков</Filter>
-    </ClInclude>
-    <ClInclude Include="src\VertexPositionColor.h">
-      <Filter>Файлы заголовков</Filter>
-    </ClInclude>
-    <ClInclude Include="src\VertexPositionNormalBinormalTangentColorTex.h">
-      <Filter>Файлы заголовков</Filter>
-    </ClInclude>
-    <ClInclude Include="src\VertexPositionTex.h">
-      <Filter>Файлы заголовков</Filter>
-    </ClInclude>
-    <ClInclude Include="src\ModelComponent.h">
-      <Filter>Файлы заголовков</Filter>
-    </ClInclude>
-    <ClInclude Include="src\ModelLoader.h">
-      <Filter>Файлы заголовков</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Mesh.h">
-      <Filter>Файлы заголовков</Filter>
-    </ClInclude>
-    <ClInclude Include="src\TextureLoader.h">
-      <Filter>Файлы заголовков</Filter>
-    </ClInclude>
-    <ClInclude Include="src\SafeRelease.hpp">
-      <Filter>Файлы заголовков</Filter>
-    </ClInclude>
-    <ClInclude Include="src\LightData.h">
-      <Filter>Файлы заголовков</Filter>
+      <Filter>Rendering</Filter>
     </ClInclude>
     <ClInclude Include="src\DirectionalLight.h">
-      <Filter>Файлы заголовков</Filter>
+      <Filter>Rendering</Filter>
     </ClInclude>
     <ClInclude Include="src\GBuffer.h">
-      <Filter>Файлы заголовков</Filter>
+      <Filter>Rendering</Filter>
     </ClInclude>
     <ClInclude Include="src\ShaderManager.h">
-      <Filter>Файлы заголовков</Filter>
+      <Filter>Rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="src\VertexPositionColor.h">
+      <Filter>Rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="src\VertexPositionNormalBinormalTangentColorTex.h">
+      <Filter>Rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="src\VertexPositionTex.h">
+      <Filter>Rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="src\GameComponent.h">
+      <Filter>Components</Filter>
     </ClInclude>
     <ClInclude Include="src\LightComponent.h">
-      <Filter>Файлы заголовков</Filter>
+      <Filter>Components</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ModelComponent.h">
+      <Filter>Components</Filter>
+    </ClInclude>
+    <ClInclude Include="src\PlaneComponent.h">
+      <Filter>Components</Filter>
+    </ClInclude>
+    <ClInclude Include="src\SphereComponent.h">
+      <Filter>Components</Filter>
+    </ClInclude>
+    <ClInclude Include="src\TriangleComponent.h">
+      <Filter>Components</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ModelLoader.h">
+      <Filter>Assets</Filter>
+    </ClInclude>
+    <ClInclude Include="src\TextureLoader.h">
+      <Filter>Assets</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Display.h">
+      <Filter>Device</Filter>
+    </ClInclude>
+    <ClInclude Include="src\InputDevice.h">
+      <Filter>Device</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Mesh.h">
+      <Filter>Rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Keys.h">
+      <Filter>Device</Filter>
+    </ClInclude>
+    <ClInclude Include="src\LightData.h">
+      <Filter>Rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Transform.h">
+      <Filter>Components</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Camera.h">
+      <Filter>Components</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Exports.h">
+      <Filter>Misc</Filter>
     </ClInclude>
     <ClInclude Include="src\pch.h">
       <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="external\Delegates.h">
+      <Filter>Misc</Filter>
+    </ClInclude>
+    <ClInclude Include="src\SafeRelease.hpp">
+      <Filter>Misc</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -246,7 +267,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="external\SimpleMath.inl">
-      <Filter>Файлы заголовков</Filter>
+      <Filter>Math</Filter>
     </None>
   </ItemGroup>
 </Project>

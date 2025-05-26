@@ -220,19 +220,6 @@
 
 		volume->Draw();
 
-		/*for (size_t t = 24; t < 30; t++)
-		{
-			system->DrawSphere(10, Color(255, 0, 0), transform[t].GetWorldMatrix() , 50);
-		}
-
-		system->DrawSphere(1, Color(255, 0, 0), playerTransform.GetWorldMatrix(), 50);
-		system->DrawLine(Vector3(0, 0, 0), Vector3(0, 200, 0), Color(0, 255, 0, 255));
-		system->DrawLine(Vector3(0, 0, 0), Vector3(200, 0, 0), Color(255, 0, 0, 255));
-		system->DrawLine(Vector3(0, 0, 0), Vector3(0, 0, 200), Color(0, 0, 255, 255));
-		
-		system->Draw(deltaTime);*/
-
-		system->Clear();
 		
 		bool qq = false;
 
@@ -263,6 +250,10 @@
 
 
 		context->Draw(3, 0);
+
+		system->Draw(deltaTime);
+
+		system->Clear();
 
 		ImGui_ImplDX11_NewFrame();
 		ImGui_ImplWin32_NewFrame();
