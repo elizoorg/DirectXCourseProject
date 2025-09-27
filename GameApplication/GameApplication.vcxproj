@@ -114,7 +114,7 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>$(OutDir)ClassLibrary1.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <FxCompile>
       <ShaderModel>5.0</ShaderModel>
@@ -191,9 +191,6 @@
     </FxCompile>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\ClassLibrary1\ClassLibrary1.vcxproj">
-      <Project>{c7ee54b8-2712-4749-aa3b-c107afd5c742}</Project>
-    </ProjectReference>
     <ProjectReference Include="..\DirectXCourseProject\DirectXCourseProject.vcxproj">
       <Project>{f6db9764-a12c-4177-9177-8b583e4f777a}</Project>
     </ProjectReference>

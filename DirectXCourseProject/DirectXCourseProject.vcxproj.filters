@@ -123,6 +123,12 @@
     <ClCompile Include="external\Delegates.cpp">
       <Filter>Misc</Filter>
     </ClCompile>
+    <ClCompile Include="AssetManager.cpp">
+      <Filter>Assets</Filter>
+    </ClCompile>
+    <ClCompile Include="Asset.cpp">
+      <Filter>Assets</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Application.h">
@@ -247,6 +253,12 @@
     </ClInclude>
     <ClInclude Include="src\SafeRelease.hpp">
       <Filter>Misc</Filter>
+    </ClInclude>
+    <ClInclude Include="AssetManager.h">
+      <Filter>Assets</Filter>
+    </ClInclude>
+    <ClInclude Include="Asset.h">
+      <Filter>Assets</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

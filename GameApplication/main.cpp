@@ -7,14 +7,8 @@
 
 int main()
 {
-	
-
-	
-
-
 
 	GameApplication app;
-	/*app.triangles = triangles;*/
 	app.Run();
 
 	return 0;

@@ -8,7 +8,7 @@
 
 	GameApplication::GameApplication()
 	{
-		Engine::GameplayInterop::Init();
+
 		instance = this;
 		Device = new InputDevice(this);
 		gBuffer_ = new GBuffer(this);
@@ -17,7 +17,6 @@
 	GameApplication* GameApplication::instance = nullptr;
 	GameApplication::~GameApplication()
 	{
-
 		ImGui_ImplDX11_Shutdown();
 		ImGui_ImplWin32_Shutdown();
 		ImGui::DestroyContext();
@@ -44,6 +43,8 @@
 		IMGUI_CHECKVERSION();
 		ImGui::CreateContext();
 		ImGuiIO& io = ImGui::GetIO();
+		io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;         // Enable Docking
+		io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;       // Enable Multi-Viewport / Platform Windows
 		ImGui_ImplWin32_Init(_display->getHWND());
 		ImGui_ImplDX11_Init(device.Get(), context);
 		ImGui::StyleColorsDark();
@@ -260,6 +261,49 @@
 
 		ImGui::NewFrame();
 
+		static bool dockspaceOpen = true;
+		static bool opt_fullscreen = true;
+		static ImGuiDockNodeFlags dockspace_flags = ImGuiDockNodeFlags_None;
+
+		ImGuiWindowFlags window_flags = ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoDocking;
+		if (opt_fullscreen) {
+			const ImGuiViewport* viewport = ImGui::GetMainViewport();
+			ImGui::SetNextWindowPos(viewport->WorkPos);
+			ImGui::SetNextWindowSize(viewport->WorkSize);
+			ImGui::SetNextWindowViewport(viewport->ID);
+			ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
+			ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
+			window_flags |= ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse |
+				ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove;
+			window_flags |= ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoNavFocus;
+		}
+
+		if (dockspace_flags & ImGuiDockNodeFlags_PassthruCentralNode)
+			window_flags |= ImGuiWindowFlags_NoBackground;
+
+		ImGui::Begin("DockSpace Demo", &dockspaceOpen, window_flags);
+		if (opt_fullscreen)
+			ImGui::PopStyleVar(2);
+
+		// Submit the DockSpace
+		ImGuiIO& io = ImGui::GetIO();
+		if (io.ConfigFlags & ImGuiConfigFlags_DockingEnable) {
+			ImGuiID dockspace_id = ImGui::GetID("MyDockSpace");
+			ImGui::DockSpace(dockspace_id, ImVec2(0.0f, 0.0f), dockspace_flags);
+		}
+
+		// 3. Add menu bar (optional)
+		if (ImGui::BeginMenuBar()) {
+			if (ImGui::BeginMenu("File")) {
+				if (ImGui::MenuItem("Exit")) { /* handle exit */ }
+				ImGui::EndMenu();
+			}
+			ImGui::EndMenuBar();
+		}
+
+		ImGui::Begin("ViewPort");
+		ImGui::Image(postProcessSrv_.Get(), ImVec2(1920, 1080));
+		ImGui::End();
 	
 
 		ImGui::Begin("Testestestestestestest");
@@ -316,9 +360,19 @@
 
 
 		ImGui::End();
+		ImGui::End();
 		ImGui::Render();
 
 		ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
+
+
+		if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable) {
+		
+			ImGui::UpdatePlatformWindows();
+			ImGui::RenderPlatformWindowsDefault();
+
+		}
+
 
 	}
 

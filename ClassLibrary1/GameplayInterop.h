@@ -15,6 +15,9 @@ namespace Engine
 	{
 	public:
 		static void Init();
+		static void Init(void* a, void* b, void* c);
 	};
+
+
 
 }
